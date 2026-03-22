@@ -216,27 +216,8 @@ select:focus { border-color: var(--accent); }
 .chart-card:hover { box-shadow: var(--shadow-md); }
 .chart-card h4 { font-size: .82rem; font-weight: 600; color: var(--fg-1); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .chart-card h4 .dot { width: 8px; height: 8px; border-radius: 50%; }
-.chart-card canvas { width: 100%; border-radius: var(--radius-sm); background: var(--bg-0); }
+.chart-card .js-plotly-plot { width: 100%; border-radius: var(--radius-sm); }
 .chart-card.wide { grid-column: 1 / -1; }
-
-/* Fig. 5 — HTML bar chart */
-.types-chart { background: var(--bg-0); border-radius: var(--radius-sm); padding: 14px 16px; }
-.types-title { font-size: .72rem; font-weight: 600; color: var(--fg-1); margin-bottom: 6px; }
-.types-sep { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
-.types-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-.types-bar-track { flex: 1; height: 16px; background: var(--bg-2); border-radius: 3px; overflow: hidden; position: relative; }
-.types-bar-fill { height: 100%; border-radius: 3px; opacity: .7; min-width: 4px; }
-.types-bar-label { font-size: .7rem; color: var(--fg-2); white-space: nowrap; min-width: 70px; }
-.types-bar-pct { font-size: .7rem; font-family: 'JetBrains Mono', monospace; color: var(--fg-3); min-width: 32px; text-align: right; }
-.types-note { font-size: .65rem; color: var(--fg-3); margin-top: 8px; }
-
-/* Fig. 6 — HTML legend + note below canvas */
-.regions-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 6px 4px 0; }
-.regions-legend-item { display: flex; align-items: center; gap: 5px; font-size: .68rem; color: var(--fg-2); }
-.regions-legend-item .swatch { width: 14px; height: 8px; border-radius: 2px; opacity: .5; }
-.regions-legend-item .line { width: 14px; height: 0; border-top: 2px solid; opacity: .6; }
-.regions-legend-item .line.dashed { border-top-style: dashed; }
-.chart-note { font-size: .65rem; color: var(--fg-3); margin-top: 4px; padding: 0 4px; }
 
 /* Game log */
 .log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; }

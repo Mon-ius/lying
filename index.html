@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
 </head>
@@ -156,12 +157,12 @@
 
   <!-- Charts -->
   <div class="chart-grid">
-    <div class="chart-card"><h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Fig. 1 &mdash; Utility Parameter Distributions</span></h4><canvas id="c-params" height="420"></canvas></div>
-    <div class="chart-card"><h4><span class="dot" style="background:var(--accent)"></span><span data-i18n="chart.joint">Fig. 2 &mdash; Joint (c<sub>l</sub>,&thinsp;c<sub>d</sub>) Distribution</span></h4><canvas id="c-joint" height="300"></canvas></div>
-    <div class="chart-card"><h4><span class="dot" style="background:#1e40af"></span><span data-i18n="chart.stratbt">Fig. 3 &mdash; Strategy Distribution &mdash; BT</span></h4><canvas id="c-strat-bt" height="290"></canvas></div>
-    <div class="chart-card"><h4><span class="dot" style="background:#991b1b"></span><span data-i18n="chart.stratgl">Fig. 4 &mdash; Strategy Distribution &mdash; GL</span></h4><canvas id="c-strat-gl" height="290"></canvas></div>
-    <div class="chart-card"><h4><span class="dot" style="background:var(--teal)"></span><span data-i18n="chart.types">Fig. 5 &mdash; Agent Type Proportions</span></h4><div id="types-chart" class="types-chart"></div></div>
-    <div class="chart-card"><h4><span class="dot" style="background:var(--amber)"></span><span data-i18n="chart.regions">Fig. 6 &mdash; Equilibrium Regions (c<sub>l</sub> vs c<sub>d</sub>)</span></h4><canvas id="c-regions" height="280"></canvas><div id="regions-legend" class="regions-legend"></div><p class="chart-note">Props. 3 &amp; 4 &middot; Solid = full/partial &middot; Dashed = partial/none</p></div>
+    <div class="chart-card"><h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Fig. 1 &mdash; Utility Parameter Distributions</span></h4><div id="c-params"></div></div>
+    <div class="chart-card"><h4><span class="dot" style="background:var(--accent)"></span><span data-i18n="chart.joint">Fig. 2 &mdash; Joint (c<sub>l</sub>,&thinsp;c<sub>d</sub>) Distribution</span></h4><div id="c-joint"></div></div>
+    <div class="chart-card"><h4><span class="dot" style="background:#1e40af"></span><span data-i18n="chart.stratbt">Fig. 3 &mdash; Strategy Distribution &mdash; BT</span></h4><div id="c-strat-bt"></div></div>
+    <div class="chart-card"><h4><span class="dot" style="background:#991b1b"></span><span data-i18n="chart.stratgl">Fig. 4 &mdash; Strategy Distribution &mdash; GL</span></h4><div id="c-strat-gl"></div></div>
+    <div class="chart-card"><h4><span class="dot" style="background:var(--teal)"></span><span data-i18n="chart.types">Fig. 5 &mdash; Agent Type Proportions</span></h4><div id="c-types"></div></div>
+    <div class="chart-card"><h4><span class="dot" style="background:var(--amber)"></span><span data-i18n="chart.regions">Fig. 6 &mdash; Equilibrium Regions (c<sub>l</sub> vs c<sub>d</sub>)</span></h4><div id="c-regions"></div></div>
   </div>
 
   <!-- Log -->
