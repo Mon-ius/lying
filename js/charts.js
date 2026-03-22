@@ -100,10 +100,12 @@ function plotJoint(agents) {
     name: nameMap[k] || k,
     marker: { color: CL[k] || '#999', size: 5, opacity: 0.55 },
   }));
+  const allCl = agents.map(a => a.cl), allCd = agents.map(a => a.cd);
+  const axMax = Math.min(Math.max(...allCl, ...allCd) * 1.1, 15);
   const layout = _layout({
-    height: 300,
-    xaxis: { ...(_layout().xaxis), title: 'Lying cost c_l' },
-    yaxis: { ...(_layout().yaxis), title: 'Deception cost c_d' },
+    height: 400,
+    xaxis: { ...(_layout().xaxis), title: 'Lying cost c_l', range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
+    yaxis: { ...(_layout().yaxis), title: 'Deception cost c_d', range: [0, axMax] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     margin: { l: 52, r: 12, t: 8, b: 42 },
   });
