@@ -22,6 +22,9 @@
     <button class="nav-tab" data-tab="glossary" data-i18n="nav.glossary">Glossary</button>
   </div>
   <div class="nav-tools">
+    <button class="mobile-toggle" id="sidebar-toggle" title="Parameters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+    </button>
     <select id="lang-select" title="Language">
       <option value="en">EN</option>
       <option value="zh">&#x4E2D;&#x6587;</option>
@@ -37,6 +40,7 @@
 <div id="tab-experiment" class="tab-content active">
 <div class="app-layout">
 
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
 <!-- Sidebar -->
 <aside class="sidebar">
   <!-- Population -->
@@ -138,6 +142,18 @@
     <div class="kpi"><div class="value" id="st-welfare" style="color:var(--teal)">--</div><div class="label" data-i18n="kpi.welfare">Avg. welfare</div><div class="bar" style="background:var(--teal);"></div></div>
   </div>
 
+  <!-- Export -->
+  <div class="export-row">
+    <button class="btn-export" onclick="exportJSON()" title="Export simulation data as JSON">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span data-i18n="btn.json">Export JSON</span>
+    </button>
+    <button class="btn-export" onclick="exportCSV()" title="Export agent data as CSV">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span data-i18n="btn.csv">Export CSV</span>
+    </button>
+  </div>
+
   <!-- Charts -->
   <div class="chart-grid">
     <div class="chart-card"><h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Utility Parameter Distributions</span></h4><canvas id="c-params" height="420"></canvas></div>
@@ -187,7 +203,7 @@
       <!-- Configuration -->
       <rect x="230" y="10" width="500" height="56" rx="10" fill="url(#gCfg)" stroke="#6c8ebf" stroke-width="1.5" filter="url(#ds)"/>
       <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a5c">Configuration</text>
-      <text x="480" y="48" text-anchor="middle" font-size="10" fill="#4a6a8c">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p&#x2095; &#x00B7; &#x03B5;</text>
+      <text x="480" y="48" text-anchor="middle" font-size="10" fill="#4a6a8c">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p<tspan font-size="7" baseline-shift="sub">b</tspan> &#x00B7; &#x03B5;</text>
 
       <!-- Arrow -->
       <line x1="480" y1="66" x2="480" y2="92" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -195,7 +211,7 @@
       <!-- Population Generation -->
       <rect x="230" y="96" width="500" height="68" rx="10" fill="url(#gPop)" stroke="#82b366" stroke-width="1.5" filter="url(#ds)"/>
       <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#2d5a2d">Population Generation</text>
-      <text x="480" y="134" text-anchor="middle" font-size="10" fill="#4a7a4a">c&#x2097;, c&#x2084; &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
+      <text x="480" y="134" text-anchor="middle" font-size="10" fill="#4a7a4a">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan> &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
       <text x="480" y="148" text-anchor="middle" font-size="10" fill="#4a7a4a">&#x03B1; &#x223C; Composition-based (risk types) &#x00B7; &#x03B2; &#x223C; Normal (altruism)</text>
 
       <!-- Arrows to BT and GL -->
@@ -208,7 +224,7 @@
       <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#7a5a8e">Bad-type Truth-telling</text>
       <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
       <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
-      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Deviation driven by c&#x2084; (deception aversion)</text>
+      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Deviation driven by c<tspan font-size="7" baseline-shift="sub">d</tspan> (deception aversion)</text>
 
       <!-- GL Environment -->
       <rect x="620" y="212" width="280" height="96" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
@@ -216,7 +232,7 @@
       <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#8a7030">Good-type Lying</text>
       <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="#8a7030">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
       <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="#8a7030">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
-      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="#8a7030">Deviation driven by c&#x2097; (lying aversion)</text>
+      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="#8a7030">Deviation driven by c<tspan font-size="7" baseline-shift="sub">l</tspan> (lying aversion)</text>
 
       <!-- Arrows to Belief -->
       <line x1="200" y1="308" x2="200" y2="348" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -242,13 +258,13 @@
       <rect x="60" y="454" width="280" height="72" rx="10" fill="url(#gBT)" stroke="#9673a6" stroke-width="1.5" filter="url(#ds)"/>
       <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#5c3d6e">Strategy (Prop. 3)</text>
       <text x="200" y="492" text-anchor="middle" font-size="10" fill="#7a5a8e">v = P(m=1 | &#x03B8;=0)</text>
-      <text x="200" y="508" text-anchor="middle" font-size="10" fill="#7a5a8e">max EU&#x1D43; = EU &#x2212; c&#x2097;&#x00B7;1{lie} &#x2212; c&#x2084;&#x00B7;D</text>
+      <text x="200" y="508" text-anchor="middle" font-size="10" fill="#7a5a8e">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
       <!-- GL Strategy -->
       <rect x="620" y="454" width="280" height="72" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
       <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#6e5a20">Strategy (Prop. 4)</text>
       <text x="760" y="492" text-anchor="middle" font-size="10" fill="#8a7030">w = P(m=0 | &#x03B8;=1)</text>
-      <text x="760" y="508" text-anchor="middle" font-size="10" fill="#8a7030">max EU&#x1D43; = EU &#x2212; c&#x2097;&#x00B7;1{lie} &#x2212; c&#x2084;&#x00B7;D</text>
+      <text x="760" y="508" text-anchor="middle" font-size="10" fill="#8a7030">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
       <!-- Arrows to Round Execution -->
       <path d="M200,526 L200,554 L380,554 L380,580" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -286,6 +302,39 @@
       <text x="932" y="492" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Sec 5</text>
       <text x="932" y="504" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">EU&#x1D43;</text>
     </svg>
+  </div>
+  <!-- Key Definitions -->
+  <div class="arch-defs">
+    <div class="arch-def-card">
+      <h4 data-i18n="def.lie.t">Lie (Sobel 2020, Definition 3)</h4>
+      <p data-i18n="def.lie.d">A message <em>m</em> is a <strong>lie</strong> if and only if <em>m</em> &ne; <em>&theta;</em> &mdash; the sender sends a message that does not match the true state of the world.</p>
+      <div class="formula">m &ne; &theta; &rArr; lie</div>
+    </div>
+    <div class="arch-def-card">
+      <h4 data-i18n="def.dec.t">Deception (Sobel 2020, Definition 4)</h4>
+      <p data-i18n="def.dec.d">A message <em>m</em> is <strong>deceptive</strong> if it shifts the receiver's type belief away from truth, compared to the alternative message.</p>
+      <div class="formula">D(m,&theta;) = |&lambda;(m,&theta;) &minus; &lambda;(m&#x207F;,&theta;)| &gt; 0</div>
+    </div>
+    <div class="arch-def-card">
+      <h4 data-i18n="def.eua.t">Augmented Utility (Choi+ 2025, &sect;5)</h4>
+      <p data-i18n="def.eua.d">Agents maximize material payoff minus honesty costs: lying cost (<em>c<sub>l</sub></em>) for literal lies and deception cost (<em>c<sub>d</sub></em>) proportional to belief distortion.</p>
+      <div class="formula">EU&#x1D43; = EU &minus; c<sub>l</sub>&middot;&#x1D7D9;{m&ne;&theta;} &minus; c<sub>d</sub>&middot;D(m,&theta;)</div>
+    </div>
+    <div class="arch-def-card">
+      <h4 data-i18n="def.dt.t">Deceptive Truth-telling (Prop. 1)</h4>
+      <p data-i18n="def.dt.d">In BT, the bad type tells the truth to build reputation. The message is <strong>literally true</strong> (m=&theta;, not a lie) but <strong>deceptive</strong> (shifts type beliefs).</p>
+      <div class="formula">m = &theta; (truth) &and; D &gt; 0 (deceptive)</div>
+    </div>
+    <div class="arch-def-card">
+      <h4 data-i18n="def.ndl.t">Non-deceptive Lying (Prop. 2)</h4>
+      <p data-i18n="def.ndl.d">In GL, the good type lies to reveal type. The message is a <strong>literal lie</strong> (m&ne;&theta;) but <strong>not deceptive</strong> (doesn't distort type beliefs).</p>
+      <div class="formula">m &ne; &theta; (lie) &and; D = 0 (non-deceptive)</div>
+    </div>
+    <div class="arch-def-card">
+      <h4 data-i18n="def.cls.t">Behavioral Classification (Fig. 5)</h4>
+      <p data-i18n="def.cls.d">Agents are classified by equilibrium adherence: <strong>Equilibrium</strong> (both), <strong>Lying-averse</strong> (BT&check; GL&cross;), <strong>Deception-averse</strong> (BT&cross; GL&check;), <strong>Inference error</strong> (neither).</p>
+      <div class="formula">BT &times; GL &rarr; {Eq, LA, DA, IE}</div>
+    </div>
   </div>
 </div>
 </div><!-- /tab-architecture -->

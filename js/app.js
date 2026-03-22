@@ -52,6 +52,17 @@ document.getElementById('lang-select').addEventListener('change', e => applyI18n
   btn.href = 'https://app.diagrams.net/#U' + encodeURIComponent(base + 'architecture.drawio');
 })();
 
+/* ---- Mobile sidebar toggle ---- */
+(function setupSidebar() {
+  const toggle = document.getElementById('sidebar-toggle');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const sidebar = document.querySelector('.sidebar');
+  function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('visible'); }
+  function openSidebar() { sidebar.classList.add('open'); backdrop.classList.add('visible'); }
+  if (toggle) toggle.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
+})();
+
 /* ---- Panel toggle ---- */
 function togglePanel(id) { document.getElementById(id).classList.toggle('collapsed'); }
 
@@ -86,6 +97,50 @@ function updateCompBar() {
 }
 ['s-rl', 's-rn', 's-ra'].forEach(id => document.getElementById(id).addEventListener('input', updateCompBar));
 updateCompBar();
+
+/* ---- Export data ---- */
+function exportJSON() {
+  if (!LA || !LR) return;
+  const data = {
+    agents: LA.map(a => ({
+      id: a.id, cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
+      riskType: a.riskType, classification: a.classification,
+      btStrategy: LR.btS[a.id], glStrategy: LR.glS[a.id],
+    })),
+    results: { bt: LR.bt, gl: LR.gl },
+    params: {
+      n: LA.length, env: document.getElementById('s-env').value,
+      rounds: +document.getElementById('s-rounds').value,
+      ratio: +document.getElementById('s-ratio').value,
+      bp: +document.getElementById('s-bp').value,
+      miscomm: +document.getElementById('s-miscomm').value,
+    },
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'experiment_data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportCSV() {
+  if (!LA || !LR) return;
+  const header = 'id,cl,cd,alpha,beta,riskType,classification,btStrategy,glStrategy';
+  const rows = LA.map(a =>
+    [a.id, a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
+     a.riskType, a.classification,
+     (LR.btS[a.id] ?? '').toString(), (LR.glS[a.id] ?? '').toString()
+    ].join(',')
+  );
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'experiment_agents.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 /* ---- Experiment state ---- */
 let LA = null, LR = null;

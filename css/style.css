@@ -76,16 +76,24 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: v
 .nav-tools select {
   font-family: inherit; font-size: .78rem; font-weight: 500;
   background: var(--bg-2); color: var(--fg-0); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer;
+  border-radius: var(--radius-sm); padding: 0 8px; height: 30px; outline: none; cursor: pointer;
 }
+.mobile-toggle {
+  display: none; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-2); color: var(--fg-1);
+  cursor: pointer; padding: 0; transition: all .2s var(--ease);
+}
+.mobile-toggle:hover { background: var(--bg-3); border-color: var(--accent); }
+.mobile-toggle svg { width: 16px; height: 16px; }
 .theme-btn {
-  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  width: 30px; height: 30px; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--bg-2); color: var(--fg-1);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all .2s var(--ease); padding: 0;
 }
 .theme-btn:hover { background: var(--bg-3); border-color: var(--accent); }
-.theme-btn svg { width: 18px; height: 18px; transition: transform .3s var(--ease); }
+.theme-btn svg { width: 16px; height: 16px; transition: transform .3s var(--ease); }
 .theme-btn:hover svg { transform: rotate(20deg); }
 .theme-btn .sun { display: none; }
 .theme-btn .moon { display: block; }
@@ -279,16 +287,68 @@ select:focus { border-color: var(--accent); }
 .plot-desc .plot-info h4 { font-size: .85rem; font-weight: 600; color: var(--fg-0); margin-bottom: 2px; }
 .plot-desc .plot-info p { font-size: .78rem; color: var(--fg-2); line-height: 1.55; }
 
+/* ================================================================ Export buttons */
+.export-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.btn-export {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; background: var(--bg-2); color: var(--fg-1);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: .78rem; font-weight: 500;
+  cursor: pointer; transition: all .15s var(--ease);
+}
+.btn-export:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-export svg { width: 14px; height: 14px; }
+
+/* ================================================================ Architecture definitions */
+.arch-defs {
+  margin-top: 28px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;
+}
+.arch-def-card {
+  background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow-sm);
+  transition: box-shadow .15s;
+}
+.arch-def-card:hover { box-shadow: var(--shadow-md); }
+.arch-def-card h4 { font-size: .82rem; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+.arch-def-card p { font-size: .78rem; color: var(--fg-2); line-height: 1.55; }
+.arch-def-card .formula {
+  font-family: 'JetBrains Mono', monospace; font-size: .76rem;
+  color: var(--purple); margin-top: 8px; padding: 6px 10px;
+  background: var(--bg-2); border-radius: var(--radius-sm);
+}
+
+/* ================================================================ Sidebar backdrop */
+.sidebar-backdrop { display: none; }
+
 /* ================================================================ Responsive */
 @media (max-width: 1100px) { .chart-grid { grid-template-columns: 1fr; } }
 @media (max-width: 900px) {
   .app-layout { grid-template-columns: 1fr; }
-  .sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: 50vh; }
+  .sidebar {
+    position: fixed; top: 52px; left: 0; bottom: 0; width: 310px;
+    z-index: 90; transform: translateX(-100%);
+    transition: transform .3s var(--ease);
+    border-right: 1px solid var(--border); border-bottom: none;
+    background: var(--bg-1); max-height: none; overflow-y: auto;
+    box-shadow: none;
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+  .sidebar-backdrop.visible {
+    display: block; position: fixed; inset: 0; top: 52px;
+    background: rgba(0,0,0,.35); z-index: 89; cursor: pointer;
+  }
+  .mobile-toggle { display: flex; }
   .kpi-row { grid-template-columns: repeat(3, 1fr); }
   .nav-brand { display: none; }
+  .arch-defs { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 }
 @media (max-width: 550px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
-  .navbar { padding: 0 12px; }
-  .nav-tab { padding: 14px 10px; font-size: .75rem; }
+  .navbar { padding: 0 10px; gap: 8px; }
+  .nav-tab { padding: 14px 8px; font-size: .72rem; }
+  .main-area { padding: 16px 14px 30px; }
+  .arch-wrap { padding: 20px 14px 40px; }
+  .glossary-wrap { padding: 20px 14px 40px; }
+  .arch-defs { grid-template-columns: 1fr; }
 }

@@ -96,7 +96,7 @@ function plotParams(agents) {
   const pad = 20, gap = 28, pw = (w - 2 * pad - gap) / 2, ph = (h - 2 * pad - gap) / 2;
   const items = [
     { k: 'cl',    l: 'c\u2097 (lying cost)',    c: CL.cl },
-    { k: 'cd',    l: 'c\u2084 (deception cost)', c: CL.cd },
+    { k: 'cd',    l: 'c_d (deception cost)', c: CL.cd },
     { k: 'alpha', l: '\u03b1 (risk aversion)',   c: CL.alpha },
     { k: 'beta',  l: '\u03b2 (altruism)',        c: CL.beta },
   ];
@@ -129,7 +129,7 @@ function plotJoint(agents) {
   const cls = agents.map(a => a.cl), cds = agents.map(a => a.cd);
   const mxCl = Math.min(Math.max(...cls) * 1.1, 15), mxCd = Math.min(Math.max(...cds) * 1.1, 15);
   drawGrid(x, pad, pw, ph, 5, 5, t);
-  drawAxes(x, pad, pw, ph, 'Lying cost c\u2097', 'Deception cost c\u2084', t);
+  drawAxes(x, pad, pw, ph, 'Lying cost c\u2097', 'Deception cost c_d', t);
   x.fillStyle = t.txt; x.font = '10px JetBrains Mono,monospace'; x.textAlign = 'center';
   x.fillText('0', pad, pad + ph + 14); x.fillText(mxCl.toFixed(1), pad + pw, pad + ph + 14);
   x.textAlign = 'right'; x.fillText(mxCd.toFixed(1), pad - 4, pad + 6);
@@ -146,7 +146,7 @@ function plotJoint(agents) {
     x.fillStyle = t.txt; x.font = '10px Inter,sans-serif'; x.textAlign = 'right';
     x.fillText(l, pad + pw - 16, pad + 14 + i * 15);
   });
-  drawNote(x, 'High c\u2084 \u2192 deception-averse \u00b7 High c\u2097 \u2192 lying-averse', pad + 2, pad + ph + 28, t);
+  drawNote(x, 'High c_d \u2192 deception-averse \u00b7 High c\u2097 \u2192 lying-averse', pad + 2, pad + ph + 28, t);
 }
 
 /** 3. Strategy distribution — BT or GL histogram with notes */
@@ -187,7 +187,7 @@ function plotStrat(R, gt) {
   if (gt === 'BT') {
     x.fillText('v = P(m=1|\u03b8=0): prob. bad type lies when \u03b8=0', pad + 6, pad + 28);
     x.fillText('Eq. predicts p=1.0 (truth) \u00b7 Dashed = eq. prediction', pad + 6, pad + 40);
-    drawNote(x, 'Prop. 3: deviation driven by c\u2084 (deception aversion)', pad, h - 4, t);
+    drawNote(x, 'Prop. 3: deviation driven by c_d (deception aversion)', pad, h - 4, t);
   } else {
     x.fillText('w = P(m=0|\u03b8=1): prob. good type lies when \u03b8=1', pad + 6, pad + 28);
     x.fillText('Eq. predicts p=0.0 (lie) \u00b7 Dashed = eq. prediction', pad + 6, pad + 40);
@@ -259,7 +259,7 @@ function plotRegions(agents) {
   }
   c.putImageData(id, pad, pad);
   drawGrid(c, pad, pw, ph, 5, 5, t);
-  drawAxes(c, pad, pw, ph, 'Deception cost c\u2084', 'Lying cost c\u2097', t);
+  drawAxes(c, pad, pw, ph, 'Deception cost c_d', 'Lying cost c\u2097', t);
   // Boundary lines
   c.strokeStyle = t.axis; c.lineWidth = 1.5;
   c.beginPath();
