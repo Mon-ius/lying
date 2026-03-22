@@ -41,44 +41,41 @@ const _cfg = { responsive: true, displayModeBar: false };
 /** 1. Utility Parameter Distributions — 2×2 subplots with KDE */
 function plotParams(agents) {
   const items = [
-    { k: 'cl',    l: 'c_l', c: CL.cl },
-    { k: 'cd',    l: 'c_d', c: CL.cd },
-    { k: 'alpha', l: 'α',   c: CL.alpha },
-    { k: 'beta',  l: 'β',   c: CL.beta },
+    { k: 'cl',    l: 'c<sub>l</sub>',  c: CL.cl },
+    { k: 'cd',    l: 'c<sub>d</sub>',  c: CL.cd },
+    { k: 'alpha', l: 'α',              c: CL.alpha },
+    { k: 'beta',  l: 'β',              c: CL.beta },
   ];
-  const traces = items.map((p, i) => ({
-    x: agents.map(a => a[p.k]),
-    type: 'histogram',
-    nbinsx: 22,
-    marker: { color: p.c, opacity: 0.45 },
-    name: p.l,
-    showlegend: false,
-    xaxis: 'x' + (i + 1),
-    yaxis: 'y' + (i + 1),
-  }));
   const dark = _isDark();
   const gc = dark ? '#1e242e' : '#eef0f3';
   const annColor = dark ? '#c9d1d9' : '#3d4250';
-  const annotations = items.map((p, i) => {
+  const traces = [];
+  const annotations = [];
+  items.forEach((p, i) => {
     const vals = agents.map(a => a[p.k]);
     const mu = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
-    const row = Math.floor(i / 2), col = i % 2;
-    return {
+    traces.push({
+      x: vals, type: 'histogram', nbinsx: 22,
+      marker: { color: p.c, opacity: 0.45 },
+      name: p.l, showlegend: false,
+      xaxis: 'x' + (i + 1), yaxis: 'y' + (i + 1),
+    });
+    annotations.push({
       text: `<b>${p.l}</b>  μ=${mu}`,
       xref: 'x' + (i + 1) + ' domain', yref: 'y' + (i + 1) + ' domain',
-      x: 0, y: 1.12, showarrow: false,
+      x: 0, y: 1.08, showarrow: false,
       font: { size: 10, color: annColor },
-    };
+    });
   });
   const layout = _layout({
-    grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.08, ygap: 0.12 },
-    height: 380,
-    margin: { l: 36, r: 12, t: 28, b: 28 },
+    grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.1, ygap: 0.22 },
+    height: 440,
+    margin: { l: 36, r: 12, t: 24, b: 20 },
     annotations,
   });
   for (let i = 1; i <= 4; i++) {
     layout['xaxis' + i] = { gridcolor: gc, zeroline: false };
-    layout['yaxis' + i] = { gridcolor: gc, zeroline: false, title: i % 2 === 1 ? '' : '' };
+    layout['yaxis' + i] = { gridcolor: gc, zeroline: false };
   }
   Plotly.react('c-params', traces, layout, _cfg);
 }
@@ -104,8 +101,8 @@ function plotJoint(agents) {
   const axMax = Math.min(Math.max(...allCl, ...allCd) * 1.1, 15);
   const layout = _layout({
     height: 400,
-    xaxis: { ...(_layout().xaxis), title: 'Lying cost c_l', range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
-    yaxis: { ...(_layout().yaxis), title: 'Deception cost c_d', range: [0, axMax] },
+    xaxis: { ...(_layout().xaxis), title: 'Lying cost c<sub>l</sub>', range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
+    yaxis: { ...(_layout().yaxis), title: 'Deception cost c<sub>d</sub>', range: [0, axMax] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     margin: { l: 52, r: 12, t: 8, b: 42 },
   });
@@ -252,7 +249,7 @@ function plotRegions(agents) {
     type: 'scatter',
     name: nameMap[k] || k,
     marker: { color: CL[k] || '#999', size: 5, opacity: 0.6 },
-    hovertemplate: 'c_d=%{x:.2f}<br>c_l=%{y:.2f}<extra>' + (nameMap[k] || k) + '</extra>',
+    hovertemplate: 'c<sub>d</sub>=%{x:.2f}<br>c<sub>l</sub>=%{y:.2f}<extra>' + (nameMap[k] || k) + '</extra>',
   }));
   // Region legend entries (shapes in legend)
   const regTraces = [
@@ -266,8 +263,8 @@ function plotRegions(agents) {
   }));
   const layout = _layout({
     height: 320,
-    xaxis: { ...(_layout().xaxis), title: 'Deception cost c_d', range: [0, mx] },
-    yaxis: { ...(_layout().yaxis), title: 'Lying cost c_l', range: [0, mx] },
+    xaxis: { ...(_layout().xaxis), title: 'Deception cost c<sub>d</sub>', range: [0, mx] },
+    yaxis: { ...(_layout().yaxis), title: 'Lying cost c<sub>l</sub>', range: [0, mx] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     margin: { l: 48, r: 12, t: 8, b: 36 },
   });
