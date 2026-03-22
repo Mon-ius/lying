@@ -227,18 +227,27 @@ select:focus { border-color: var(--accent); }
   font-size: .7rem; color: var(--fg-3); margin-top: 4px; min-height: 1em;
   font-family: 'JetBrains Mono', monospace;
 }
-.version-toggle {
-  display: flex; gap: 2px; background: var(--bg-2); border-radius: var(--radius-sm);
-  padding: 2px; margin: 12px 0 4px;
+/* Paradigm switch (navbar) */
+.paradigm-switch {
+  display: flex; gap: 2px; background: var(--bg-2); border-radius: 8px;
+  padding: 2px; margin-left: auto;
 }
-.version-btn {
-  flex: 1; padding: 6px 8px; border: none; border-radius: calc(var(--radius-sm) - 2px);
-  background: transparent; color: var(--fg-2); font-family: inherit;
-  font-size: .72rem; font-weight: 600; cursor: pointer; transition: all .15s;
+.paradigm-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border: none; border-radius: 6px;
+  background: transparent; color: var(--fg-3); font-family: inherit;
+  font-size: .72rem; font-weight: 600; cursor: pointer; transition: all .2s var(--ease);
 }
-.version-btn.active {
-  background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm);
+.paradigm-btn:hover { color: var(--fg-1); }
+.paradigm-btn.active { background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm); }
+.paradigm-btn[data-v="v2"].active {
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  color: #fff;
 }
+.paradigm-icon { font-size: .82rem; }
+.paradigm-label { white-space: nowrap; }
+body.mode-ai .navbar { border-bottom-color: var(--purple); }
+body.mode-ai .btn-run { display: none; }
 
 /* ================================================================ Main area */
 .main-area { padding: 22px 26px 40px; overflow-y: auto; }

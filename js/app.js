@@ -146,10 +146,10 @@ function exportCSV() {
 let currentVersion = 'v1';
 function switchVersion(v) {
   currentVersion = v;
-  document.getElementById('vt-v1').classList.toggle('active', v === 'v1');
-  document.getElementById('vt-v2').classList.toggle('active', v === 'v2');
+  document.querySelectorAll('.paradigm-btn').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
   document.getElementById('p-ai').classList.toggle('collapsed', v === 'v1');
+  document.body.classList.toggle('mode-ai', v === 'v2');
 }
 
 /* ---- AI slider display ---- */
