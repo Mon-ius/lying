@@ -193,103 +193,90 @@
     <svg viewBox="0 0 960 820" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--fg-3)"/></marker>
-        <filter id="ds"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity=".08"/></filter>
-        <linearGradient id="gBT" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e1d5e7"/><stop offset="100%" stop-color="#d4c4e0"/></linearGradient>
-        <linearGradient id="gGL" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff2cc"/><stop offset="100%" stop-color="#f5e6a8"/></linearGradient>
-        <linearGradient id="gCfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#dae8fc"/><stop offset="100%" stop-color="#c5dafc"/></linearGradient>
-        <linearGradient id="gPop" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d5e8d4"/><stop offset="100%" stop-color="#bdd8bb"/></linearGradient>
-        <linearGradient id="gBel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8cecc"/><stop offset="100%" stop-color="#f0b8b6"/></linearGradient>
       </defs>
 
       <!-- Configuration -->
-      <rect x="230" y="10" width="500" height="56" rx="10" fill="url(#gCfg)" stroke="#6c8ebf" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a5c">Configuration</text>
-      <text x="480" y="48" text-anchor="middle" font-size="10" fill="#4a6a8c">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p<tspan font-size="7" baseline-shift="sub">b</tspan> &#x00B7; &#x03B5;</text>
+      <rect x="230" y="10" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Configuration</text>
+      <text x="480" y="48" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p<tspan font-size="7" baseline-shift="sub">b</tspan> &#x00B7; &#x03B5;</text>
 
-      <!-- Arrow -->
       <line x1="480" y1="66" x2="480" y2="92" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- Population Generation -->
-      <rect x="230" y="96" width="500" height="68" rx="10" fill="url(#gPop)" stroke="#82b366" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#2d5a2d">Population Generation</text>
-      <text x="480" y="134" text-anchor="middle" font-size="10" fill="#4a7a4a">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan> &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
-      <text x="480" y="148" text-anchor="middle" font-size="10" fill="#4a7a4a">&#x03B1; &#x223C; Composition-based (risk types) &#x00B7; &#x03B2; &#x223C; Normal (altruism)</text>
+      <rect x="230" y="96" width="500" height="68" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
+      <text x="480" y="134" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan> &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
+      <text x="480" y="148" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">&#x03B1; &#x223C; Composition-based (risk types) &#x00B7; &#x03B2; &#x223C; Normal (altruism)</text>
 
-      <!-- Arrows to BT and GL -->
       <path d="M380,164 L380,186 L200,186 L200,208" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
       <path d="M580,164 L580,186 L760,186 L760,208" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- BT Environment -->
-      <rect x="60" y="212" width="280" height="96" rx="10" fill="url(#gBT)" stroke="#9673a6" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="200" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="#5c3d6e">BT Environment</text>
-      <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#7a5a8e">Bad-type Truth-telling</text>
-      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
-      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
-      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Deviation driven by c<tspan font-size="7" baseline-shift="sub">d</tspan> (deception aversion)</text>
+      <rect x="60" y="212" width="280" height="96" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
+      <text x="200" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-bt-t)">BT Environment</text>
+      <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-bt-t)" opacity=".85">Bad-type Truth-telling</text>
+      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
+      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
+      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Deviation driven by c<tspan font-size="7" baseline-shift="sub">d</tspan> (deception aversion)</text>
 
       <!-- GL Environment -->
-      <rect x="620" y="212" width="280" height="96" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="760" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="#6e5a20">GL Environment</text>
-      <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#8a7030">Good-type Lying</text>
-      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="#8a7030">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
-      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="#8a7030">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
-      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="#8a7030">Deviation driven by c<tspan font-size="7" baseline-shift="sub">l</tspan> (lying aversion)</text>
+      <rect x="620" y="212" width="280" height="96" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
+      <text x="760" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-gl-t)">GL Environment</text>
+      <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-gl-t)" opacity=".85">Good-type Lying</text>
+      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
+      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
+      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Deviation driven by c<tspan font-size="7" baseline-shift="sub">l</tspan> (lying aversion)</text>
 
-      <!-- Arrows to Belief -->
       <line x1="200" y1="308" x2="200" y2="348" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
       <line x1="760" y1="308" x2="760" y2="348" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- BT Belief -->
-      <rect x="60" y="352" width="280" height="64" rx="10" fill="url(#gBel)" stroke="#b85450" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="200" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="#6e2a28">Bayesian Belief Update</text>
-      <text x="200" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&#x03BB;(m, &#x03B8;, v) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
-      <text x="200" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&#x03B8; | m]</text>
+      <rect x="60" y="352" width="280" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
+      <text x="200" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)">Bayesian Belief Update</text>
+      <text x="200" y="390" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">&#x03BB;(m, &#x03B8;, v) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
+      <text x="200" y="404" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">Receiver: a(m) = E[&#x03B8; | m]</text>
 
       <!-- GL Belief -->
-      <rect x="620" y="352" width="280" height="64" rx="10" fill="url(#gBel)" stroke="#b85450" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="760" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="#6e2a28">Bayesian Belief Update</text>
-      <text x="760" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&#x03BB;(m, &#x03B8;, w) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
-      <text x="760" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&#x03B8; | m]</text>
+      <rect x="620" y="352" width="280" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
+      <text x="760" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)">Bayesian Belief Update</text>
+      <text x="760" y="390" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">&#x03BB;(m, &#x03B8;, w) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
+      <text x="760" y="404" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">Receiver: a(m) = E[&#x03B8; | m]</text>
 
-      <!-- Arrows to Strategy -->
       <line x1="200" y1="416" x2="200" y2="450" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
       <line x1="760" y1="416" x2="760" y2="450" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- BT Strategy -->
-      <rect x="60" y="454" width="280" height="72" rx="10" fill="url(#gBT)" stroke="#9673a6" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#5c3d6e">Strategy (Prop. 3)</text>
-      <text x="200" y="492" text-anchor="middle" font-size="10" fill="#7a5a8e">v = P(m=1 | &#x03B8;=0)</text>
-      <text x="200" y="508" text-anchor="middle" font-size="10" fill="#7a5a8e">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
+      <rect x="60" y="454" width="280" height="72" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
+      <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bt-t)">Strategy (Prop. 3)</text>
+      <text x="200" y="492" text-anchor="middle" font-size="10" fill="var(--node-bt-t)" opacity=".8">v = P(m=1 | &#x03B8;=0)</text>
+      <text x="200" y="508" text-anchor="middle" font-size="10" fill="var(--node-bt-t)" opacity=".8">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
       <!-- GL Strategy -->
-      <rect x="620" y="454" width="280" height="72" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#6e5a20">Strategy (Prop. 4)</text>
-      <text x="760" y="492" text-anchor="middle" font-size="10" fill="#8a7030">w = P(m=0 | &#x03B8;=1)</text>
-      <text x="760" y="508" text-anchor="middle" font-size="10" fill="#8a7030">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
+      <rect x="620" y="454" width="280" height="72" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
+      <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-gl-t)">Strategy (Prop. 4)</text>
+      <text x="760" y="492" text-anchor="middle" font-size="10" fill="var(--node-gl-t)" opacity=".8">w = P(m=0 | &#x03B8;=1)</text>
+      <text x="760" y="508" text-anchor="middle" font-size="10" fill="var(--node-gl-t)" opacity=".8">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
-      <!-- Arrows to Round Execution -->
       <path d="M200,526 L200,554 L380,554 L380,580" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
       <path d="M760,526 L760,554 L580,554 L580,580" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- Round Execution -->
-      <rect x="230" y="584" width="500" height="72" rx="10" fill="url(#gCfg)" stroke="#6c8ebf" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="480" y="606" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a5c">Round Execution (2-Period Game)</text>
-      <text x="480" y="622" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 1: &#x03B8;&#x2081; &#x2192; m&#x2081; &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
-      <text x="480" y="636" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
+      <rect x="230" y="584" width="500" height="72" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="480" y="606" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
+      <text x="480" y="622" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m&#x2081; &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
+      <text x="480" y="636" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
 
-      <!-- Arrow to Classification -->
       <line x1="480" y1="656" x2="480" y2="688" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- Classification -->
-      <rect x="230" y="692" width="500" height="56" rx="10" fill="url(#gPop)" stroke="#82b366" stroke-width="1.5" filter="url(#ds)"/>
-      <text x="480" y="714" text-anchor="middle" font-size="13" font-weight="700" fill="#2d5a2d">Behavioral Classification (Figure 5)</text>
-      <text x="480" y="732" text-anchor="middle" font-size="10" fill="#4a7a4a">Equilibrium (BT&#x2713; GL&#x2713;) | Lying-averse (BT&#x2713; GL&#x2717;) | Deception-averse (BT&#x2717; GL&#x2713;) | Inf. Error</text>
+      <rect x="230" y="692" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="480" y="714" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification (Figure 5)</text>
+      <text x="480" y="732" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">Equilibrium (BT&#x2713; GL&#x2713;) | Lying-averse (BT&#x2713; GL&#x2717;) | Deception-averse (BT&#x2717; GL&#x2713;) | Inf. Error</text>
 
-      <!-- Arrow to Welfare -->
       <line x1="480" y1="748" x2="480" y2="774" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- Welfare -->
-      <rect x="260" y="778" width="440" height="36" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5" filter="url(#ds)"/>
+      <rect x="260" y="778" width="440" height="36" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
       <text x="480" y="802" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg-1)">Welfare Analysis &amp; Visualization</text>
 
       <!-- Side annotations -->
