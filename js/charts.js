@@ -232,7 +232,7 @@ function plotRegions(agents) {
   c.fillStyle = t.bg; c.fillRect(0, 0, w, h);
   const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad - 18, mx = 5;
   const dark = _isDark();
-  // Region fill via ImageData — theme-aware blending
+  // Region fill via ImageData — stronger alpha for visible regions
   const id = c.createImageData(pw, ph);
   const bc = dark ? [13, 17, 23] : [250, 251, 252];
   const regionColors = [
@@ -240,7 +240,7 @@ function plotRegions(agents) {
     [217, 119, 6],   // amber — partial
     [220, 38, 38],   // red   — no reputation
   ];
-  const alpha = dark ? 0.18 : 0.08;
+  const alpha = dark ? 0.28 : 0.15;
   for (let py = 0; py < ph; py++) {
     for (let px = 0; px < pw; px++) {
       const cd = (px / pw) * mx, cl = (1 - py / ph) * mx;
@@ -257,27 +257,47 @@ function plotRegions(agents) {
   c.putImageData(id, pad, pad);
   drawGrid(c, pad, pw, ph, 5, 5, t);
   drawAxes(c, pad, pw, ph, 'Deception cost c_d', 'Lying cost c_l', t);
-  // Boundary lines
-  c.strokeStyle = t.axis; c.lineWidth = 1.5;
+  // Boundary lines — distinct styling
+  c.lineWidth = 2;
+  c.strokeStyle = dark ? 'rgba(200,210,225,.5)' : 'rgba(50,60,80,.35)';
   c.beginPath();
   for (let i = 0; i <= 100; i++) { const cd = (i / 100) * mx, cl = .8 * cd + .2, px = pad + (cd / mx) * pw, py = pad + (1 - cl / mx) * ph; i ? c.lineTo(px, py) : c.moveTo(px, py); }
   c.stroke();
-  c.setLineDash([5, 4]); c.beginPath();
+  c.setLineDash([6, 5]);
+  c.strokeStyle = dark ? 'rgba(200,210,225,.4)' : 'rgba(50,60,80,.25)';
+  c.beginPath();
   for (let i = 0; i <= 100; i++) { const cd = (i / 100) * mx, cl = .3 * cd, px = pad + (cd / mx) * pw, py = pad + (1 - cl / mx) * ph; i ? c.lineTo(px, py) : c.moveTo(px, py); }
   c.stroke(); c.setLineDash([]);
   // Agent dots
   for (const a of agents) {
     if (a.cl > mx || a.cd > mx) continue;
-    c.fillStyle = CL[a.classification] || '#999'; c.globalAlpha = .55;
-    c.beginPath(); c.arc(pad + (a.cd / mx) * pw, pad + (1 - a.cl / mx) * ph, 3.2, 0, Math.PI * 2); c.fill();
+    c.fillStyle = CL[a.classification] || '#999'; c.globalAlpha = .6;
+    c.beginPath(); c.arc(pad + (a.cd / mx) * pw, pad + (1 - a.cl / mx) * ph, 3.5, 0, Math.PI * 2); c.fill();
   }
   c.globalAlpha = 1;
-  // Region labels
-  const la = dark ? .7 : .55;
-  c.font = '600 11px Inter,sans-serif'; c.textAlign = 'left';
-  c.fillStyle = `rgba(37,99,235,${la})`; c.fillText('Full reputation', pad + 6, pad + 16);
-  c.fillStyle = `rgba(217,119,6,${la})`; c.fillText('Partial', pad + pw * .35, pad + ph * .48);
-  c.fillStyle = `rgba(220,38,38,${la})`; c.fillText('No reputation', pad + pw * .6, pad + ph - .8);
+  // Legend box (top-right, outside data area)
+  const lx = pad + pw - 120, ly = pad + 6;
+  c.fillStyle = dark ? 'rgba(22,27,34,.85)' : 'rgba(255,255,255,.9)';
+  c.strokeStyle = t.grid; c.lineWidth = 1;
+  c.beginPath(); c.roundRect ? c.roundRect(lx - 8, ly - 6, 128, 62, 5) : c.rect(lx - 8, ly - 6, 128, 62); c.fill(); c.stroke();
+  const legItems = [
+    ['Full reputation', [37, 99, 235], false],
+    ['Partial',         [217, 119, 6], false],
+    ['No reputation',   [220, 38, 38], true],
+  ];
+  legItems.forEach(([label, rgb, dashed], i) => {
+    const iy = ly + 6 + i * 18;
+    // Line sample
+    c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2.5; c.globalAlpha = .7;
+    if (dashed) c.setLineDash([4, 3]);
+    c.beginPath(); c.moveTo(lx, iy - 2); c.lineTo(lx + 18, iy - 2); c.stroke();
+    c.setLineDash([]); c.globalAlpha = 1;
+    // Filled square
+    c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 2, iy - 8, 14, 10);
+    // Label
+    c.fillStyle = t.txtB; c.font = '500 10px Inter,sans-serif'; c.textAlign = 'left';
+    c.fillText(label, lx + 24, iy + 1);
+  });
   // Ticks
   c.fillStyle = t.txt; c.font = '10px JetBrains Mono,monospace'; c.textAlign = 'center';
   for (let i = 0; i <= 5; i++) { c.fillText(i.toFixed(0), pad + (i / 5) * pw, pad + ph + 14); c.textAlign = 'right'; c.fillText(i.toFixed(0), pad - 4, pad + ph - (i / 5) * ph + 4); c.textAlign = 'center'; }
