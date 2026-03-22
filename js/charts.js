@@ -212,62 +212,36 @@ function plotStrat(R, gt) {
   }
 }
 
-/** 4. Agent type proportions — dual horizontal bar chart */
+/** 4. Agent type proportions — pure HTML bar chart (no canvas clipping) */
 function plotTypes(agents) {
-  const { x, w, h } = gCtx('c-types'), t = TH(), sc = _sc(w);
-  x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const n = agents.length, pad = sc.pad >= 42 ? 28 : sc.pad >= 32 ? 22 : 16;
+  const el = document.getElementById('types-chart');
+  const n = agents.length;
   const risk = {}, cls = {};
   for (const a of agents) {
     risk[a.riskType] = (risk[a.riskType] || 0) + 1;
     cls[a.classification] = (cls[a.classification] || 0) + 1;
   }
-  const pctW = sc.pad >= 42 ? 42 : 34;
-  const maxW = w - 2 * pad - pctW;
-  const barH = sc.pad >= 42 ? 18 : sc.pad >= 32 ? 16 : 14;
-  const barGap = sc.pad >= 42 ? 6 : 4;
-  const drawSection = (data, y0, title) => {
-    x.fillStyle = t.txtB; x.font = `600 ${sc.fsB}px Inter,sans-serif`; x.textAlign = 'left';
-    x.fillText(title, pad, y0);
+  const mkSection = (data, title) => {
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-    entries.forEach(([k, v], i) => {
-      const pct = v / n, bw = pct * maxW, by = y0 + sc.fsB + 2 + i * (barH + barGap);
-      x.fillStyle = t.grid;
-      x.beginPath(); x.roundRect ? x.roundRect(pad, by, maxW, barH, 3) : x.rect(pad, by, maxW, barH); x.fill();
-      x.fillStyle = CL[k] || '#888'; x.globalAlpha = .7;
-      x.beginPath(); x.roundRect ? x.roundRect(pad, by, Math.max(bw, 4), barH, 3) : x.rect(pad, by, Math.max(bw, 4), barH); x.fill();
-      x.globalAlpha = 1;
-      // Label inside or after bar
+    return `<div class="types-title">${title}</div>` + entries.map(([k, v]) => {
+      const pct = (v / n * 100).toFixed(0);
+      const color = CL[k] || '#888';
       const label = k.replace(/_/g, ' ');
-      x.fillStyle = t.txtB; x.font = `500 ${sc.fsSm}px Inter,sans-serif`; x.textAlign = 'left';
-      x.fillText(label, pad + Math.max(bw, 4) + 4, by + barH - 3);
-      // Percentage right-aligned
-      x.fillStyle = t.txt; x.font = `600 ${sc.mono}px JetBrains Mono,monospace`; x.textAlign = 'right';
-      x.fillText((pct * 100).toFixed(0) + '%', w - pad, by + barH - 3);
-    });
-    return y0 + sc.fsB + 2 + entries.length * (barH + barGap);
+      return `<div class="types-bar-row"><span class="types-bar-label">${label}</span><div class="types-bar-track"><div class="types-bar-fill" style="width:${pct}%;background:${color}"></div></div><span class="types-bar-pct">${pct}%</span></div>`;
+    }).join('');
   };
-  const endTop = drawSection(risk, pad, 'Risk attitudes (configured)');
-  const sepY = endTop + 4;
-  x.strokeStyle = t.grid; x.lineWidth = 1;
-  x.beginPath(); x.moveTo(pad, sepY); x.lineTo(w - pad, sepY); x.stroke();
-  const clsTitle = sc.pad >= 42 ? 'Behavioral classification (inferred, Fig. 5)' : 'Classification (Fig. 5)';
-  const endBot = drawSection(cls, sepY + 6, clsTitle);
-  // Note only if there's room (at least 12px below last bar)
-  if (h - endBot > 12) {
-    drawNote(x, 'Top = input \u00b7 Bottom = observed classification', pad, h - 4, t, sc);
-  }
+  el.innerHTML = mkSection(risk, 'Risk attitudes (configured)')
+    + '<hr class="types-sep">'
+    + mkSection(cls, 'Behavioral classification (inferred, Fig. 5)')
+    + '<p class="types-note">Top = input \u00b7 Bottom = observed classification</p>';
 }
 
-/** 5. Equilibrium regions — heatmap in (c_d, c_l) space */
+/** 5. Equilibrium regions — heatmap in (c_d, c_l) space; legend/note in HTML */
 function plotRegions(agents) {
   const { x: c, w, h } = gCtx('c-regions'), t = TH(), sc = _sc(w);
   c.fillStyle = t.bg; c.fillRect(0, 0, w, h);
-  const pad = sc.pad, isMob = sc.pad < 42;
-  const legFs = sc.fsSm, legLine = legFs + 6;
-  const legH = legLine * 3 + 10;
-  const extraBot = isMob ? legH + 2 : 0;
-  const pw = w - 2 * pad, ph = h - 2 * pad - sc.fsSm - 10 - extraBot, mx = 5;
+  const pad = sc.pad;
+  const pw = w - 2 * pad, ph = h - 2 * pad, mx = 5;
   const dark = _isDark();
   // Region fill via ImageData
   const id = c.createImageData(pw, ph);
@@ -289,9 +263,13 @@ function plotRegions(agents) {
   }
   c.putImageData(id, pad, pad);
   drawGrid(c, pad, pw, ph, 5, 5, t);
-  const yLbl = sc.pad >= 42 ? 'Lying cost c_l' : 'c_l';
-  const xLbl = sc.pad >= 42 ? 'Deception cost c_d' : 'c_d';
-  drawAxes(c, pad, pw, ph, xLbl, yLbl, t, sc);
+  // Axes: labels drawn inside canvas edges
+  c.fillStyle = t.txt; c.font = `500 ${sc.fs}px Inter,sans-serif`;
+  c.textAlign = 'center'; c.fillText(sc.pad >= 42 ? 'Deception cost c_d' : 'c_d', pad + pw / 2, h - 2);
+  c.save(); c.translate(sc.yOff, pad + ph / 2); c.rotate(-Math.PI / 2);
+  c.fillText(sc.pad >= 42 ? 'Lying cost c_l' : 'c_l', 0, 0); c.restore();
+  c.strokeStyle = t.axis; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(pad, pad); c.lineTo(pad, pad + ph); c.lineTo(pad + pw, pad + ph); c.stroke();
   // Boundary lines
   c.lineWidth = 2;
   c.strokeStyle = dark ? 'rgba(200,210,225,.5)' : 'rgba(50,60,80,.35)';
@@ -310,52 +288,21 @@ function plotRegions(agents) {
     c.beginPath(); c.arc(pad + (a.cd / mx) * pw, pad + (1 - a.cl / mx) * ph, sc.dot, 0, Math.PI * 2); c.fill();
   }
   c.globalAlpha = 1;
-  // Legend box — on mobile: horizontal below plot; on desktop: top-right inside plot
-  const legItems = [
-    [sc.pad >= 32 ? 'Full reputation' : 'Full rep.', [37, 99, 235], false],
-    ['Partial', [217, 119, 6], false],
-    [sc.pad >= 32 ? 'No reputation' : 'No rep.', [220, 38, 38], true],
-  ];
-  if (isMob) {
-    // Horizontal legend below x-axis labels
-    const ly = pad + ph + sc.mono + 4 + sc.fs + 8;
-    let lx = pad;
-    c.font = `500 ${legFs}px Inter,sans-serif`;
-    legItems.forEach(([label, rgb, dashed]) => {
-      c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2; c.globalAlpha = .7;
-      if (dashed) c.setLineDash([4, 3]);
-      c.beginPath(); c.moveTo(lx, ly); c.lineTo(lx + 12, ly); c.stroke();
-      c.setLineDash([]); c.globalAlpha = 1;
-      c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 1, ly - 4, 10, 7);
-      c.fillStyle = t.txtB; c.textAlign = 'left';
-      c.fillText(label, lx + 16, ly + 3);
-      lx += 16 + c.measureText(label).width + 10;
-    });
-  } else {
-    const legW = 128;
-    const legBoxH = legLine * 3 + 8;
-    const lx = pad + pw - legW + 8, ly = pad + 4;
-    c.fillStyle = dark ? 'rgba(22,27,34,.85)' : 'rgba(255,255,255,.9)';
-    c.strokeStyle = t.grid; c.lineWidth = 1;
-    c.beginPath(); c.roundRect ? c.roundRect(lx - 6, ly - 4, legW, legBoxH, 4) : c.rect(lx - 6, ly - 4, legW, legBoxH); c.fill(); c.stroke();
-    legItems.forEach(([label, rgb, dashed], i) => {
-      const iy = ly + 6 + i * legLine;
-      c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2; c.globalAlpha = .7;
-      if (dashed) c.setLineDash([4, 3]);
-      c.beginPath(); c.moveTo(lx, iy); c.lineTo(lx + 14, iy); c.stroke();
-      c.setLineDash([]); c.globalAlpha = 1;
-      c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 1, iy - 5, 12, 8);
-      c.fillStyle = t.txtB; c.font = `500 ${legFs}px Inter,sans-serif`; c.textAlign = 'left';
-      c.fillText(label, lx + 20, iy + 3);
-    });
-  }
   // Ticks
   c.fillStyle = t.txt; c.font = `${sc.mono}px JetBrains Mono,monospace`; c.textAlign = 'center';
   for (let i = 0; i <= 5; i++) {
     c.fillText(i.toFixed(0), pad + (i / 5) * pw, pad + ph + sc.mono + 4);
     c.textAlign = 'right'; c.fillText(i.toFixed(0), pad - 3, pad + ph - (i / 5) * ph + 4); c.textAlign = 'center';
   }
-  drawNote(c, 'Props. 3 & 4 \u00b7 Solid = full/partial \u00b7 Dashed = partial/none', pad, h - 4, t, sc);
+  // HTML legend
+  const leg = document.getElementById('regions-legend');
+  leg.innerHTML = [
+    ['Full reputation', '37,99,235', ''],
+    ['Partial', '217,119,6', ''],
+    ['No reputation', '220,38,38', ' dashed'],
+  ].map(([label, rgb, cls]) =>
+    `<span class="regions-legend-item"><span class="swatch" style="background:rgb(${rgb})"></span><span class="line${cls}" style="border-color:rgb(${rgb})"></span>${label}</span>`
+  ).join('');
 }
 
 /** Redraw all charts from cached data */
