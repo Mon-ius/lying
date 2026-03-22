@@ -41,10 +41,10 @@ const _cfg = { responsive: true, displayModeBar: false };
 /** 1. Utility Parameter Distributions — 2×2 subplots with KDE */
 function plotParams(agents) {
   const items = [
-    { k: 'cl',    l: 'c_l (lying cost)',      c: CL.cl },
-    { k: 'cd',    l: 'c_d (deception cost)',   c: CL.cd },
-    { k: 'alpha', l: 'α (risk aversion)',      c: CL.alpha },
-    { k: 'beta',  l: 'β (altruism)',           c: CL.beta },
+    { k: 'cl',    l: 'c_l', c: CL.cl },
+    { k: 'cd',    l: 'c_d', c: CL.cd },
+    { k: 'alpha', l: 'α',   c: CL.alpha },
+    { k: 'beta',  l: 'β',   c: CL.beta },
   ];
   const traces = items.map((p, i) => ({
     x: agents.map(a => a[p.k]),
