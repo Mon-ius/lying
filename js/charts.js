@@ -93,9 +93,10 @@ function drawNote(x, text, nx, ny, t) {
 function plotParams(agents) {
   const { x, w, h } = gCtx('c-params'), t = TH();
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const pad = 20, gap = 28, pw = (w - 2 * pad - gap) / 2, ph = (h - 2 * pad - gap) / 2;
+  const pad = 20, gap = 28, noteH = 18;
+  const pw = (w - 2 * pad - gap) / 2, ph = (h - 2 * pad - gap - noteH) / 2;
   const items = [
-    { k: 'cl',    l: 'c\u2097 (lying cost)',    c: CL.cl },
+    { k: 'cl',    l: 'c_l (lying cost)',    c: CL.cl },
     { k: 'cd',    l: 'c_d (deception cost)', c: CL.cd },
     { k: 'alpha', l: '\u03b1 (risk aversion)',   c: CL.alpha },
     { k: 'beta',  l: '\u03b2 (altruism)',        c: CL.beta },
@@ -104,20 +105,16 @@ function plotParams(agents) {
     const col = i % 2, row = Math.floor(i / 2);
     const px = pad + col * (pw + gap), py = pad + row * (ph + gap);
     const data = agents.map(a => a[p.k]);
-    const hh = ph - 30; // leave room for title + tick labels
-    // Draw histogram in translated sub-plot
+    const hh = ph - 30;
     x.save(); x.translate(px, py + 16);
     histogram(x, data, 0, pw, hh, 22, p.c, t, true);
     x.restore();
-    // Title
     x.fillStyle = p.c; x.font = '600 10px Inter,sans-serif'; x.textAlign = 'left';
     x.fillText(p.l, px + 2, py + 10);
-    // Mean
     const m = data.reduce((a, b) => a + b, 0) / data.length;
     x.fillStyle = t.txt; x.font = '10px JetBrains Mono,monospace'; x.textAlign = 'right';
     x.fillText('\u03bc=' + m.toFixed(2), px + pw - 2, py + 10);
   });
-  // Note
   drawNote(x, 'LogNormal draws \u00b7 KDE overlay \u00b7 Histogram+density', pad, h - 4, t);
 }
 
@@ -125,11 +122,11 @@ function plotParams(agents) {
 function plotJoint(agents) {
   const { x, w, h } = gCtx('c-joint'), t = TH();
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad;
+  const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad - 18;
   const cls = agents.map(a => a.cl), cds = agents.map(a => a.cd);
   const mxCl = Math.min(Math.max(...cls) * 1.1, 15), mxCd = Math.min(Math.max(...cds) * 1.1, 15);
   drawGrid(x, pad, pw, ph, 5, 5, t);
-  drawAxes(x, pad, pw, ph, 'Lying cost c\u2097', 'Deception cost c_d', t);
+  drawAxes(x, pad, pw, ph, 'Lying cost c_l', 'Deception cost c_d', t);
   x.fillStyle = t.txt; x.font = '10px JetBrains Mono,monospace'; x.textAlign = 'center';
   x.fillText('0', pad, pad + ph + 14); x.fillText(mxCl.toFixed(1), pad + pw, pad + ph + 14);
   x.textAlign = 'right'; x.fillText(mxCd.toFixed(1), pad - 4, pad + 6);
@@ -146,15 +143,15 @@ function plotJoint(agents) {
     x.fillStyle = t.txt; x.font = '10px Inter,sans-serif'; x.textAlign = 'right';
     x.fillText(l, pad + pw - 16, pad + 14 + i * 15);
   });
-  drawNote(x, 'High c_d \u2192 deception-averse \u00b7 High c\u2097 \u2192 lying-averse', pad + 2, pad + ph + 28, t);
+  drawNote(x, 'High c_d \u2192 deception-averse \u00b7 High c_l \u2192 lying-averse', pad + 2, h - 4, t);
 }
 
-/** 3. Strategy distribution — BT or GL histogram with notes */
+/** 3. Strategy distribution — BT or GL histogram with notes at bottom */
 function plotStrat(R, gt) {
   const cid = gt === 'BT' ? 'c-strat-bt' : 'c-strat-gl';
   const { x, w, h } = gCtx(cid), t = TH();
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad - 20; // reserve bottom for notes
+  const pad = 42, ph = h - pad - 78, pw = w - 2 * pad;
   const strats = gt === 'BT' ? R.btS : R.glS, vals = Object.values(strats);
   if (!vals.length) { x.fillStyle = t.txt; x.textAlign = 'center'; x.fillText('No data', w / 2, h / 2); return; }
   drawGrid(x, pad, pw, ph, 10, 4, t);
@@ -178,20 +175,19 @@ function plotStrat(R, gt) {
   // Tick labels
   x.fillStyle = t.txt; x.font = '10px JetBrains Mono,monospace'; x.textAlign = 'center';
   for (let i = 0; i <= 10; i++) x.fillText((i / 10).toFixed(1), pad + (i / 10) * pw, pad + ph + 14);
-  // Stats
+  // Stats at top-left (clear area, no bars here)
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
   x.fillStyle = t.txtB; x.font = '600 11px Inter,sans-serif'; x.textAlign = 'left';
   x.fillText('\u03bc = ' + avg.toFixed(3), pad + 6, pad + 14);
-  // Variable definition notes
-  x.fillStyle = t.txt; x.font = '500 9px Inter,sans-serif';
+  // All notes BELOW axis label
+  const noteY = pad + ph + 44;
+  x.fillStyle = t.txt; x.font = '500 9px Inter,sans-serif'; x.textAlign = 'left';
   if (gt === 'BT') {
-    x.fillText('v = P(m=1|\u03b8=0): prob. bad type lies when \u03b8=0', pad + 6, pad + 28);
-    x.fillText('Eq. predicts p=1.0 (truth) \u00b7 Dashed = eq. prediction', pad + 6, pad + 40);
-    drawNote(x, 'Prop. 3: deviation driven by c_d (deception aversion)', pad, h - 4, t);
+    x.fillText('v = P(m=1|\u03b8=0) \u00b7 Eq: p=1.0 (truth) \u00b7 Dashed = eq. prediction', pad, noteY);
+    drawNote(x, 'Prop. 3: deviation driven by c_d (deception aversion)', pad, noteY + 14, t);
   } else {
-    x.fillText('w = P(m=0|\u03b8=1): prob. good type lies when \u03b8=1', pad + 6, pad + 28);
-    x.fillText('Eq. predicts p=0.0 (lie) \u00b7 Dashed = eq. prediction', pad + 6, pad + 40);
-    drawNote(x, 'Prop. 4: deviation driven by c\u2097 (lying aversion)', pad, h - 4, t);
+    x.fillText('w = P(m=0|\u03b8=1) \u00b7 Eq: p=0.0 (lie) \u00b7 Dashed = eq. prediction', pad, noteY);
+    drawNote(x, 'Prop. 4: deviation driven by c_l (lying aversion)', pad, noteY + 14, t);
   }
 }
 
@@ -199,7 +195,7 @@ function plotStrat(R, gt) {
 function plotTypes(agents) {
   const { x, w, h } = gCtx('c-types'), t = TH();
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const n = agents.length, pad = 24;
+  const n = agents.length, pad = 24, padBot = 22;
   const risk = {}, cls = {};
   for (const a of agents) {
     risk[a.riskType] = (risk[a.riskType] || 0) + 1;
@@ -209,31 +205,32 @@ function plotTypes(agents) {
     x.fillStyle = t.txtB; x.font = '600 11px Inter,sans-serif'; x.textAlign = 'left';
     x.fillText(title, pad, y0);
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-    const barH = Math.min(22, ht / entries.length - 4), maxW = w - 2 * pad - 130;
+    const barH = Math.min(20, ht / entries.length - 4), maxW = w - 2 * pad - 130;
     entries.forEach(([k, v], i) => {
-      const pct = v / n, bw = pct * maxW, by = y0 + 10 + i * (barH + 5);
+      const pct = v / n, bw = pct * maxW, by = y0 + 10 + i * (barH + 4);
       x.fillStyle = t.grid;
       x.beginPath(); x.roundRect ? x.roundRect(pad, by, maxW, barH, 3) : x.rect(pad, by, maxW, barH); x.fill();
       x.fillStyle = CL[k] || '#888'; x.globalAlpha = .7;
       x.beginPath(); x.roundRect ? x.roundRect(pad, by, bw, barH, 3) : x.rect(pad, by, bw, barH); x.fill();
       x.globalAlpha = 1;
       x.fillStyle = t.txtB; x.font = '500 10px Inter,sans-serif'; x.textAlign = 'left';
-      x.fillText(k.replace(/_/g, ' '), pad + bw + 8, by + barH - 5);
+      x.fillText(k.replace(/_/g, ' '), pad + bw + 8, by + barH - 4);
       x.fillStyle = t.txt; x.font = '600 10px JetBrains Mono,monospace'; x.textAlign = 'right';
-      x.fillText((pct * 100).toFixed(0) + '%', w - pad, by + barH - 5);
+      x.fillText((pct * 100).toFixed(0) + '%', w - pad, by + barH - 4);
     });
   };
-  const half = (h - 2 * pad) / 2 - 8;
+  const usable = h - pad - padBot;
+  const half = usable / 2 - 8;
   drawH(risk, pad + 8, 'Risk attitudes (configured)', half);
   drawH(cls, pad + half + 28, 'Behavioral classification (inferred, Fig. 5)', half);
-  drawNote(x, 'Top = input composition \u00b7 Bottom = observed strategy classification', pad, h - 4, t);
+  drawNote(x, 'Top = input composition \u00b7 Bottom = observed strategy classification', pad, h - 6, t);
 }
 
 /** 5. Equilibrium regions — heatmap in (c_d, c_l) space */
 function plotRegions(agents) {
   const { x: c, w, h } = gCtx('c-regions'), t = TH();
   c.fillStyle = t.bg; c.fillRect(0, 0, w, h);
-  const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad - 16, mx = 5; // reserve bottom for note
+  const pad = 42, pw = w - 2 * pad, ph = h - 2 * pad - 18, mx = 5;
   const dark = _isDark();
   // Region fill via ImageData — theme-aware blending
   const id = c.createImageData(pw, ph);
@@ -259,7 +256,7 @@ function plotRegions(agents) {
   }
   c.putImageData(id, pad, pad);
   drawGrid(c, pad, pw, ph, 5, 5, t);
-  drawAxes(c, pad, pw, ph, 'Deception cost c_d', 'Lying cost c\u2097', t);
+  drawAxes(c, pad, pw, ph, 'Deception cost c_d', 'Lying cost c_l', t);
   // Boundary lines
   c.strokeStyle = t.axis; c.lineWidth = 1.5;
   c.beginPath();
