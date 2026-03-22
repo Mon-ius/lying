@@ -142,6 +142,74 @@ function exportCSV() {
   URL.revokeObjectURL(a.href);
 }
 
+/* ---- Version toggle ---- */
+let currentVersion = 'v1';
+function switchVersion(v) {
+  currentVersion = v;
+  document.getElementById('vt-v1').classList.toggle('active', v === 'v1');
+  document.getElementById('vt-v2').classList.toggle('active', v === 'v2');
+  document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
+  document.getElementById('p-ai').classList.toggle('collapsed', v === 'v1');
+}
+
+/* ---- AI slider display ---- */
+(function() {
+  const el = document.getElementById('s-ai-n');
+  if (el) el.addEventListener('input', () => {
+    document.getElementById('v-ai-n').textContent = el.value;
+  });
+})();
+
+/* ---- Run AI experiment ---- */
+async function runAI() {
+  const apiKey = document.getElementById('s-api-key').value.trim();
+  if (!apiKey) { alert('Please enter your Anthropic API key.'); return; }
+  const model = document.getElementById('s-ai-model').value;
+  const btn = document.getElementById('btn-ai-run');
+  const prog = document.getElementById('ai-progress');
+  btn.classList.add('loading'); btn.disabled = true;
+  prog.textContent = 'Querying agents...';
+  try {
+    const { agents, R, aiLog } = await runAIExperiment(apiKey, model, (done, total) => {
+      prog.textContent = `Querying agents... ${done}/${total}`;
+    });
+    LA = agents; LR = R;
+    const n = agents.length;
+    const C = { equilibrium: 0, lying_averse: 0, deception_averse: 0, inference_error: 0 };
+    for (const a of agents) C[a.classification]++;
+    const pct = k => (C[k] / n * 100).toFixed(0) + '%';
+    document.getElementById('st-eq').textContent = pct('equilibrium');
+    document.getElementById('st-la').textContent = pct('lying_averse');
+    document.getElementById('st-da').textContent = pct('deception_averse');
+    document.getElementById('st-ie').textContent = pct('inference_error');
+    document.querySelectorAll('.kpi').forEach((el, i) => {
+      const bar = el.querySelector('.bar'); if (!bar) return;
+      const vals = [C.equilibrium, C.lying_averse, C.deception_averse, C.inference_error];
+      if (i < 4) bar.style.width = (vals[i] / n * 100) + '%';
+    });
+    const allP = [...R.bt, ...R.gl].map(r => r.sp + r.rp);
+    document.getElementById('st-welfare').textContent = allP.length
+      ? (allP.reduce((a, b) => a + b, 0) / allP.length).toFixed(2) : '--';
+    const env = document.getElementById('s-env').value;
+    plotParams(agents);
+    plotJoint(agents);
+    if (env === 'both' || env === 'BT') plotStrat(R, 'BT');
+    if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
+    plotTypes(agents);
+    plotRegions(agents);
+    // AI log
+    const log = document.getElementById('log');
+    log.innerHTML = aiLog.map(e => {
+      if (e.error) return `<span class="lie">Agent ${e.id} [${e.gt}] ERROR: ${e.error}</span>`;
+      return `<span class="truth">${e.gt}&ensp;Agent ${e.id}&ensp;AI strategy=${e.raw}&ensp;<span class="tag tag-truth">AI</span></span>`;
+    }).join('<br>');
+    prog.textContent = `Done — ${aiLog.filter(e => !e.error).length} AI calls, ${aiLog.filter(e => e.error).length} fallbacks`;
+  } catch (e) {
+    prog.textContent = 'Error: ' + e.message;
+  }
+  btn.classList.remove('loading'); btn.disabled = false;
+}
+
 /* ---- Experiment state ---- */
 let LA = null, LR = null;
 

@@ -126,6 +126,42 @@
     </div>
   </div>
 
+  <!-- AI Agent Mode (V2) -->
+  <div class="panel" id="p-ai">
+    <div class="panel-header" onclick="togglePanel('p-ai')">
+      <span class="icon">&#x1F916;</span><h3>AI Agent Mode</h3><span class="badge-v2">V2</span><span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <div class="form-label">API Key</div>
+        <input type="password" id="s-api-key" placeholder="sk-ant-..." class="input-text" autocomplete="off">
+        <div class="form-hint">Anthropic API key (stored in session only)</div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Model</div>
+        <select id="s-ai-model">
+          <option value="haiku">Haiku 4.5 (fast, low cost)</option>
+          <option value="sonnet">Sonnet 4.5 (higher quality)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">AI Agents <span class="unit" id="v-ai-n">6</span></div>
+        <input type="range" id="s-ai-n" min="2" max="20" step="1" value="6">
+        <div class="form-hint">Each agent makes 1 API call per game type</div>
+      </div>
+      <button class="btn-run btn-ai" id="btn-ai-run" onclick="runAI()">
+        <span class="spinner"></span>
+        <span class="label">Run AI Experiment</span>
+      </button>
+      <div class="ai-progress" id="ai-progress"></div>
+    </div>
+  </div>
+
+  <div class="version-toggle">
+    <button class="version-btn active" id="vt-v1" onclick="switchVersion('v1')">V1 &mdash; Simulated</button>
+    <button class="version-btn" id="vt-v2" onclick="switchVersion('v2')">V2 &mdash; AI Agents</button>
+  </div>
+
   <button class="btn-run" id="btn-run" onclick="runExperiment()">
     <span class="spinner"></span>
     <span class="label" data-i18n="btn.run">Run Experiment</span>
@@ -512,6 +548,7 @@
 <script src="js/engine.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/ai-agent.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

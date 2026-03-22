@@ -207,6 +207,39 @@ select:focus { border-color: var(--accent); }
 .btn-run.loading .label { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* V2 AI Agent panel */
+.badge-v2 {
+  display: inline-block; font-size: .58rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+  padding: 1px 6px; border-radius: 4px; margin-left: auto; margin-right: 4px; letter-spacing: .04em;
+}
+.input-text {
+  font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+  background: var(--bg-2); color: var(--fg-0); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 7px 10px; width: 100%; outline: none; transition: border-color .15s;
+}
+.input-text:focus { border-color: var(--accent); }
+.btn-ai {
+  background: linear-gradient(135deg, var(--purple), var(--accent));
+}
+.btn-ai:hover { filter: brightness(1.1); }
+.ai-progress {
+  font-size: .7rem; color: var(--fg-3); margin-top: 4px; min-height: 1em;
+  font-family: 'JetBrains Mono', monospace;
+}
+.version-toggle {
+  display: flex; gap: 2px; background: var(--bg-2); border-radius: var(--radius-sm);
+  padding: 2px; margin: 12px 0 4px;
+}
+.version-btn {
+  flex: 1; padding: 6px 8px; border: none; border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent; color: var(--fg-2); font-family: inherit;
+  font-size: .72rem; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.version-btn.active {
+  background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm);
+}
+
 /* ================================================================ Main area */
 .main-area { padding: 22px 26px 40px; overflow-y: auto; }
 
