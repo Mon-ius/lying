@@ -130,13 +130,6 @@ function plotStrat(R, gt) {
     showlegend: false,
   }];
   const dark = _isDark();
-  const noteColor = dark ? '#8b949e' : '#6b7080';
-  const note1 = gt === 'BT'
-    ? 'v = P(m=1|θ=0) · Eq: p=1.0 · Dashed = eq.'
-    : 'w = P(m=0|θ=1) · Eq: p=0.0 · Dashed = eq.';
-  const note2 = gt === 'BT'
-    ? 'Prop. 3: deviation driven by c_d'
-    : 'Prop. 4: deviation driven by c_l';
   const layout = _layout({
     height: 260,
     xaxis: { ...(_layout().xaxis), title: 'Truth-telling probability', range: [-0.02, 1.02] },
@@ -148,10 +141,8 @@ function plotStrat(R, gt) {
     }],
     annotations: [
       { text: `μ = ${avg.toFixed(3)}`, xref: 'paper', yref: 'paper', x: 0.02, y: 0.95, showarrow: false, font: { size: 11, color: dark ? '#c9d1d9' : '#3d4250', family: 'JetBrains Mono, monospace' } },
-      { text: note1, xref: 'paper', yref: 'paper', x: 0, y: -0.22, showarrow: false, font: { size: 9, color: noteColor }, xanchor: 'left' },
-      { text: note2, xref: 'paper', yref: 'paper', x: 0, y: -0.32, showarrow: false, font: { size: 9, color: noteColor }, xanchor: 'left' },
     ],
-    margin: { l: 48, r: 12, t: 8, b: 64 },
+    margin: { l: 48, r: 12, t: 8, b: 36 },
   });
   Plotly.react(cid, traces, layout, _cfg);
 }
@@ -273,18 +264,12 @@ function plotRegions(agents) {
     line: { color: r.color, width: 8, dash: r.dash },
     name: r.name,
   }));
-  const noteColor = dark ? '#8b949e' : '#6b7080';
   const layout = _layout({
     height: 320,
     xaxis: { ...(_layout().xaxis), title: 'Deception cost c_d', range: [0, mx] },
     yaxis: { ...(_layout().yaxis), title: 'Lying cost c_l', range: [0, mx] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 48, r: 12, t: 8, b: 56 },
-    annotations: [{
-      text: 'Props. 3 & 4 · Solid = full/partial · Dashed = partial/none',
-      xref: 'paper', yref: 'paper', x: 0, y: -0.2,
-      showarrow: false, font: { size: 9, color: noteColor }, xanchor: 'left',
-    }],
+    margin: { l: 48, r: 12, t: 8, b: 36 },
   });
   Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...regTraces, ...dotTraces], layout, _cfg);
 }
