@@ -346,13 +346,26 @@ select:focus { border-color: var(--accent); }
   .kpi-row { grid-template-columns: repeat(3, 1fr); }
   .nav-brand { display: none; }
   .arch-defs { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .arch-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .arch-svg-container { padding: 12px; }
+  .arch-svg-container svg { width: 100%; min-width: 700px; }
+  .gloss-table th, .gloss-table td { padding: 6px 8px; font-size: .76rem; }
 }
 @media (max-width: 550px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .navbar { padding: 0 10px; gap: 8px; }
   .nav-tab { padding: 14px 8px; font-size: .72rem; }
   .main-area { padding: 16px 14px 30px; }
-  .arch-wrap { padding: 20px 14px 40px; }
-  .glossary-wrap { padding: 20px 14px 40px; }
+  .arch-wrap { padding: 16px 10px 30px; }
+  .glossary-wrap { padding: 16px 10px 30px; }
   .arch-defs { grid-template-columns: 1fr; }
+  .arch-header h2 { font-size: 1.1rem; }
+  .arch-header p { font-size: .75rem; }
+  .arch-svg-container { padding: 8px; }
+  .arch-svg-container svg { min-width: 600px; }
+  .arch-def-card { padding: 12px 14px; }
+  .arch-def-card h4 { font-size: .76rem; }
+  .arch-def-card p { font-size: .72rem; }
+  .arch-def-card .formula { font-size: .7rem; padding: 4px 8px; }
+  .btn-drawio { padding: 6px 12px; font-size: .74rem; }
 }
