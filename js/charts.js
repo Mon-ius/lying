@@ -45,8 +45,10 @@ function drawGrid(x, pad, w, h, nx, ny, t) {
 function drawAxes(x, pad, w, h, xLbl, yLbl, t, sc) {
   x.strokeStyle = t.axis; x.lineWidth = 1;
   x.beginPath(); x.moveTo(pad, pad); x.lineTo(pad, pad + h); x.lineTo(pad + w, pad + h); x.stroke();
+  // x-label: tick offset + font height + gap
+  const xLblY = pad + h + sc.fs + 6 + sc.fs + 4;
   x.fillStyle = t.txt; x.font = `500 ${sc.fs}px Inter,sans-serif`; x.textAlign = 'center';
-  x.fillText(xLbl, pad + w / 2, pad + h + sc.fs * 2 + 8);
+  x.fillText(xLbl, pad + w / 2, xLblY);
   x.save(); x.translate(sc.yOff, pad + h / 2); x.rotate(-Math.PI / 2); x.fillText(yLbl, 0, 0); x.restore();
 }
 
@@ -164,8 +166,12 @@ function plotStrat(R, gt) {
   const { x, w, h } = gCtx(cid), t = TH(), sc = _sc(w);
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
   const pad = sc.pad;
-  const axOff = sc.fs * 2 + 8, noteGap = sc.fsSm + 4;
-  const padBot = axOff + noteGap * 2 + 10;
+  // Layout offsets below axis line: ticks → axis label → note1 → note2
+  const tkOff = sc.fs + 6;              // tick labels
+  const axOff = tkOff + sc.fs + 4;      // axis label below ticks
+  const n1Off = axOff + sc.fsSm + 6;    // note line 1
+  const n2Off = n1Off + sc.fsSm + 4;    // note line 2
+  const padBot = n2Off + 6;
   const ph = h - pad - padBot, pw = w - 2 * pad;
   const strats = gt === 'BT' ? R.btS : R.glS, vals = Object.values(strats);
   if (!vals.length) { x.fillStyle = t.txt; x.textAlign = 'center'; x.fillText('No data', w / 2, h / 2); return; }
@@ -190,20 +196,19 @@ function plotStrat(R, gt) {
   x.beginPath(); x.moveTo(eqX, pad); x.lineTo(eqX, pad + ph); x.stroke(); x.setLineDash([]);
   // Tick labels
   x.fillStyle = t.txt; x.font = `${sc.mono}px JetBrains Mono,monospace`; x.textAlign = 'center';
-  for (let i = 0; i <= sc.ntk; i++) x.fillText((i / sc.ntk).toFixed(1), pad + (i / sc.ntk) * pw, pad + ph + sc.mono + 4);
+  for (let i = 0; i <= sc.ntk; i++) x.fillText((i / sc.ntk).toFixed(1), pad + (i / sc.ntk) * pw, pad + ph + tkOff);
   // Stats at top-left
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
   x.fillStyle = t.txtB; x.font = `600 ${sc.fsB}px Inter,sans-serif`; x.textAlign = 'left';
   x.fillText('\u03bc = ' + avg.toFixed(3), pad + 4, pad + sc.fsB + 2);
-  // Notes BELOW axis label
-  const noteY = pad + ph + axOff + 4;
+  // Notes BELOW axis label — using pre-calculated offsets
   x.fillStyle = t.txt; x.font = `500 ${sc.fsSm}px Inter,sans-serif`; x.textAlign = 'left';
   if (gt === 'BT') {
-    x.fillText('v = P(m=1|\u03b8=0) \u00b7 Eq: p=1.0 \u00b7 Dashed = eq.', pad, noteY);
-    drawNote(x, 'Prop. 3: deviation driven by c_d', pad, noteY + noteGap, t, sc);
+    x.fillText('v = P(m=1|\u03b8=0) \u00b7 Eq: p=1.0 \u00b7 Dashed = eq.', pad, pad + ph + n1Off);
+    drawNote(x, 'Prop. 3: deviation driven by c_d', pad, pad + ph + n2Off, t, sc);
   } else {
-    x.fillText('w = P(m=0|\u03b8=1) \u00b7 Eq: p=0.0 \u00b7 Dashed = eq.', pad, noteY);
-    drawNote(x, 'Prop. 4: deviation driven by c_l', pad, noteY + noteGap, t, sc);
+    x.fillText('w = P(m=0|\u03b8=1) \u00b7 Eq: p=0.0 \u00b7 Dashed = eq.', pad, pad + ph + n1Off);
+    drawNote(x, 'Prop. 4: deviation driven by c_l', pad, pad + ph + n2Off, t, sc);
   }
 }
 
@@ -243,19 +248,26 @@ function plotTypes(agents) {
     return y0 + sc.fsB + 2 + entries.length * (barH + barGap);
   };
   const endTop = drawSection(risk, pad, 'Risk attitudes (configured)');
-  const sepY = endTop + 6;
+  const sepY = endTop + 4;
   x.strokeStyle = t.grid; x.lineWidth = 1;
   x.beginPath(); x.moveTo(pad, sepY); x.lineTo(w - pad, sepY); x.stroke();
   const clsTitle = sc.pad >= 42 ? 'Behavioral classification (inferred, Fig. 5)' : 'Classification (Fig. 5)';
-  drawSection(cls, sepY + 8, clsTitle);
-  drawNote(x, 'Top = input \u00b7 Bottom = observed classification', pad, h - 4, t, sc);
+  const endBot = drawSection(cls, sepY + 6, clsTitle);
+  // Note only if there's room (at least 12px below last bar)
+  if (h - endBot > 12) {
+    drawNote(x, 'Top = input \u00b7 Bottom = observed classification', pad, h - 4, t, sc);
+  }
 }
 
 /** 5. Equilibrium regions — heatmap in (c_d, c_l) space */
 function plotRegions(agents) {
   const { x: c, w, h } = gCtx('c-regions'), t = TH(), sc = _sc(w);
   c.fillStyle = t.bg; c.fillRect(0, 0, w, h);
-  const pad = sc.pad, pw = w - 2 * pad, ph = h - 2 * pad - sc.fsSm - 10, mx = 5;
+  const pad = sc.pad, isMob = sc.pad < 42;
+  const legFs = sc.fsSm, legLine = legFs + 6;
+  const legH = legLine * 3 + 10;
+  const extraBot = isMob ? legH + 2 : 0;
+  const pw = w - 2 * pad, ph = h - 2 * pad - sc.fsSm - 10 - extraBot, mx = 5;
   const dark = _isDark();
   // Region fill via ImageData
   const id = c.createImageData(pw, ph);
@@ -298,30 +310,45 @@ function plotRegions(agents) {
     c.beginPath(); c.arc(pad + (a.cd / mx) * pw, pad + (1 - a.cl / mx) * ph, sc.dot, 0, Math.PI * 2); c.fill();
   }
   c.globalAlpha = 1;
-  // Legend box — responsive size and position
-  const legFs = sc.fsSm;
-  const legLine = legFs + 8;
-  const legW = sc.pad >= 42 ? 128 : sc.pad >= 32 ? 105 : 85;
-  const legH = legLine * 3 + 8;
-  const lx = pad + pw - legW + 8, ly = pad + 4;
-  c.fillStyle = dark ? 'rgba(22,27,34,.85)' : 'rgba(255,255,255,.9)';
-  c.strokeStyle = t.grid; c.lineWidth = 1;
-  c.beginPath(); c.roundRect ? c.roundRect(lx - 6, ly - 4, legW, legH, 4) : c.rect(lx - 6, ly - 4, legW, legH); c.fill(); c.stroke();
+  // Legend box — on mobile: horizontal below plot; on desktop: top-right inside plot
   const legItems = [
     [sc.pad >= 32 ? 'Full reputation' : 'Full rep.', [37, 99, 235], false],
     ['Partial', [217, 119, 6], false],
     [sc.pad >= 32 ? 'No reputation' : 'No rep.', [220, 38, 38], true],
   ];
-  legItems.forEach(([label, rgb, dashed], i) => {
-    const iy = ly + 6 + i * legLine;
-    c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2; c.globalAlpha = .7;
-    if (dashed) c.setLineDash([4, 3]);
-    c.beginPath(); c.moveTo(lx, iy); c.lineTo(lx + 14, iy); c.stroke();
-    c.setLineDash([]); c.globalAlpha = 1;
-    c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 1, iy - 5, 12, 8);
-    c.fillStyle = t.txtB; c.font = `500 ${legFs}px Inter,sans-serif`; c.textAlign = 'left';
-    c.fillText(label, lx + 20, iy + 3);
-  });
+  if (isMob) {
+    // Horizontal legend below x-axis labels
+    const ly = pad + ph + sc.mono + 4 + sc.fs + 8;
+    let lx = pad;
+    c.font = `500 ${legFs}px Inter,sans-serif`;
+    legItems.forEach(([label, rgb, dashed]) => {
+      c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2; c.globalAlpha = .7;
+      if (dashed) c.setLineDash([4, 3]);
+      c.beginPath(); c.moveTo(lx, ly); c.lineTo(lx + 12, ly); c.stroke();
+      c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 1, ly - 4, 10, 7);
+      c.fillStyle = t.txtB; c.textAlign = 'left';
+      c.fillText(label, lx + 16, ly + 3);
+      lx += 16 + c.measureText(label).width + 10;
+    });
+  } else {
+    const legW = 128;
+    const legBoxH = legLine * 3 + 8;
+    const lx = pad + pw - legW + 8, ly = pad + 4;
+    c.fillStyle = dark ? 'rgba(22,27,34,.85)' : 'rgba(255,255,255,.9)';
+    c.strokeStyle = t.grid; c.lineWidth = 1;
+    c.beginPath(); c.roundRect ? c.roundRect(lx - 6, ly - 4, legW, legBoxH, 4) : c.rect(lx - 6, ly - 4, legW, legBoxH); c.fill(); c.stroke();
+    legItems.forEach(([label, rgb, dashed], i) => {
+      const iy = ly + 6 + i * legLine;
+      c.strokeStyle = `rgb(${rgb})`; c.lineWidth = 2; c.globalAlpha = .7;
+      if (dashed) c.setLineDash([4, 3]);
+      c.beginPath(); c.moveTo(lx, iy); c.lineTo(lx + 14, iy); c.stroke();
+      c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = `rgba(${rgb},.3)`; c.fillRect(lx + 1, iy - 5, 12, 8);
+      c.fillStyle = t.txtB; c.font = `500 ${legFs}px Inter,sans-serif`; c.textAlign = 'left';
+      c.fillText(label, lx + 20, iy + 3);
+    });
+  }
   // Ticks
   c.fillStyle = t.txt; c.font = `${sc.mono}px JetBrains Mono,monospace`; c.textAlign = 'center';
   for (let i = 0; i <= 5; i++) {
