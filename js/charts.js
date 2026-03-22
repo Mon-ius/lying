@@ -195,34 +195,46 @@ function plotStrat(R, gt) {
 function plotTypes(agents) {
   const { x, w, h } = gCtx('c-types'), t = TH();
   x.fillStyle = t.bg; x.fillRect(0, 0, w, h);
-  const n = agents.length, pad = 24, padBot = 22;
+  const n = agents.length, pad = 28, noteH = 20;
   const risk = {}, cls = {};
   for (const a of agents) {
     risk[a.riskType] = (risk[a.riskType] || 0) + 1;
     cls[a.classification] = (cls[a.classification] || 0) + 1;
   }
-  const drawH = (data, y0, title, ht) => {
+  const maxW = w - 2 * pad - 80;
+  const drawSection = (data, y0, title) => {
+    // Section title
     x.fillStyle = t.txtB; x.font = '600 11px Inter,sans-serif'; x.textAlign = 'left';
     x.fillText(title, pad, y0);
     const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-    const barH = Math.min(20, ht / entries.length - 4), maxW = w - 2 * pad - 130;
+    const barH = 18, gap = 6;
     entries.forEach(([k, v], i) => {
-      const pct = v / n, bw = pct * maxW, by = y0 + 10 + i * (barH + 4);
+      const pct = v / n, bw = pct * maxW, by = y0 + 12 + i * (barH + gap);
+      // Background track
       x.fillStyle = t.grid;
-      x.beginPath(); x.roundRect ? x.roundRect(pad, by, maxW, barH, 3) : x.rect(pad, by, maxW, barH); x.fill();
+      x.beginPath(); x.roundRect ? x.roundRect(pad, by, maxW, barH, 4) : x.rect(pad, by, maxW, barH); x.fill();
+      // Filled bar
       x.fillStyle = CL[k] || '#888'; x.globalAlpha = .7;
-      x.beginPath(); x.roundRect ? x.roundRect(pad, by, bw, barH, 3) : x.rect(pad, by, bw, barH); x.fill();
+      x.beginPath(); x.roundRect ? x.roundRect(pad, by, Math.max(bw, 4), barH, 4) : x.rect(pad, by, Math.max(bw, 4), barH); x.fill();
       x.globalAlpha = 1;
-      x.fillStyle = t.txtB; x.font = '500 10px Inter,sans-serif'; x.textAlign = 'left';
-      x.fillText(k.replace(/_/g, ' '), pad + bw + 8, by + barH - 4);
+      // Label + percentage on same line, right-aligned
+      const label = k.replace(/_/g, ' ');
+      const pctStr = (pct * 100).toFixed(0) + '%';
       x.fillStyle = t.txt; x.font = '600 10px JetBrains Mono,monospace'; x.textAlign = 'right';
-      x.fillText((pct * 100).toFixed(0) + '%', w - pad, by + barH - 4);
+      x.fillText(pctStr, w - pad, by + barH - 4);
+      x.fillStyle = t.txtB; x.font = '500 10px Inter,sans-serif'; x.textAlign = 'right';
+      x.fillText(label, w - pad - 40, by + barH - 4);
     });
+    return y0 + 12 + entries.length * (barH + gap);
   };
-  const usable = h - pad - padBot;
-  const half = usable / 2 - 8;
-  drawH(risk, pad + 8, 'Risk attitudes (configured)', half);
-  drawH(cls, pad + half + 28, 'Behavioral classification (inferred, Fig. 5)', half);
+  // Draw sections
+  const endTop = drawSection(risk, pad, 'Risk attitudes (configured)');
+  // Separator line
+  const sepY = endTop + 8;
+  x.strokeStyle = t.grid; x.lineWidth = 1;
+  x.beginPath(); x.moveTo(pad, sepY); x.lineTo(w - pad, sepY); x.stroke();
+  drawSection(cls, sepY + 12, 'Behavioral classification (inferred, Fig. 5)');
+  // Note at bottom
   drawNote(x, 'Top = input composition \u00b7 Bottom = observed strategy classification', pad, h - 6, t);
 }
 
