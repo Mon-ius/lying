@@ -6,6 +6,9 @@
 <title>Anatomy of Honesty — Lying &amp; Deception Experiments</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
 <style>
 /* ================================================================
    DESIGN SYSTEM — Modern Scientific Dashboard
@@ -433,7 +436,7 @@ select:focus { border-color: var(--accent); }
 
   <!-- Charts -->
   <div class="chart-grid">
-    <div class="chart-card"><h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Utility Parameter Distributions</span></h4><canvas id="c-params" height="300"></canvas></div>
+    <div class="chart-card"><h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Utility Parameter Distributions</span></h4><canvas id="c-params" height="420"></canvas></div>
     <div class="chart-card"><h4><span class="dot" style="background:var(--accent)"></span><span data-i18n="chart.joint">Joint (c<sub>l</sub>,&thinsp;c<sub>d</sub>) Distribution</span></h4><canvas id="c-joint" height="300"></canvas></div>
     <div class="chart-card"><h4><span class="dot" style="background:#1e40af"></span><span data-i18n="chart.stratbt">Strategy Distribution &mdash; BT</span></h4><canvas id="c-strat-bt" height="260"></canvas></div>
     <div class="chart-card"><h4><span class="dot" style="background:#991b1b"></span><span data-i18n="chart.stratgl">Strategy Distribution &mdash; GL</span></h4><canvas id="c-strat-gl" height="260"></canvas></div>
@@ -609,10 +612,10 @@ select:focus { border-color: var(--accent); }
         <tr><td class="term">x<sub>1</sub>, x<sub>2</sub></td><td>Period weights</td><td data-i18n="g.x12">Weights on period 1 and period 2 payoffs. High x<sub>2</sub>/x<sub>1</sub> ratio creates strong reputation-building incentive.</td></tr>
         <tr><td class="term">p<sub>b</sub></td><td>Behavioral prior</td><td data-i18n="g.pb">Prior probability that the sender is the behavioral (non-strategic) type. Default: 0.5.</td></tr>
         <tr><td class="term">&epsilon;</td><td>Miscommunication rate</td><td data-i18n="g.eps">Probability that a sent message is flipped in transit (0 &rarr; 1 or 1 &rarr; 0). Models information noise.</td></tr>
-        <tr><td class="term">EU<sup>a</sup></td><td>Augmented expected utility</td><td data-i18n="g.eua">EU<sup>a</sup>(m|&theta;) = EU(m|&theta;) &minus; c<sub>l</sub>&middot;&#x1d7d9;{m&ne;&theta;} &minus; c<sub>d</sub>&middot;D(m,&theta;). From Choi et al. (2025) Section 5.</td></tr>
-        <tr><td class="term">D(m,&theta;)</td><td>Deception measure</td><td data-i18n="g.dm">|&lambda;(m,&theta;) &minus; &lambda;(m<sup>n</sup>,&theta;)|. How much the chosen message shifts type beliefs compared to the alternative. From Sobel (2020) Definition 4.</td></tr>
+        <tr><td class="term">$EU^a$</td><td>Augmented expected utility</td><td data-i18n="g.eua">$EU^a(m|\theta) = EU(m|\theta) - c_l \cdot \mathbb{1}\{m \neq \theta\} - c_d \cdot D(m,\theta)$. From Choi et al. (2025) Section 5.</td></tr>
+        <tr><td class="term">$D(m,\theta)$</td><td>Deception measure</td><td data-i18n="g.dm">$|\lambda(m,\theta) - \lambda(m^n,\theta)|$. How much the chosen message shifts type beliefs compared to the alternative. From Sobel (2020) Definition 4.</td></tr>
         <tr><td class="term">KDE</td><td>Kernel Density Estimation</td><td data-i18n="g.kde">Non-parametric method to estimate probability density functions. Used to smooth histograms in the distribution plots.</td></tr>
-        <tr><td class="term">CRRA</td><td>Constant Relative Risk Aversion</td><td data-i18n="g.crra">Utility function u(x) = x<sup>1&minus;&alpha;</sup>/(1&minus;&alpha;). Widely used in behavioral economics.</td></tr>
+        <tr><td class="term">CRRA</td><td>Constant Relative Risk Aversion</td><td data-i18n="g.crra">Utility function $u(x) = \frac{x^{1-\alpha}}{1-\alpha}$. Widely used in behavioral economics.</td></tr>
         <tr><td class="term">Prop. 1</td><td>Deceptive truth-telling</td><td data-i18n="g.p1">In BT, when x<sub>2</sub>/x<sub>1</sub> is large, the bad type tells truth to build reputation. The truth is (a) literally true, (b) deceptive w.r.t. type.</td></tr>
         <tr><td class="term">Prop. 2</td><td>Non-deceptive lying</td><td data-i18n="g.p2">In GL, when x<sub>2</sub>/x<sub>1</sub> is large, the good type lies to reveal type. The lie is (a) literally false, (b) not deceptive w.r.t. type.</td></tr>
         <tr><td class="term">Prop. 3</td><td>BT equilibrium regions</td><td data-i18n="g.p3">Characterizes (c<sub>l</sub>, c<sub>d</sub>)-space: full/partial/no reputation building in BT. Deviation driven by deception aversion (c<sub>d</sub>).</td></tr>
@@ -628,12 +631,12 @@ select:focus { border-color: var(--accent); }
     <table class="gloss-table">
       <thead><tr><th>Expression</th><th>Meaning</th></tr></thead>
       <tbody>
-        <tr><td class="math">U<sub>P</sub> = &minus;&Sigma; x<sub>i</sub>(a<sub>i</sub>&minus;&theta;<sub>i</sub>)&sup2;</td><td data-i18n="m.up">Public/receiver payoff. Quadratic loss from action deviating from true state.</td></tr>
-        <tr><td class="math">U<sub>G</sub> = &minus;&Sigma; x<sub>i</sub>(a<sub>i</sub>&minus;&theta;<sub>i</sub>)&sup2;</td><td data-i18n="m.ug">Good type payoff. Aligned with receiver &mdash; wants accurate actions.</td></tr>
-        <tr><td class="math">U<sub>B</sub> = &minus;&Sigma; x<sub>i</sub>(a<sub>i</sub>&minus;1)&sup2;</td><td data-i18n="m.ub">Bad type payoff. Always prefers actions close to 1 regardless of state.</td></tr>
-        <tr><td class="math">&lambda;(m,&theta;) = Pr(&tau;=G|m,&theta;)</td><td data-i18n="m.lam">Posterior type belief. Updated from prior p<sub>b</sub> using Bayes' rule given message and state.</td></tr>
-        <tr><td class="math">D(m,&theta;) = |&lambda;(m)&minus;&lambda;(m<sup>n</sup>)|</td><td data-i18n="m.dec">Sobel deception measure. Difference in type beliefs between chosen and alternative message.</td></tr>
-        <tr><td class="math">EU<sup>a</sup> = EU &minus; c<sub>l</sub>&middot;&#x1d7d9;{lie} &minus; c<sub>d</sub>&middot;D</td><td data-i18n="m.eua">Augmented utility. Material payoff minus lying cost (if lie) minus deception cost (proportional to D).</td></tr>
+        <tr><td class="math">$U_P = -\sum_i x_i(a_i - \theta_i)^2$</td><td data-i18n="m.up">Public/receiver payoff. Quadratic loss from action deviating from true state.</td></tr>
+        <tr><td class="math">$U_G = -\sum_i x_i(a_i - \theta_i)^2$</td><td data-i18n="m.ug">Good type payoff. Aligned with receiver &mdash; wants accurate actions.</td></tr>
+        <tr><td class="math">$U_B = -\sum_i x_i(a_i - 1)^2$</td><td data-i18n="m.ub">Bad type payoff. Always prefers actions close to 1 regardless of state.</td></tr>
+        <tr><td class="math">$\lambda(m,\theta) = \Pr(\tau{=}G \mid m,\theta)$</td><td data-i18n="m.lam">Posterior type belief. Updated from prior $p_b$ using Bayes' rule given message and state.</td></tr>
+        <tr><td class="math">$D(m,\theta) = |\lambda(m) - \lambda(m^n)|$</td><td data-i18n="m.dec">Sobel deception measure. Difference in type beliefs between chosen and alternative message.</td></tr>
+        <tr><td class="math">$EU^a = EU - c_l \cdot \mathbb{1}\{m \neq \theta\} - c_d \cdot D$</td><td data-i18n="m.eua">Augmented utility. Material payoff minus lying cost (if lie) minus deception cost (proportional to $D$).</td></tr>
       </tbody>
     </table>
   </div>
@@ -983,13 +986,17 @@ function histogram(x,data,pad,w,h,bins,color,t,showKDE){
 
 function plotParams(agents){
   const{x,w,h}=gCtx('c-params'),t=TH();x.fillStyle=t.bg;x.fillRect(0,0,w,h);
-  const pad=16,gap=18,pw=(w-2*pad-gap)/2,ph=(h-2*pad-gap-10)/2;
+  const pad=20,gap=28,pw=(w-2*pad-gap)/2,ph=(h-2*pad-gap)/2;
   [{k:'cl',l:'Lying cost c_l',c:CL.cl},{k:'cd',l:'Deception cost c_d',c:CL.cd},
    {k:'alpha',l:'Risk aversion \u03b1',c:CL.alpha},{k:'beta',l:'Altruism \u03b2',c:CL.beta}]
   .forEach((p,i)=>{
     const col=i%2,row=Math.floor(i/2),px=pad+col*(pw+gap),py=pad+row*(ph+gap);
     const data=agents.map(a=>a[p.k]);
-    histogram(x,data,px,pw,ph-12,22,p.c,t,true);
+    // Translate to sub-plot origin so histogram draws in the correct quadrant
+    x.save();x.translate(px,py+14);
+    histogram(x,data,0,pw,ph-28,22,p.c,t,true);
+    x.restore();
+    // Title and mean label
     x.fillStyle=p.c;x.font='600 10px Inter,sans-serif';x.textAlign='left';
     x.fillText(p.l,px+2,py+10);
     const m=data.reduce((a,b)=>a+b,0)/data.length;
