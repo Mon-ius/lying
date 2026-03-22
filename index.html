@@ -91,12 +91,22 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: v
   border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer;
 }
 .theme-btn {
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--bg-2); color: var(--fg-1);
-  cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-  transition: all .15s var(--ease);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .2s var(--ease); padding: 0;
 }
 .theme-btn:hover { background: var(--bg-3); border-color: var(--accent); }
+.theme-btn svg { width: 18px; height: 18px; transition: transform .3s var(--ease); }
+.theme-btn:hover svg { transform: rotate(20deg); }
+.theme-btn .sun { display: none; }
+.theme-btn .moon { display: block; }
+[data-theme="dark"] .theme-btn .sun { display: block; }
+[data-theme="dark"] .theme-btn .moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] .theme-btn .sun { display: block; }
+  [data-theme="auto"] .theme-btn .moon { display: none; }
+}
 
 /* ================================================================ Tab content */
 .tab-content { display: none; }
@@ -106,7 +116,7 @@ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: v
 .app-layout {
   display: grid; grid-template-columns: 310px 1fr;
   max-width: 1520px; margin: 0 auto;
-  min-height: calc(100vh - 52px - 200px);
+  min-height: calc(100vh - 52px);
 }
 
 /* ================================================================ Sidebar */
@@ -281,18 +291,6 @@ select:focus { border-color: var(--accent); }
 .plot-desc .plot-info h4 { font-size: .85rem; font-weight: 600; color: var(--fg-0); margin-bottom: 2px; }
 .plot-desc .plot-info p { font-size: .78rem; color: var(--fg-2); line-height: 1.55; }
 
-/* ================================================================ Footer */
-.app-footer {
-  background: var(--bg-1); border-top: 1px solid var(--border);
-  padding: 28px 32px 24px; text-align: center;
-}
-.footer-cols { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; margin-bottom: 16px; }
-.footer-col h4 { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); margin-bottom: 6px; }
-.footer-col p, .footer-col a { font-size: .78rem; color: var(--fg-2); line-height: 1.6; }
-.footer-col a { color: var(--accent); text-decoration: none; }
-.footer-col a:hover { text-decoration: underline; }
-.footer-copy { font-size: .7rem; color: var(--fg-3); border-top: 1px solid var(--border); padding-top: 12px; }
-
 /* ================================================================ Responsive */
 @media (max-width: 1100px) { .chart-grid { grid-template-columns: 1fr; } }
 @media (max-width: 900px) {
@@ -324,7 +322,8 @@ select:focus { border-color: var(--accent); }
       <option value="zh">&#x4E2D;&#x6587;</option>
     </select>
     <button class="theme-btn" id="theme-toggle" title="Toggle dark mode">
-      <span id="theme-icon">&#9789;</span>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
   </div>
 </nav>
@@ -483,7 +482,7 @@ select:focus { border-color: var(--accent); }
       <!-- Configuration -->
       <rect x="230" y="10" width="500" height="56" rx="10" fill="url(#gCfg)" stroke="#6c8ebf" stroke-width="1.5" filter="url(#ds)"/>
       <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a5c">Configuration</text>
-      <text x="480" y="48" text-anchor="middle" font-size="10" fill="#4a6a8c">n agents &middot; risk composition &middot; cost distributions &middot; x&#x2082;/x&#x2081; &middot; p_b &middot; &#x3B5;</text>
+      <text x="480" y="48" text-anchor="middle" font-size="10" fill="#4a6a8c">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p&#x2095; &#x00B7; &#x03B5;</text>
 
       <!-- Arrow -->
       <line x1="480" y1="66" x2="480" y2="92" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -491,8 +490,8 @@ select:focus { border-color: var(--accent); }
       <!-- Population Generation -->
       <rect x="230" y="96" width="500" height="68" rx="10" fill="url(#gPop)" stroke="#82b366" stroke-width="1.5" filter="url(#ds)"/>
       <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#2d5a2d">Population Generation</text>
-      <text x="480" y="134" text-anchor="middle" font-size="10" fill="#4a7a4a">c_l, c_d ~ LogNormal(&mu;, &sigma;) via Gaussian copula</text>
-      <text x="480" y="148" text-anchor="middle" font-size="10" fill="#4a7a4a">&alpha; ~ Composition-based (risk types) &middot; &beta; ~ Normal (altruism)</text>
+      <text x="480" y="134" text-anchor="middle" font-size="10" fill="#4a7a4a">c&#x2097;, c&#x2084; &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
+      <text x="480" y="148" text-anchor="middle" font-size="10" fill="#4a7a4a">&#x03B1; &#x223C; Composition-based (risk types) &#x00B7; &#x03B2; &#x223C; Normal (altruism)</text>
 
       <!-- Arrows to BT and GL -->
       <path d="M380,164 L380,186 L200,186 L200,208" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -502,17 +501,17 @@ select:focus { border-color: var(--accent); }
       <rect x="60" y="212" width="280" height="96" rx="10" fill="url(#gBT)" stroke="#9673a6" stroke-width="1.5" filter="url(#ds)"/>
       <text x="200" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="#5c3d6e">BT Environment</text>
       <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#7a5a8e">Bad-type Truth-telling</text>
-      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Strategic = Bad type &middot; Behavioral = truth-teller</text>
-      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Eq: tell truth at &theta;=0 (Prop. 1: deceptive truth)</text>
-      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Deviation driven by c_d (deception aversion)</text>
+      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
+      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
+      <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="#7a5a8e">Deviation driven by c&#x2084; (deception aversion)</text>
 
       <!-- GL Environment -->
       <rect x="620" y="212" width="280" height="96" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
       <text x="760" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="#6e5a20">GL Environment</text>
       <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="#8a7030">Good-type Lying</text>
-      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="#8a7030">Strategic = Good type &middot; Behavioral = always m=1</text>
-      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="#8a7030">Eq: lie at &theta;=1 (Prop. 2: non-deceptive lie)</text>
-      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="#8a7030">Deviation driven by c_l (lying aversion)</text>
+      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="#8a7030">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
+      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="#8a7030">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
+      <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="#8a7030">Deviation driven by c&#x2097; (lying aversion)</text>
 
       <!-- Arrows to Belief -->
       <line x1="200" y1="308" x2="200" y2="348" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -521,14 +520,14 @@ select:focus { border-color: var(--accent); }
       <!-- BT Belief -->
       <rect x="60" y="352" width="280" height="64" rx="10" fill="url(#gBel)" stroke="#b85450" stroke-width="1.5" filter="url(#ds)"/>
       <text x="200" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="#6e2a28">Bayesian Belief Update</text>
-      <text x="200" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&lambda;(m,&theta;,v) = Pr(&tau;=G | m,&theta;)</text>
-      <text x="200" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&theta;|m]</text>
+      <text x="200" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&#x03BB;(m, &#x03B8;, v) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
+      <text x="200" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&#x03B8; | m]</text>
 
       <!-- GL Belief -->
       <rect x="620" y="352" width="280" height="64" rx="10" fill="url(#gBel)" stroke="#b85450" stroke-width="1.5" filter="url(#ds)"/>
       <text x="760" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="#6e2a28">Bayesian Belief Update</text>
-      <text x="760" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&lambda;(m,&theta;,w) = Pr(&tau;=G | m,&theta;)</text>
-      <text x="760" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&theta;|m]</text>
+      <text x="760" y="390" text-anchor="middle" font-size="10" fill="#8a4a48">&#x03BB;(m, &#x03B8;, w) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
+      <text x="760" y="404" text-anchor="middle" font-size="10" fill="#8a4a48">Receiver: a(m) = E[&#x03B8; | m]</text>
 
       <!-- Arrows to Strategy -->
       <line x1="200" y1="416" x2="200" y2="450" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -537,14 +536,14 @@ select:focus { border-color: var(--accent); }
       <!-- BT Strategy -->
       <rect x="60" y="454" width="280" height="72" rx="10" fill="url(#gBT)" stroke="#9673a6" stroke-width="1.5" filter="url(#ds)"/>
       <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#5c3d6e">Strategy (Prop. 3)</text>
-      <text x="200" y="492" text-anchor="middle" font-size="10" fill="#7a5a8e">v = P(m=1 | &theta;=0)</text>
-      <text x="200" y="508" text-anchor="middle" font-size="10" fill="#7a5a8e">max EU&#x1d43;(m|&theta;) = EU &#x2212; c_l&#xb7;&#x1d7d9;{lie} &#x2212; c_d&#xb7;D</text>
+      <text x="200" y="492" text-anchor="middle" font-size="10" fill="#7a5a8e">v = P(m=1 | &#x03B8;=0)</text>
+      <text x="200" y="508" text-anchor="middle" font-size="10" fill="#7a5a8e">max EU&#x1D43; = EU &#x2212; c&#x2097;&#x00B7;1{lie} &#x2212; c&#x2084;&#x00B7;D</text>
 
       <!-- GL Strategy -->
       <rect x="620" y="454" width="280" height="72" rx="10" fill="url(#gGL)" stroke="#d6b656" stroke-width="1.5" filter="url(#ds)"/>
       <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="#6e5a20">Strategy (Prop. 4)</text>
-      <text x="760" y="492" text-anchor="middle" font-size="10" fill="#8a7030">w = P(m=0 | &theta;=1)</text>
-      <text x="760" y="508" text-anchor="middle" font-size="10" fill="#8a7030">max EU&#x1d43;(m|&theta;) = EU &#x2212; c_l&#xb7;&#x1d7d9;{lie} &#x2212; c_d&#xb7;D</text>
+      <text x="760" y="492" text-anchor="middle" font-size="10" fill="#8a7030">w = P(m=0 | &#x03B8;=1)</text>
+      <text x="760" y="508" text-anchor="middle" font-size="10" fill="#8a7030">max EU&#x1D43; = EU &#x2212; c&#x2097;&#x00B7;1{lie} &#x2212; c&#x2084;&#x00B7;D</text>
 
       <!-- Arrows to Round Execution -->
       <path d="M200,526 L200,554 L380,554 L380,580" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -553,8 +552,8 @@ select:focus { border-color: var(--accent); }
       <!-- Round Execution -->
       <rect x="230" y="584" width="500" height="72" rx="10" fill="url(#gCfg)" stroke="#6c8ebf" stroke-width="1.5" filter="url(#ds)"/>
       <text x="480" y="606" text-anchor="middle" font-size="13" font-weight="700" fill="#1a3a5c">Round Execution (2-Period Game)</text>
-      <text x="480" y="622" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 1: &theta;&#x2081; &#x2192; m&#x2081; &#x2192; [&#x3B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
-      <text x="480" y="636" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 2: &theta;&#x2082; &#x2192; myopic play &#x2192; reputation &lambda; &#x2192; a&#x2082;</text>
+      <text x="480" y="622" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 1: &#x03B8;&#x2081; &#x2192; m&#x2081; &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
+      <text x="480" y="636" text-anchor="middle" font-size="10" fill="#4a6a8c">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
 
       <!-- Arrow to Classification -->
       <line x1="480" y1="656" x2="480" y2="688" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -580,7 +579,7 @@ select:focus { border-color: var(--accent); }
       <rect x="908" y="460" width="48" height="60" rx="6" fill="var(--bg-2)" stroke="var(--border)" stroke-width=".5" opacity=".7"/>
       <text x="932" y="480" text-anchor="middle" font-size="8" font-weight="600" fill="var(--fg-3)">Choi+</text>
       <text x="932" y="492" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Sec 5</text>
-      <text x="932" y="504" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">EU&#x1d43;</text>
+      <text x="932" y="504" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">EU&#x1D43;</text>
     </svg>
   </div>
 </div>
@@ -700,30 +699,6 @@ select:focus { border-color: var(--accent); }
 </div>
 </div><!-- /tab-glossary -->
 
-<!-- ============================================================ Footer -->
-<footer class="app-footer">
-  <div class="footer-cols">
-    <div class="footer-col">
-      <h4 data-i18n="gloss.papers">Source Papers</h4>
-      <p>Choi, Lee &amp; Lim (2025) &mdash; <em>The Anatomy of Honesty</em></p>
-      <p>Sobel (2020) &mdash; <em>Lying and Deception in Games</em>, JPE</p>
-    </div>
-    <div class="footer-col">
-      <h4>Key Concepts</h4>
-      <p>BT = Bad-type Truth-telling &middot; GL = Good-type Lying</p>
-      <p>c<sub>l</sub> = Lying cost &middot; c<sub>d</sub> = Deception cost</p>
-      <p>&alpha; = Risk aversion &middot; &beta; = Altruism &middot; &lambda; = Type belief</p>
-    </div>
-    <div class="footer-col">
-      <h4>Links</h4>
-      <p><a href="https://github.com/Mon-ius/lying">GitHub Repository</a></p>
-      <p><a href="architecture.drawio" download>Download Architecture (.drawio)</a></p>
-    </div>
-  </div>
-  <div class="footer-copy">
-    Multi-agent reputation game experiment system &middot; Vanilla JS &middot; No dependencies
-  </div>
-</footer>
 
 <script>
 /* ================================================================
@@ -755,6 +730,7 @@ const I18N = {
     'gloss.title':'Glossary & Reference','gloss.abbr':'Abbreviations & Indices',
     'gloss.math':'Mathematical Notation','gloss.plots':'Plot Descriptions','gloss.papers':'Source Papers',
   },
+  /* --- If adding a new language, copy the en block and translate values --- */
   zh: {
     'header.title':'\u8bda\u5b9e\u7684\u89e3\u5256\u5b66',
     'nav.experiment':'\u5b9e\u9a8c','nav.architecture':'\u67b6\u6784','nav.glossary':'\u672f\u8bed\u8868',
@@ -793,6 +769,10 @@ function applyI18n(lang) {
     const key = el.getAttribute('data-i18n');
     if (dict[key]) el.textContent = dict[key];
   });
+  // Re-render KaTeX after i18n text swap
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});
+  }
 }
 
 document.getElementById('lang-select').addEventListener('change', e => applyI18n(e.target.value));
@@ -809,9 +789,6 @@ function getEffectiveTheme() {
 function applyTheme() {
   const stored = localStorage.getItem(THEME_KEY) || 'auto';
   document.documentElement.setAttribute('data-theme', stored);
-  const icon = document.getElementById('theme-icon');
-  const eff = getEffectiveTheme();
-  icon.textContent = eff === 'dark' ? '\u2600' : '\u263D';
 }
 document.getElementById('theme-toggle').addEventListener('click', () => {
   const cur = localStorage.getItem(THEME_KEY) || 'auto';
