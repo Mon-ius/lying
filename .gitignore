@@ -1,6 +1,4 @@
-__pycache__/
-*.pyc
-output/
-output_composed/
 .DS_Store
 *.pdf
+output/
+output_composed/

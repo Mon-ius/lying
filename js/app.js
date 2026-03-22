@@ -1,0 +1,163 @@
+/**
+ * Application shell — theme, tabs, UI event wiring, experiment orchestration.
+ * Depends on: engine.js, charts.js, i18n.js
+ */
+
+/* ---- Theme management ---- */
+const THEME_KEY = 'theme-pref';
+
+function getEffectiveTheme() {
+  const pref = localStorage.getItem(THEME_KEY) || 'auto';
+  if (pref === 'auto') return window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  return pref;
+}
+
+function applyTheme() {
+  const stored = localStorage.getItem(THEME_KEY) || 'auto';
+  document.documentElement.setAttribute('data-theme', stored);
+}
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const eff = getEffectiveTheme();
+  const next = eff === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme();
+  redrawAll(LA, LR);
+});
+
+window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
+  applyTheme();
+  redrawAll(LA, LR);
+});
+
+applyTheme();
+
+/* ---- Tab navigation ---- */
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---- i18n wiring ---- */
+document.getElementById('lang-select').addEventListener('change', e => applyI18n(e.target.value));
+
+/* ---- draw.io integration ---- */
+(function setupDrawio() {
+  const btn = document.getElementById('btn-drawio');
+  const base = window.location.href.replace(/\/[^/]*$/, '/');
+  btn.href = 'https://app.diagrams.net/#U' + encodeURIComponent(base + 'architecture.drawio');
+})();
+
+/* ---- Panel toggle ---- */
+function togglePanel(id) { document.getElementById(id).classList.toggle('collapsed'); }
+
+/* ---- Slider value display ---- */
+document.querySelectorAll('input[type=range]').forEach(el => {
+  const vid = 'v-' + el.id.slice(2);
+  const upd = () => {
+    const ve = document.getElementById(vid);
+    if (!ve) return;
+    if (['rl', 'rn', 'ra', 'miscomm'].includes(el.id.slice(2))) ve.textContent = el.value + '%';
+    else if (el.id === 's-bp') ve.textContent = parseFloat(el.value).toFixed(2);
+    else if (['cl', 'cd'].includes(el.id.slice(2))) ve.textContent = parseFloat(el.value).toFixed(1);
+    else ve.textContent = el.value;
+  };
+  el.addEventListener('input', upd);
+  upd();
+});
+
+/* ---- Composition bar ---- */
+function updateCompBar() {
+  const rl = +document.getElementById('s-rl').value;
+  const rn = +document.getElementById('s-rn').value;
+  const ra = +document.getElementById('s-ra').value;
+  const total = rl + rn + ra;
+  const bar = document.getElementById('comp-bar');
+  bar.children[0].style.flex = rl;
+  bar.children[1].style.flex = rn;
+  bar.children[2].style.flex = ra;
+  const ct = document.getElementById('comp-total');
+  ct.textContent = '= ' + total + '%';
+  ct.className = 'comp-total ' + (total === 100 ? 'ok' : 'warn');
+}
+['s-rl', 's-rn', 's-ra'].forEach(id => document.getElementById(id).addEventListener('input', updateCompBar));
+updateCompBar();
+
+/* ---- Experiment state ---- */
+let LA = null, LR = null;
+
+/* ---- Run experiment ---- */
+function runExperiment() {
+  const btn = document.getElementById('btn-run');
+  btn.classList.add('loading'); btn.disabled = true;
+  requestAnimationFrame(() => { setTimeout(() => {
+    const n = +document.getElementById('s-n').value;
+    let rl = +document.getElementById('s-rl').value;
+    let rn = +document.getElementById('s-rn').value;
+    let ra = +document.getElementById('s-ra').value;
+    const total = rl + rn + ra;
+    rl = rl / total * 100; rn = rn / total * 100; ra = ra / total * 100;
+    const agents = createPopulation({
+      n, rlPct: rl, rnPct: rn, raPct: ra,
+      clMean: +document.getElementById('s-cl').value,
+      cdMean: +document.getElementById('s-cd').value,
+    });
+    const env = document.getElementById('s-env').value;
+    const rounds = +document.getElementById('s-rounds').value;
+    const ratio = +document.getElementById('s-ratio').value;
+    const bp = +document.getElementById('s-bp').value;
+    const miscomm = +document.getElementById('s-miscomm').value / 100;
+    const R = runSim(agents, { env, rounds, x1: 1, x2: ratio, pb: bp, miscomm, seed: 42 });
+    const C = classify(agents, R);
+    LA = agents; LR = R;
+
+    // KPIs
+    const pct = k => (C[k] / n * 100).toFixed(0) + '%';
+    document.getElementById('st-eq').textContent = pct('equilibrium');
+    document.getElementById('st-la').textContent = pct('lying_averse');
+    document.getElementById('st-da').textContent = pct('deception_averse');
+    document.getElementById('st-ie').textContent = pct('inference_error');
+    document.querySelectorAll('.kpi').forEach((el, i) => {
+      const bar = el.querySelector('.bar'); if (!bar) return;
+      const vals = [C.equilibrium, C.lying_averse, C.deception_averse, C.inference_error];
+      if (i < 4) bar.style.width = (vals[i] / n * 100) + '%';
+    });
+    const allP = [...R.bt, ...R.gl].map(r => r.sp + r.rp);
+    document.getElementById('st-welfare').textContent = allP.length
+      ? (allP.reduce((a, b) => a + b, 0) / allP.length).toFixed(2) : '--';
+
+    // Charts
+    plotParams(agents);
+    plotJoint(agents);
+    if (env === 'both' || env === 'BT') plotStrat(R, 'BT');
+    if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
+    plotTypes(agents);
+    plotRegions(agents);
+
+    // Log
+    const log = document.getElementById('log');
+    const sample = [...R.bt.slice(0, 6), ...R.gl.slice(0, 6)];
+    log.innerHTML = sample.map(r => {
+      const tag = r.isLie ? '<span class="tag tag-lie">LIE</span>' : '<span class="tag tag-truth">TRUTH</span>';
+      const dec = r.isDec ? '&ensp;<span class="tag tag-dec">DECEPTIVE</span>' : '';
+      const mc = r.mc ? '&ensp;<span class="tag tag-mc">MISCOMM</span>' : '';
+      return `<span class="${r.isLie ? 'lie' : 'truth'}">${r.gt}&ensp;Agent ${r.id}&ensp;\u03b8=${r.s1}&ensp;sent=${r.sent}&ensp;rcv=${r.rcv}&ensp;a=${r.a1.toFixed(2)}&ensp;${tag}${dec}${mc}&ensp;payoff=${r.sp.toFixed(2)}</span>`;
+    }).join('<br>');
+
+    btn.classList.remove('loading'); btn.disabled = false;
+  }, 60); });
+}
+
+/* ---- Init ---- */
+window.addEventListener('load', () => {
+  const ls = document.getElementById('lang-select');
+  ls.value = currentLang;
+  applyI18n(currentLang);
+  setTimeout(runExperiment, 200);
+});
+
+window.addEventListener('resize', () => redrawAll(LA, LR));
