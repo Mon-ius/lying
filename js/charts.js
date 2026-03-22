@@ -251,24 +251,14 @@ function plotRegions(agents) {
     marker: { color: CL[k] || '#999', size: 5, opacity: 0.6 },
     hovertemplate: 'c<sub>d</sub>=%{x:.2f}<br>c<sub>l</sub>=%{y:.2f}<extra>' + (nameMap[k] || k) + '</extra>',
   }));
-  // Region legend entries (shapes in legend)
-  const regTraces = [
-    { name: 'Full reputation', color: 'rgba(37,99,235,0.3)', dash: undefined },
-    { name: 'Partial', color: 'rgba(217,119,6,0.3)', dash: undefined },
-    { name: 'No reputation', color: 'rgba(220,38,38,0.3)', dash: 'dash' },
-  ].map(r => ({
-    x: [null], y: [null], mode: 'lines',
-    line: { color: r.color, width: 8, dash: r.dash },
-    name: r.name,
-  }));
   const layout = _layout({
     height: 320,
     xaxis: { ...(_layout().xaxis), title: 'Deception cost c<sub>d</sub>', range: [0, mx] },
     yaxis: { ...(_layout().yaxis), title: 'Lying cost c<sub>l</sub>', range: [0, mx] },
-    legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    showlegend: false,
     margin: { l: 48, r: 12, t: 8, b: 36 },
   });
-  Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...regTraces, ...dotTraces], layout, _cfg);
+  Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
 /** Redraw all charts from cached data */
