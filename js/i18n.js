@@ -145,7 +145,8 @@ const I18N = {
     'ai.addgroup':'+ Add agent group',
     'ai.endpoint':'Endpoint (optional)',
     'btn.airun':'Run AI Experiment',
-    // Chart axis labels
+    // Chart axis / annotation labels
+    'fig1.alpha.src':'Composition-based (risk types)',
     'ax.ttp':'Truth-telling probability',
     'ax.obs':'Observations (%)',
     'ax.cl':'Lying cost c<sub>l</sub>',
@@ -350,6 +351,7 @@ const I18N = {
     'ai.endpoint':'端点 (可选)',
     'btn.airun':'运行 AI 实验',
     // Chart axis labels
+    'fig1.alpha.src':'组合分布(风险类型)',
     'ax.ttp':'说真话概率',
     'ax.obs':'观测值 (%)',
     'ax.cl':'说谎成本 c<sub>l</sub>',
@@ -550,6 +552,7 @@ const I18N = {
     'ai.endpoint':'엔드포인트 (선택)',
     'btn.airun':'AI 실험 실행',
     // Chart axis labels
+    'fig1.alpha.src':'구성 기반(위험 유형)',
     'ax.ttp':'진실 말하기 확률',
     'ax.obs':'관측값 (%)',
     'ax.cl':'거짓말 비용 c<sub>l</sub>',
