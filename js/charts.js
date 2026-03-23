@@ -261,6 +261,11 @@ function plotRegions(agents) {
   Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
+/** Download chart as PNG */
+function downloadChart(id, name) {
+  Plotly.downloadImage(id, { format: 'png', width: 1200, height: 800, filename: name || id });
+}
+
 /** Redraw all charts from cached data */
 function redrawAll(agents, R) {
   if (!agents) return;
