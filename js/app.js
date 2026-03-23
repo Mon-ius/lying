@@ -3,6 +3,21 @@
  * Depends on: engine.js, charts.js, i18n.js
  */
 
+/* ---- Translatable game log ---- */
+function renderLog() {
+  const log = document.getElementById('log');
+  const sample = window._logSample;
+  if (!log || !sample) return;
+  log.innerHTML = sample.map(r => {
+    const tag = r.isLie
+      ? `<span class="tag tag-lie">${t('log.lie')}</span>`
+      : `<span class="tag tag-truth">${t('log.truth')}</span>`;
+    const dec = r.isDec ? `&ensp;<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
+    const mc = r.mc ? `&ensp;<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
+    return `<span class="${r.isLie ? 'lie' : 'truth'}">${r.gt}&ensp;${t('log.agent')} ${r.id}&ensp;\u03b8=${r.s1}&ensp;${t('log.sent')}=${r.sent}&ensp;${t('log.rcv')}=${r.rcv}&ensp;a=${r.a1.toFixed(2)}&ensp;${tag}${dec}${mc}&ensp;${t('log.payoff')}=${r.sp.toFixed(2)}</span>`;
+  }).join('<br>');
+}
+
 /* ---- Theme management ---- */
 const THEME_KEY = 'theme-pref';
 
@@ -284,14 +299,8 @@ function runExperiment() {
     plotRegions(agents);
 
     // Log
-    const log = document.getElementById('log');
-    const sample = [...R.bt.slice(0, 6), ...R.gl.slice(0, 6)];
-    log.innerHTML = sample.map(r => {
-      const tag = r.isLie ? '<span class="tag tag-lie">LIE</span>' : '<span class="tag tag-truth">TRUTH</span>';
-      const dec = r.isDec ? '&ensp;<span class="tag tag-dec">DECEPTIVE</span>' : '';
-      const mc = r.mc ? '&ensp;<span class="tag tag-mc">MISCOMM</span>' : '';
-      return `<span class="${r.isLie ? 'lie' : 'truth'}">${r.gt}&ensp;Agent ${r.id}&ensp;\u03b8=${r.s1}&ensp;sent=${r.sent}&ensp;rcv=${r.rcv}&ensp;a=${r.a1.toFixed(2)}&ensp;${tag}${dec}${mc}&ensp;payoff=${r.sp.toFixed(2)}</span>`;
-    }).join('<br>');
+    window._logSample = [...R.bt.slice(0, 6), ...R.gl.slice(0, 6)];
+    renderLog();
 
     btn.classList.remove('loading'); btn.disabled = false;
   }, 60); });

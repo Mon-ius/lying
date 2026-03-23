@@ -27,11 +27,11 @@
     <div class="paradigm-switch" id="paradigm-switch">
       <button class="paradigm-btn active" data-v="v1" onclick="switchVersion('v1')">
         <span class="paradigm-icon">&#x03A3;</span>
-        <span class="paradigm-label">V1 Math</span>
+        <span class="paradigm-label" data-i18n="v1.label">V1 Math</span>
       </button>
       <button class="paradigm-btn" data-v="v2" onclick="switchVersion('v2')">
         <span class="paradigm-icon">&#x1F916;</span>
-        <span class="paradigm-label">V2 AI</span>
+        <span class="paradigm-label" data-i18n="v2.label">V2 AI</span>
       </button>
     </div>
     <div class="nav-tools">
@@ -270,7 +270,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Fig. 1 &mdash; Utility Parameter Distributions</span><button class="chart-dl" onclick="downloadChart('c-params','fig1-utility-params')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-params"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.params">
         <b>Note.</b> Marginal distributions of the four <strong>augmented-utility</strong> parameters (Choi, Lee &amp; Lim 2025, &sect;5).
         <br><strong>c<sub>l</sub></strong>&thinsp;: lying cost &mdash; penalises <strong>literal lies</strong> (m&thinsp;&ne;&thinsp;&theta;, Sobel Def.&thinsp;3).
         <br><strong>c<sub>d</sub></strong>&thinsp;: deception cost &mdash; penalises <strong>belief distortion</strong> (Sobel Def.&thinsp;4).
@@ -282,7 +282,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:var(--accent)"></span><span data-i18n="chart.joint">Fig. 2 &mdash; Joint (c<sub>l</sub>,&thinsp;c<sub>d</sub>) Distribution</span><button class="chart-dl" onclick="downloadChart('c-joint','fig2-joint-cl-cd')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-joint"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.joint">
         <b>Note.</b> Joint scatter of <strong>c<sub>l</sub></strong> and <strong>c<sub>d</sub></strong> per agent, coloured by behavioural classification (Fig.&thinsp;5 taxonomy).
         <br>High c<sub>l</sub> &rarr; <strong>lying-averse</strong> (deviates from GL equilibrium).
         <br>High c<sub>d</sub> &rarr; <strong>deception-averse</strong> (deviates from BT equilibrium).
@@ -292,7 +292,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:#1e40af"></span><span data-i18n="chart.stratbt">Fig. 3 &mdash; Strategy Distribution &mdash; BT</span><button class="chart-dl" onclick="downloadChart('c-strat-bt','fig3-strategy-bt')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-strat-bt"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.stratbt">
         <b>Note.</b> <strong>Bad-type truth-telling game</strong> (BT).
         <br>The bad type (&theta;&thinsp;=&thinsp;0) sends m&thinsp;=&thinsp;&theta; with probability <strong>v&thinsp;=&thinsp;P(m=1|&theta;=0)</strong>.
         <br>Unique equilibrium: <strong>v*&thinsp;=&thinsp;1</strong> (dashed line) &mdash; the bad type always tells the truth.
@@ -303,7 +303,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:#991b1b"></span><span data-i18n="chart.stratgl">Fig. 4 &mdash; Strategy Distribution &mdash; GL</span><button class="chart-dl" onclick="downloadChart('c-strat-gl','fig4-strategy-gl')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-strat-gl"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.stratgl">
         <b>Note.</b> <strong>Good-type lying game</strong> (GL).
         <br>The good type (&theta;&thinsp;=&thinsp;1) sends m&thinsp;=&thinsp;0 with probability <strong>w&thinsp;=&thinsp;P(m=0|&theta;=1)</strong>.
         <br>Unique equilibrium: <strong>w*&thinsp;=&thinsp;0</strong> (dashed line) &mdash; the good type lies to reveal its type.
@@ -314,7 +314,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:var(--teal)"></span><span data-i18n="chart.types">Fig. 5 &mdash; Agent Type Proportions</span><button class="chart-dl" onclick="downloadChart('c-types','fig5-agent-types')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-types"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.types">
         <b>Note.</b> Behavioural classification per the Fig.&thinsp;5 taxonomy in Choi+ 2025.
         <br><strong>Top section</strong> &mdash; configured risk-attitude composition (&alpha;&thinsp;&lt;&thinsp;0 risk-loving, &alpha;&thinsp;&asymp;&thinsp;0 risk-neutral, &alpha;&thinsp;&gt;&thinsp;0 risk-averse).
         <br><strong>Bottom section</strong> &mdash; observed behavioural classification:
@@ -327,7 +327,7 @@
     <div class="chart-card">
       <h4><span class="dot" style="background:var(--amber)"></span><span data-i18n="chart.regions">Fig. 6 &mdash; Equilibrium Regions (c<sub>l</sub> vs c<sub>d</sub>)</span><button class="chart-dl" onclick="downloadChart('c-regions','fig6-equilibrium-regions')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-regions"></div>
-      <div class="chart-note">
+      <div class="chart-note" data-i18n="note.regions">
         <b>Note.</b> Equilibrium-region map in (c<sub>d</sub>,&thinsp;c<sub>l</sub>) space following Props.&thinsp;3&ndash;4 (Choi+ 2025).
         <br><strong>Regions:</strong>
         <br><span class="note-label" style="--c:rgb(37,99,235)">Full reputation</span> &mdash; above solid boundary.
@@ -369,8 +369,8 @@
 
   <!-- Architecture version toggle -->
   <div class="arch-version-switch">
-    <button class="arch-ver-btn active" data-arch="v1" onclick="switchArchVersion('v1')">V1 &mdash; Mathematical Model</button>
-    <button class="arch-ver-btn" data-arch="v2" onclick="switchArchVersion('v2')">V2 &mdash; AI Agent Pipeline</button>
+    <button class="arch-ver-btn active" data-arch="v1" onclick="switchArchVersion('v1')" data-i18n="v1.arch">V1 &mdash; Mathematical Model</button>
+    <button class="arch-ver-btn" data-arch="v2" onclick="switchArchVersion('v2')" data-i18n="v2.arch">V2 &mdash; AI Agent Pipeline</button>
   </div>
 
   <div class="arch-svg-container" id="arch-v1">
@@ -381,15 +381,15 @@
 
       <!-- Configuration -->
       <rect x="230" y="10" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Configuration</text>
-      <text x="480" y="48" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p<tspan font-size="7" baseline-shift="sub">b</tspan> &#x00B7; &#x03B5;</text>
+      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)" data-i18n="svg1.config">Configuration</text>
+      <text x="480" y="48" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8" data-i18n="svg1.config.d">n agents &#x00B7; risk composition &#x00B7; cost distributions &#x00B7; x&#x2082;/x&#x2081; &#x00B7; p<tspan font-size="7" baseline-shift="sub">b</tspan> &#x00B7; &#x03B5;</text>
 
       <line x1="480" y1="66" x2="480" y2="92" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
 
       <!-- Population Generation -->
       <rect x="230" y="96" width="500" height="68" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
-      <text x="480" y="134" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan> &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
+      <text x="480" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)" data-i18n="svg1.popgen">Population Generation</text>
+      <text x="480" y="134" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8" data-i18n="svg1.popgen.d">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan> &#x223C; LogNormal(&#x03BC;, &#x03C3;) via Gaussian copula</text>
       <text x="480" y="148" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">&#x03B1; &#x223C; Composition-based (risk types) &#x00B7; &#x03B2; &#x223C; Normal (altruism)</text>
 
       <path d="M380,164 L380,186 L200,186 L200,208" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -397,18 +397,18 @@
 
       <!-- BT Environment -->
       <rect x="60" y="212" width="280" height="96" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
-      <text x="200" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-bt-t)">BT Environment</text>
-      <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-bt-t)" opacity=".85">Bad-type Truth-telling</text>
-      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
-      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
+      <text x="200" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-bt-t)" data-i18n="svg1.bt">BT Environment</text>
+      <text x="200" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-bt-t)" opacity=".85" data-i18n="svg1.bt.d1">Bad-type Truth-telling</text>
+      <text x="200" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75" data-i18n="svg1.bt.d2">Strategic = Bad type &#x00B7; Behavioral = truth-teller</text>
+      <text x="200" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75" data-i18n="svg1.bt.d3">Eq: tell truth at &#x03B8;=0 (Prop. 1: deceptive truth)</text>
       <text x="200" y="294" text-anchor="middle" font-size="9.5" fill="var(--node-bt-t)" opacity=".75">Deviation driven by c<tspan font-size="7" baseline-shift="sub">d</tspan> (deception aversion)</text>
 
       <!-- GL Environment -->
       <rect x="620" y="212" width="280" height="96" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
-      <text x="760" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-gl-t)">GL Environment</text>
-      <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-gl-t)" opacity=".85">Good-type Lying</text>
-      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
-      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
+      <text x="760" y="234" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-gl-t)" data-i18n="svg1.gl">GL Environment</text>
+      <text x="760" y="250" text-anchor="middle" font-size="10" font-weight="500" fill="var(--node-gl-t)" opacity=".85" data-i18n="svg1.gl.d1">Good-type Lying</text>
+      <text x="760" y="266" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75" data-i18n="svg1.gl.d2">Strategic = Good type &#x00B7; Behavioral = always m=1</text>
+      <text x="760" y="280" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75" data-i18n="svg1.gl.d3">Eq: lie at &#x03B8;=1 (Prop. 2: non-deceptive lie)</text>
       <text x="760" y="294" text-anchor="middle" font-size="9.5" fill="var(--node-gl-t)" opacity=".75">Deviation driven by c<tspan font-size="7" baseline-shift="sub">l</tspan> (lying aversion)</text>
 
       <line x1="200" y1="308" x2="200" y2="348" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -416,13 +416,13 @@
 
       <!-- BT Belief -->
       <rect x="60" y="352" width="280" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
-      <text x="200" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)">Bayesian Belief Update</text>
+      <text x="200" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)" data-i18n="svg1.belief">Bayesian Belief Update</text>
       <text x="200" y="390" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">&#x03BB;(m, &#x03B8;, v) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
       <text x="200" y="404" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">Receiver: a(m) = E[&#x03B8; | m]</text>
 
       <!-- GL Belief -->
       <rect x="620" y="352" width="280" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
-      <text x="760" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)">Bayesian Belief Update</text>
+      <text x="760" y="374" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bel-t)" data-i18n="svg1.belief">Bayesian Belief Update</text>
       <text x="760" y="390" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">&#x03BB;(m, &#x03B8;, w) = Pr(&#x03C4;=G | m, &#x03B8;)</text>
       <text x="760" y="404" text-anchor="middle" font-size="10" fill="var(--node-bel-t)" opacity=".8">Receiver: a(m) = E[&#x03B8; | m]</text>
 
@@ -431,13 +431,13 @@
 
       <!-- BT Strategy -->
       <rect x="60" y="454" width="280" height="72" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
-      <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bt-t)">Strategy (Prop. 3)</text>
+      <text x="200" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-bt-t)" data-i18n="svg1.strat3">Strategy (Prop. 3)</text>
       <text x="200" y="492" text-anchor="middle" font-size="10" fill="var(--node-bt-t)" opacity=".8">v = P(m=1 | &#x03B8;=0)</text>
       <text x="200" y="508" text-anchor="middle" font-size="10" fill="var(--node-bt-t)" opacity=".8">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
       <!-- GL Strategy -->
       <rect x="620" y="454" width="280" height="72" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
-      <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-gl-t)">Strategy (Prop. 4)</text>
+      <text x="760" y="476" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-gl-t)" data-i18n="svg1.strat4">Strategy (Prop. 4)</text>
       <text x="760" y="492" text-anchor="middle" font-size="10" fill="var(--node-gl-t)" opacity=".8">w = P(m=0 | &#x03B8;=1)</text>
       <text x="760" y="508" text-anchor="middle" font-size="10" fill="var(--node-gl-t)" opacity=".8">max EU&#x1D43; = EU &#x2212; c<tspan font-size="7" baseline-shift="sub">l</tspan>&#x00B7;&#x1D7D9;{lie} &#x2212; c<tspan font-size="7" baseline-shift="sub">d</tspan>&#x00B7;D</text>
 
@@ -446,7 +446,7 @@
 
       <!-- Round Execution -->
       <rect x="230" y="584" width="500" height="72" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="480" y="606" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
+      <text x="480" y="606" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)" data-i18n="svg1.round">Round Execution (2-Period Game)</text>
       <text x="480" y="622" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m&#x2081; &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
       <text x="480" y="636" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
 
@@ -454,7 +454,7 @@
 
       <!-- Classification -->
       <rect x="230" y="692" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="480" y="714" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification (Figure 5)</text>
+      <text x="480" y="714" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)" data-i18n="svg1.classify">Behavioral Classification (Figure 5)</text>
       <text x="480" y="732" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">Equilibrium (BT&#x2713; GL&#x2713;) | Lying-averse (BT&#x2713; GL&#x2717;) | Deception-averse (BT&#x2717; GL&#x2713;) | Inf. Error</text>
 
       <line x1="480" y1="748" x2="480" y2="774" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah)"/>
@@ -486,7 +486,7 @@
 
       <!-- Provider Registry -->
       <rect x="120" y="10" width="560" height="72" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="400" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)">Provider Registry (8 Providers)</text>
+      <text x="400" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)" data-i18n="svg2.provider">Provider Registry (8 Providers)</text>
       <text x="400" y="48" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Claude &#x00B7; GPT &#x00B7; Gemini &#x00B7; DeepSeek</text>
       <text x="400" y="64" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Qwen &#x00B7; MiniMax &#x00B7; Kimi &#x00B7; GLM</text>
 
@@ -494,27 +494,27 @@
 
       <!-- Agent Roster -->
       <rect x="170" y="110" width="460" height="52" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="400" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Agent Roster Configuration</text>
-      <text x="400" y="148" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Per-group: provider &#x00D7; model &#x00D7; count &#x00B7; optional endpoint override</text>
+      <text x="400" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)" data-i18n="svg2.roster">Agent Roster Configuration</text>
+      <text x="400" y="148" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8" data-i18n="svg2.roster.d">Per-group: provider &#x00D7; model &#x00D7; count &#x00B7; optional endpoint override</text>
 
       <line x1="400" y1="162" x2="400" y2="186" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Population Generation -->
       <rect x="170" y="190" width="460" height="52" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="400" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
-      <text x="400" y="228" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan>, &#x03B1;, &#x03B2; per agent &#x00B7; provider + model from roster</text>
+      <text x="400" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)" data-i18n="svg2.popgen">Population Generation</text>
+      <text x="400" y="228" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8" data-i18n="svg2.popgen.d">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan>, &#x03B1;, &#x03B2; per agent &#x00B7; provider + model from roster</text>
 
       <line x1="400" y1="242" x2="400" y2="266" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Orchestrator -->
       <rect x="120" y="270" width="560" height="76" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5"/>
-      <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)">Orchestrator Model</text>
-      <text x="400" y="308" text-anchor="middle" font-size="9.5" fill="var(--fg-1)">Main LLM generates personalised prompts for each agent</text>
-      <text x="400" y="324" text-anchor="middle" font-size="9" fill="var(--fg-2)">Input: agent params + game type &#x2192; Output: JSON [{id, prompt}]</text>
-      <text x="400" y="338" text-anchor="middle" font-size="8.5" fill="var(--fg-3)">Fallback: local prompt generation if orchestrator fails</text>
+      <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)" data-i18n="svg2.orchestrator">Orchestrator Model</text>
+      <text x="400" y="308" text-anchor="middle" font-size="9.5" fill="var(--fg-1)" data-i18n="svg2.orch.d1">Main LLM generates personalised prompts for each agent</text>
+      <text x="400" y="324" text-anchor="middle" font-size="9" fill="var(--fg-2)" data-i18n="svg2.orch.d2">Input: agent params + game type &#x2192; Output: JSON [{id, prompt}]</text>
+      <text x="400" y="338" text-anchor="middle" font-size="8.5" fill="var(--fg-3)" data-i18n="svg2.orch.d3">Fallback: local prompt generation if orchestrator fails</text>
 
       <!-- Fan-out arrows -->
-      <text x="400" y="360" text-anchor="middle" font-size="8" fill="var(--fg-3)">Concurrency limit = 4</text>
+      <text x="400" y="360" text-anchor="middle" font-size="8" fill="var(--fg-3)" data-i18n="svg2.conc">Concurrency limit = 4</text>
       <path d="M280,346 L280,370 L140,370 L140,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
       <path d="M350,346 L350,370 L310,370 L310,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
       <path d="M450,346 L450,370 L490,370 L490,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
@@ -524,22 +524,22 @@
       <rect x="70" y="394" width="140" height="58" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
       <text x="140" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-bt-t)">Agent 0</text>
       <text x="140" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".8">Claude / Haiku</text>
-      <text x="140" y="442" text-anchor="middle" font-size="8" fill="var(--node-bt-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <text x="140" y="442" text-anchor="middle" font-size="8" fill="var(--node-bt-t)" opacity=".7" data-i18n="svg2.ttp">&#x2192; truth-telling prob</text>
 
       <rect x="240" y="394" width="140" height="58" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
       <text x="310" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-gl-t)">Agent 1</text>
       <text x="310" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".8">GPT / GPT-5.4</text>
-      <text x="310" y="442" text-anchor="middle" font-size="8" fill="var(--node-gl-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <text x="310" y="442" text-anchor="middle" font-size="8" fill="var(--node-gl-t)" opacity=".7" data-i18n="svg2.ttp">&#x2192; truth-telling prob</text>
 
       <rect x="420" y="394" width="140" height="58" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
       <text x="490" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-bel-t)">Agent 2</text>
       <text x="490" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bel-t)" opacity=".8">DeepSeek / R1</text>
-      <text x="490" y="442" text-anchor="middle" font-size="8" fill="var(--node-bel-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <text x="490" y="442" text-anchor="middle" font-size="8" fill="var(--node-bel-t)" opacity=".7" data-i18n="svg2.ttp">&#x2192; truth-telling prob</text>
 
       <rect x="590" y="394" width="140" height="58" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
       <text x="660" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-pop-t)">Agent N</text>
       <text x="660" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-pop-t)" opacity=".8">Qwen / Kimi / ...</text>
-      <text x="660" y="442" text-anchor="middle" font-size="8" fill="var(--node-pop-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <text x="660" y="442" text-anchor="middle" font-size="8" fill="var(--node-pop-t)" opacity=".7" data-i18n="svg2.ttp">&#x2192; truth-telling prob</text>
 
       <!-- Fan-in arrows -->
       <path d="M140,452 L140,478 L340,478 L340,498" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
@@ -549,23 +549,23 @@
 
       <!-- Strategy Collection -->
       <rect x="170" y="502" width="460" height="52" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="400" y="524" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Strategy Collection</text>
-      <text x="400" y="540" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">AI responses &#x2192; parse [0, 1] &#x00B7; fallback to math strategy on error</text>
+      <text x="400" y="524" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)" data-i18n="svg2.collect">Strategy Collection</text>
+      <text x="400" y="540" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8" data-i18n="svg2.collect.d">AI responses &#x2192; parse [0, 1] &#x00B7; fallback to math strategy on error</text>
 
       <line x1="400" y1="554" x2="400" y2="578" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Round Execution -->
       <rect x="170" y="582" width="460" height="66" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="400" y="602" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
-      <text x="400" y="618" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m (AI strategy) &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
-      <text x="400" y="634" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
+      <text x="400" y="602" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)" data-i18n="svg2.round">Round Execution (2-Period Game)</text>
+      <text x="400" y="618" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8" data-i18n="svg2.round.d1">Period 1: &#x03B8;&#x2081; &#x2192; m (AI strategy) &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
+      <text x="400" y="634" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8" data-i18n="svg2.round.d2">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
 
       <line x1="400" y1="648" x2="400" y2="672" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Classification -->
       <rect x="170" y="676" width="460" height="52" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="400" y="698" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification</text>
-      <text x="400" y="714" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8">Equilibrium | Lying-averse | Deception-averse | Inference Error</text>
+      <text x="400" y="698" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)" data-i18n="svg2.classify">Behavioral Classification</text>
+      <text x="400" y="714" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8" data-i18n="svg2.classify.d">Equilibrium | Lying-averse | Deception-averse | Inference Error</text>
 
       <!-- Split to outputs -->
       <path d="M400,728 L400,752 L275,752 L275,768" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
@@ -625,32 +625,32 @@
   <div class="gloss-section">
     <h3 data-i18n="gloss.abbr">Abbreviations &amp; Indices</h3>
     <table class="gloss-table">
-      <thead><tr><th>Term</th><th>Full Name</th><th>Description</th></tr></thead>
+      <thead><tr><th data-i18n="th.term">Term</th><th data-i18n="th.fullname">Full Name</th><th data-i18n="th.desc">Description</th></tr></thead>
       <tbody>
-        <tr><td class="term">BT</td><td>Bad-type Truth-telling</td><td data-i18n="g.bt">Environment where the strategic sender is the bad type and the behavioral type tells the truth. Equilibrium strategy: tell truth in period 1 to build reputation (deceptive truth-telling, Proposition 1).</td></tr>
-        <tr><td class="term">GL</td><td>Good-type Lying</td><td data-i18n="g.gl">Environment where the strategic sender is the good type and the behavioral type always sends m=1. Equilibrium strategy: lie in period 1 to reveal type (non-deceptive lying, Proposition 2).</td></tr>
-        <tr><td class="term">c<sub>l</sub></td><td>Lying cost</td><td data-i18n="g.cl">Cost incurred when an agent sends a message m &ne; &theta; (literal lie). From Sobel (2020) Definition 3. Drawn from LogNormal(&mu;, &sigma;).</td></tr>
-        <tr><td class="term">c<sub>d</sub></td><td>Deception cost</td><td data-i18n="g.cd">Cost incurred proportional to how much a message shifts the receiver's type belief away from truth. Based on Sobel (2020) Definition 4. Drawn from LogNormal(&mu;, &sigma;).</td></tr>
-        <tr><td class="term">&alpha;</td><td>Risk aversion</td><td data-i18n="g.alpha">CRRA (Constant Relative Risk Aversion) parameter. &alpha; &lt; 0: risk-loving, &alpha; &asymp; 0: risk-neutral, &alpha; &gt; 0: risk-averse.</td></tr>
-        <tr><td class="term">&beta;</td><td>Altruism parameter</td><td data-i18n="g.beta">Weight on others' welfare. &beta; &gt; 0: altruistic, &beta; = 0: selfish, &beta; &lt; 0: spiteful. Drawn from Normal distribution.</td></tr>
-        <tr><td class="term">&theta;</td><td>State of the world</td><td data-i18n="g.theta">Binary state &theta; &isin; {0, 1} drawn uniformly in each period. The sender privately observes &theta;.</td></tr>
-        <tr><td class="term">m</td><td>Message</td><td data-i18n="g.m">Binary message m &isin; {0, 1} sent by the sender to the receiver.</td></tr>
-        <tr><td class="term">a</td><td>Action</td><td data-i18n="g.a">Receiver's action a &isin; [0, 1], chosen to minimize expected quadratic loss given beliefs.</td></tr>
-        <tr><td class="term">&lambda;</td><td>Type belief</td><td data-i18n="g.lambda">Posterior probability that the sender is the good/behavioral type: &lambda;(m, &theta;) = Pr(&tau;=G | m, &theta;). Updated via Bayes' rule.</td></tr>
-        <tr><td class="term">v</td><td>BT mixing parameter</td><td data-i18n="g.v">v = P(m=1 | &theta;=0) in BT. Probability the bad type lies when state is 0. Equilibrium: v=0 (truth-telling).</td></tr>
-        <tr><td class="term">w</td><td>GL mixing parameter</td><td data-i18n="g.w">w = P(m=0 | &theta;=1) in GL. Probability the good type lies when state is 1. Equilibrium: w=1 (lying).</td></tr>
-        <tr><td class="term">x<sub>1</sub>, x<sub>2</sub></td><td>Period weights</td><td data-i18n="g.x12">Weights on period 1 and period 2 payoffs. High x<sub>2</sub>/x<sub>1</sub> ratio creates strong reputation-building incentive.</td></tr>
-        <tr><td class="term">p<sub>b</sub></td><td>Behavioral prior</td><td data-i18n="g.pb">Prior probability that the sender is the behavioral (non-strategic) type. Default: 0.5.</td></tr>
-        <tr><td class="term">&epsilon;</td><td>Miscommunication rate</td><td data-i18n="g.eps">Probability that a sent message is flipped in transit (0 &rarr; 1 or 1 &rarr; 0). Models information noise.</td></tr>
-        <tr><td class="term">$EU^a$</td><td>Augmented expected utility</td><td data-i18n="g.eua">$EU^a(m|\theta) = EU(m|\theta) - c_l \cdot \mathbb{1}\{m \neq \theta\} - c_d \cdot D(m,\theta)$. From Choi et al. (2025) Section 5.</td></tr>
-        <tr><td class="term">$D(m,\theta)$</td><td>Deception measure</td><td data-i18n="g.dm">$|\lambda(m,\theta) - \lambda(m^n,\theta)|$. How much the chosen message shifts type beliefs compared to the alternative. From Sobel (2020) Definition 4.</td></tr>
-        <tr><td class="term">KDE</td><td>Kernel Density Estimation</td><td data-i18n="g.kde">Non-parametric method to estimate probability density functions. Used to smooth histograms in the distribution plots.</td></tr>
-        <tr><td class="term">CRRA</td><td>Constant Relative Risk Aversion</td><td data-i18n="g.crra">Utility function $u(x) = \frac{x^{1-\alpha}}{1-\alpha}$. Widely used in behavioral economics.</td></tr>
-        <tr><td class="term">Prop. 1</td><td>Deceptive truth-telling</td><td data-i18n="g.p1">In BT, when x<sub>2</sub>/x<sub>1</sub> is large, the bad type tells truth to build reputation. The truth is (a) literally true, (b) deceptive w.r.t. type.</td></tr>
-        <tr><td class="term">Prop. 2</td><td>Non-deceptive lying</td><td data-i18n="g.p2">In GL, when x<sub>2</sub>/x<sub>1</sub> is large, the good type lies to reveal type. The lie is (a) literally false, (b) not deceptive w.r.t. type.</td></tr>
-        <tr><td class="term">Prop. 3</td><td>BT equilibrium regions</td><td data-i18n="g.p3">Characterizes (c<sub>l</sub>, c<sub>d</sub>)-space: full/partial/no reputation building in BT. Deviation driven by deception aversion (c<sub>d</sub>).</td></tr>
-        <tr><td class="term">Prop. 4</td><td>GL equilibrium regions</td><td data-i18n="g.p4">Characterizes (c<sub>l</sub>, c<sub>d</sub>)-space: full/partial/no reputation building in GL. Deviation driven by lying aversion (c<sub>l</sub>).</td></tr>
-        <tr><td class="term">Fig. 5</td><td>Classification logic</td><td data-i18n="g.f5">Cross-tabulation of BT and GL behavior to identify agent type: equilibrium play, lying-averse, deception-averse, or inference error.</td></tr>
+        <tr><td class="term">BT</td><td data-i18n="gn.bt">Bad-type Truth-telling</td><td data-i18n="g.bt">Environment where the strategic sender is the bad type and the behavioral type tells the truth. Equilibrium strategy: tell truth in period 1 to build reputation (deceptive truth-telling, Proposition 1).</td></tr>
+        <tr><td class="term">GL</td><td data-i18n="gn.gl">Good-type Lying</td><td data-i18n="g.gl">Environment where the strategic sender is the good type and the behavioral type always sends m=1. Equilibrium strategy: lie in period 1 to reveal type (non-deceptive lying, Proposition 2).</td></tr>
+        <tr><td class="term">c<sub>l</sub></td><td data-i18n="gn.cl">Lying cost</td><td data-i18n="g.cl">Cost incurred when an agent sends a message m &ne; &theta; (literal lie). From Sobel (2020) Definition 3. Drawn from LogNormal(&mu;, &sigma;).</td></tr>
+        <tr><td class="term">c<sub>d</sub></td><td data-i18n="gn.cd">Deception cost</td><td data-i18n="g.cd">Cost incurred proportional to how much a message shifts the receiver's type belief away from truth. Based on Sobel (2020) Definition 4. Drawn from LogNormal(&mu;, &sigma;).</td></tr>
+        <tr><td class="term">&alpha;</td><td data-i18n="gn.alpha">Risk aversion</td><td data-i18n="g.alpha">CRRA (Constant Relative Risk Aversion) parameter. &alpha; &lt; 0: risk-loving, &alpha; &asymp; 0: risk-neutral, &alpha; &gt; 0: risk-averse.</td></tr>
+        <tr><td class="term">&beta;</td><td data-i18n="gn.beta">Altruism parameter</td><td data-i18n="g.beta">Weight on others' welfare. &beta; &gt; 0: altruistic, &beta; = 0: selfish, &beta; &lt; 0: spiteful. Drawn from Normal distribution.</td></tr>
+        <tr><td class="term">&theta;</td><td data-i18n="gn.theta">State of the world</td><td data-i18n="g.theta">Binary state &theta; &isin; {0, 1} drawn uniformly in each period. The sender privately observes &theta;.</td></tr>
+        <tr><td class="term">m</td><td data-i18n="gn.m">Message</td><td data-i18n="g.m">Binary message m &isin; {0, 1} sent by the sender to the receiver.</td></tr>
+        <tr><td class="term">a</td><td data-i18n="gn.a">Action</td><td data-i18n="g.a">Receiver's action a &isin; [0, 1], chosen to minimize expected quadratic loss given beliefs.</td></tr>
+        <tr><td class="term">&lambda;</td><td data-i18n="gn.lambda">Type belief</td><td data-i18n="g.lambda">Posterior probability that the sender is the good/behavioral type: &lambda;(m, &theta;) = Pr(&tau;=G | m, &theta;). Updated via Bayes' rule.</td></tr>
+        <tr><td class="term">v</td><td data-i18n="gn.v">BT mixing parameter</td><td data-i18n="g.v">v = P(m=1 | &theta;=0) in BT. Probability the bad type lies when state is 0. Equilibrium: v=0 (truth-telling).</td></tr>
+        <tr><td class="term">w</td><td data-i18n="gn.w">GL mixing parameter</td><td data-i18n="g.w">w = P(m=0 | &theta;=1) in GL. Probability the good type lies when state is 1. Equilibrium: w=1 (lying).</td></tr>
+        <tr><td class="term">x<sub>1</sub>, x<sub>2</sub></td><td data-i18n="gn.x12">Period weights</td><td data-i18n="g.x12">Weights on period 1 and period 2 payoffs. High x<sub>2</sub>/x<sub>1</sub> ratio creates strong reputation-building incentive.</td></tr>
+        <tr><td class="term">p<sub>b</sub></td><td data-i18n="gn.pb">Behavioral prior</td><td data-i18n="g.pb">Prior probability that the sender is the behavioral (non-strategic) type. Default: 0.5.</td></tr>
+        <tr><td class="term">&epsilon;</td><td data-i18n="gn.eps">Miscommunication rate</td><td data-i18n="g.eps">Probability that a sent message is flipped in transit (0 &rarr; 1 or 1 &rarr; 0). Models information noise.</td></tr>
+        <tr><td class="term">$EU^a$</td><td data-i18n="gn.eua">Augmented expected utility</td><td data-i18n="g.eua">$EU^a(m|\theta) = EU(m|\theta) - c_l \cdot \mathbb{1}\{m \neq \theta\} - c_d \cdot D(m,\theta)$. From Choi et al. (2025) Section 5.</td></tr>
+        <tr><td class="term">$D(m,\theta)$</td><td data-i18n="gn.dm">Deception measure</td><td data-i18n="g.dm">$|\lambda(m,\theta) - \lambda(m^n,\theta)|$. How much the chosen message shifts type beliefs compared to the alternative. From Sobel (2020) Definition 4.</td></tr>
+        <tr><td class="term">KDE</td><td data-i18n="gn.kde">Kernel Density Estimation</td><td data-i18n="g.kde">Non-parametric method to estimate probability density functions. Used to smooth histograms in the distribution plots.</td></tr>
+        <tr><td class="term">CRRA</td><td data-i18n="gn.crra">Constant Relative Risk Aversion</td><td data-i18n="g.crra">Utility function $u(x) = \frac{x^{1-\alpha}}{1-\alpha}$. Widely used in behavioral economics.</td></tr>
+        <tr><td class="term">Prop. 1</td><td data-i18n="gn.p1">Deceptive truth-telling</td><td data-i18n="g.p1">In BT, when x<sub>2</sub>/x<sub>1</sub> is large, the bad type tells truth to build reputation. The truth is (a) literally true, (b) deceptive w.r.t. type.</td></tr>
+        <tr><td class="term">Prop. 2</td><td data-i18n="gn.p2">Non-deceptive lying</td><td data-i18n="g.p2">In GL, when x<sub>2</sub>/x<sub>1</sub> is large, the good type lies to reveal type. The lie is (a) literally false, (b) not deceptive w.r.t. type.</td></tr>
+        <tr><td class="term">Prop. 3</td><td data-i18n="gn.p3">BT equilibrium regions</td><td data-i18n="g.p3">Characterizes (c<sub>l</sub>, c<sub>d</sub>)-space: full/partial/no reputation building in BT. Deviation driven by deception aversion (c<sub>d</sub>).</td></tr>
+        <tr><td class="term">Prop. 4</td><td data-i18n="gn.p4">GL equilibrium regions</td><td data-i18n="g.p4">Characterizes (c<sub>l</sub>, c<sub>d</sub>)-space: full/partial/no reputation building in GL. Deviation driven by lying aversion (c<sub>l</sub>).</td></tr>
+        <tr><td class="term">Fig. 5</td><td data-i18n="gn.f5">Classification logic</td><td data-i18n="g.f5">Cross-tabulation of BT and GL behavior to identify agent type: equilibrium play, lying-averse, deception-averse, or inference error.</td></tr>
       </tbody>
     </table>
   </div>
@@ -659,7 +659,7 @@
   <div class="gloss-section">
     <h3 data-i18n="gloss.math">Mathematical Notation</h3>
     <table class="gloss-table">
-      <thead><tr><th>Expression</th><th>Meaning</th></tr></thead>
+      <thead><tr><th data-i18n="th.expr">Expression</th><th data-i18n="th.meaning">Meaning</th></tr></thead>
       <tbody>
         <tr><td class="math">$U_P = -\sum_i x_i(a_i - \theta_i)^2$</td><td data-i18n="m.up">Public/receiver payoff. Quadratic loss from action deviating from true state.</td></tr>
         <tr><td class="math">$U_G = -\sum_i x_i(a_i - \theta_i)^2$</td><td data-i18n="m.ug">Good type payoff. Aligned with receiver &mdash; wants accurate actions.</td></tr>
@@ -720,7 +720,7 @@
   <div class="gloss-section">
     <h3 data-i18n="gloss.papers">Source Papers</h3>
     <table class="gloss-table">
-      <thead><tr><th>Paper</th><th>Key Contributions Used</th></tr></thead>
+      <thead><tr><th data-i18n="th.paper">Paper</th><th data-i18n="th.contrib">Key Contributions Used</th></tr></thead>
       <tbody>
         <tr><td class="term" style="white-space:normal;">Choi, Lee &amp; Lim (2025)<br><em>"The Anatomy of Honesty: Lying Aversion vs. Deception Aversion"</em></td><td data-i18n="p.choi">Two-period reputation game model (Section 2). BT and GL environments (Section 3). Deceptive truth-telling &amp; non-deceptive lying (Props. 1-2). Augmented utility with dual honesty costs (Section 5). Equilibrium characterization in (c<sub>l</sub>, c<sub>d</sub>)-space (Props. 3-4). Classification logic (Figure 5).</td></tr>
         <tr><td class="term" style="white-space:normal;">Sobel (2020)<br><em>"Lying and Deception in Games"</em><br>Journal of Political Economy</td><td data-i18n="p.sobel">Formal definitions of lying (Def. 3: m&ne;&theta;) and deception (Def. 4: belief manipulation measure). Theoretical framework distinguishing literal falsehood from strategic belief distortion. Foundational distinction between lying aversion and deception aversion.</td></tr>
