@@ -261,20 +261,85 @@ function plotRegions(agents) {
   Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
-/** Download chart as high-res PNG with solid background */
-function downloadChart(id, name) {
+/** Download chart as high-res PNG with title + plot + notes */
+async function downloadChart(id, name) {
   const gd = document.getElementById(id);
+  const card = gd.closest('.chart-card');
   const dark = _isDark();
   const bg = dark ? '#0d1117' : '#ffffff';
   const plotBg = dark ? '#161b22' : '#fafbfc';
+  const fg = dark ? '#e6edf3' : '#1a1d23';
+  const fg2 = dark ? '#8b949e' : '#6b7080';
+  const border = dark ? '#30363d' : '#dfe1e6';
+
+  // 1. Capture Plotly chart with solid background
   const orig = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor };
-  Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg }).then(function() {
-    return Plotly.toImage(gd, { format: 'png', width: 1600, height: 1000, scale: 3 });
-  }).then(function(url) {
-    Plotly.relayout(gd, orig);
-    var a = document.createElement('a'); a.href = url;
-    a.download = (name || id) + '.png'; a.click();
-  });
+  await Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg });
+  const dataUrl = await Plotly.toImage(gd, { format: 'png', width: 1600, height: 1000, scale: 2 });
+  await Plotly.relayout(gd, orig);
+  const chartImg = new Image(); chartImg.src = dataUrl;
+  await new Promise(r => { chartImg.onload = r; });
+
+  // 2. Extract text
+  const title = (card.querySelector('h4 span[data-i18n]') || card.querySelector('h4 span')).textContent.trim();
+  const noteEl = card.querySelector('.chart-note');
+  const noteText = noteEl ? noteEl.innerText.trim() : '';
+
+  // 3. Word-wrap notes
+  const pad = 50, titleSize = 30, noteSize = 17, lineH = noteSize * 1.65;
+  const maxW = chartImg.width;
+  const tmp = document.createElement('canvas').getContext('2d');
+  tmp.font = noteSize + 'px Inter, system-ui, sans-serif';
+  const noteLines = [];
+  for (const para of noteText.split('\n')) {
+    if (!para.trim()) continue;
+    const words = para.trim().split(/\s+/);
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (tmp.measureText(test).width > maxW && line) { noteLines.push(line); line = w; }
+      else line = test;
+    }
+    if (line) noteLines.push(line);
+  }
+
+  // 4. Build canvas
+  const titleH = titleSize + pad + 10;
+  const noteH = noteLines.length ? noteLines.length * lineH + pad : 0;
+  const W = chartImg.width + pad * 2;
+  const H = titleH + chartImg.height + noteH + pad;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // Title
+  ctx.fillStyle = fg;
+  ctx.font = 'bold ' + titleSize + 'px Inter, system-ui, sans-serif';
+  ctx.fillText(title, pad, pad + titleSize * 0.8);
+
+  // Separator
+  ctx.strokeStyle = border; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, titleH - 4); ctx.lineTo(W - pad, titleH - 4); ctx.stroke();
+
+  // Chart
+  ctx.drawImage(chartImg, pad, titleH);
+
+  // Notes
+  if (noteLines.length) {
+    const ny = titleH + chartImg.height + 16;
+    ctx.beginPath(); ctx.moveTo(pad, ny); ctx.lineTo(W - pad, ny); ctx.stroke();
+    ctx.fillStyle = fg2;
+    ctx.font = noteSize + 'px Inter, system-ui, sans-serif';
+    noteLines.forEach((l, i) => ctx.fillText(l, pad, ny + 24 + i * lineH));
+  }
+
+  // Download
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = (name || id) + '.png'; a.click();
 }
 
 /** Redraw all charts from cached data */
