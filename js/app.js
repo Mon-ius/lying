@@ -112,21 +112,48 @@ document.querySelectorAll('input[type=range]').forEach(el => {
   upd();
 });
 
-/* ---- Composition bar ---- */
+/* ---- Constrained composition sliders (always sum to 100%) ---- */
 function updateCompBar() {
   const rl = +document.getElementById('s-rl').value;
   const rn = +document.getElementById('s-rn').value;
   const ra = +document.getElementById('s-ra').value;
-  const total = rl + rn + ra;
   const bar = document.getElementById('comp-bar');
-  bar.children[0].style.flex = rl;
-  bar.children[1].style.flex = rn;
-  bar.children[2].style.flex = ra;
-  const ct = document.getElementById('comp-total');
-  ct.textContent = '= ' + total + '%';
-  ct.className = 'comp-total ' + (total === 100 ? 'ok' : 'warn');
+  bar.children[0].style.flex = rl || 0.001;
+  bar.children[1].style.flex = rn || 0.001;
+  bar.children[2].style.flex = ra || 0.001;
+  bar.children[0].querySelector('span').textContent = rl + '%';
+  bar.children[1].querySelector('span').textContent = rn + '%';
+  bar.children[2].querySelector('span').textContent = ra + '%';
+  ['rl', 'rn', 'ra'].forEach(k => {
+    document.getElementById('v-' + k).textContent = document.getElementById('s-' + k).value + '%';
+  });
 }
-['s-rl', 's-rn', 's-ra'].forEach(id => document.getElementById(id).addEventListener('input', updateCompBar));
+
+function constrainRisk(changedId) {
+  const ids = ['s-rl', 's-rn', 's-ra'];
+  const sliders = ids.map(id => document.getElementById(id));
+  const ci = ids.indexOf(changedId);
+  const cv = +sliders[ci].value;
+  const oi = ids.map((_, i) => i).filter(i => i !== ci);
+  const others = oi.map(i => +sliders[i].value);
+  const otherSum = others[0] + others[1];
+  const remaining = 100 - cv;
+
+  if (otherSum > 0) {
+    const r0 = Math.round(others[0] / otherSum * remaining);
+    sliders[oi[0]].value = r0;
+    sliders[oi[1]].value = remaining - r0;
+  } else {
+    const half = Math.round(remaining / 2);
+    sliders[oi[0]].value = half;
+    sliders[oi[1]].value = remaining - half;
+  }
+  updateCompBar();
+}
+
+['s-rl', 's-rn', 's-ra'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => constrainRisk(id));
+});
 updateCompBar();
 
 /* ---- Export data ---- */
@@ -256,11 +283,9 @@ function runExperiment() {
   btn.classList.add('loading'); btn.disabled = true;
   requestAnimationFrame(() => { setTimeout(() => {
     const n = +document.getElementById('s-n').value;
-    let rl = +document.getElementById('s-rl').value;
-    let rn = +document.getElementById('s-rn').value;
-    let ra = +document.getElementById('s-ra').value;
-    const total = rl + rn + ra;
-    rl = rl / total * 100; rn = rn / total * 100; ra = ra / total * 100;
+    const rl = +document.getElementById('s-rl').value;
+    const rn = +document.getElementById('s-rn').value;
+    const ra = +document.getElementById('s-ra').value;
     const agents = createPopulation({
       n, rlPct: rl, rnPct: rn, raPct: ra,
       clMean: +document.getElementById('s-cl').value,

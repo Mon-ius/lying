@@ -73,18 +73,18 @@
       </div>
       <div class="form-group">
         <div class="form-label" style="margin-bottom:8px;font-weight:600;" data-i18n="label.riskcomp">Risk attitude composition</div>
+        <div class="comp-bar" id="comp-bar">
+          <div class="seg" style="flex:15; background:var(--red);"><span>15%</span></div>
+          <div class="seg" style="flex:25; background:var(--amber);"><span>25%</span></div>
+          <div class="seg" style="flex:60; background:var(--blue);"><span>60%</span></div>
+        </div>
         <div class="form-label"><span data-i18n="label.riskloving">Risk-loving (&alpha;&lt;0)</span> <span class="unit" id="v-rl">15%</span></div>
         <input type="range" id="s-rl" min="0" max="100" step="1" value="15">
         <div class="form-label"><span data-i18n="label.riskneutral">Risk-neutral (&alpha;&thickapprox;0)</span> <span class="unit" id="v-rn">25%</span></div>
         <input type="range" id="s-rn" min="0" max="100" step="1" value="25">
         <div class="form-label"><span data-i18n="label.riskaverse">Risk-averse (&alpha;&gt;0)</span> <span class="unit" id="v-ra">60%</span></div>
         <input type="range" id="s-ra" min="0" max="100" step="1" value="60">
-        <div class="comp-bar" id="comp-bar">
-          <div class="seg" style="flex:15; background:var(--red);"></div>
-          <div class="seg" style="flex:25; background:var(--amber);"></div>
-          <div class="seg" style="flex:60; background:var(--blue);"></div>
-        </div>
-        <div class="comp-total ok" id="comp-total">= 100%</div>
+        <div class="form-hint" data-i18n="hint.risk">Sliders are linked &mdash; total always = 100%. &alpha; is drawn from a Normal distribution per type.</div>
       </div>
     </div>
   </div>
@@ -123,8 +123,9 @@
         </select>
       </div>
       <div class="form-group">
-        <div class="form-label"><span data-i18n="label.rounds">Rounds per agent</span> <span class="unit" id="v-rounds">10</span></div>
+        <div class="form-label"><span data-i18n="label.seq">Sequences (2-period games)</span> <span class="unit" id="v-rounds">10</span></div>
         <input type="range" id="s-rounds" min="1" max="50" step="1" value="10">
+        <div class="form-hint" data-i18n="hint.seq">Each sequence: Period 1 (strategic) &rarr; Period 2 (reputation)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.ratio"><em>x</em><sub>2</sub>/<em>x</em><sub>1</sub> ratio</span> <span class="unit" id="v-ratio">20</span></div>
@@ -146,14 +147,14 @@
   <!-- AI Agent Mode (V2) -->
   <div class="panel" id="p-ai">
     <div class="panel-header" onclick="togglePanel('p-ai')">
-      <span class="icon">&#x1F916;</span><h3>AI Agent Mode</h3><span class="badge-v2">V2</span><span class="chevron">&#x25BC;</span>
+      <span class="icon">&#x1F916;</span><h3 data-i18n="panel.ai">AI Agent Mode</h3><span class="badge-v2">V2</span><span class="chevron">&#x25BC;</span>
     </div>
     <div class="panel-body">
 
       <!-- Provider API Keys -->
       <div class="form-group form-section">
-        <div class="form-section-title">Provider API Keys</div>
-        <div class="form-hint">Session-only &mdash; never stored to disk</div>
+        <div class="form-section-title" data-i18n="ai.provkeys">Provider API Keys</div>
+        <div class="form-hint" data-i18n="ai.provhint">Session-only &mdash; never stored to disk</div>
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Claude</span></div>
@@ -198,8 +199,8 @@
 
       <!-- Orchestrator -->
       <div class="form-group form-section">
-        <div class="form-section-title">Orchestrator Model</div>
-        <div class="form-hint">Generates tailored prompts for each agent</div>
+        <div class="form-section-title" data-i18n="ai.orch">Orchestrator Model</div>
+        <div class="form-hint" data-i18n="ai.orchhint">Generates tailored prompts for each agent</div>
       </div>
       <div class="form-group form-row">
         <select id="orch-provider" onchange="updateOrchModels()">
@@ -222,15 +223,15 @@
 
       <!-- Agent Roster -->
       <div class="form-group form-section">
-        <div class="form-section-title">Agent Roster</div>
-        <div class="form-hint">Configure provider, model, and count per group</div>
+        <div class="form-section-title" data-i18n="ai.roster">Agent Roster</div>
+        <div class="form-hint" data-i18n="ai.rosterhint">Configure provider, model, and count per group</div>
       </div>
       <div id="agent-roster"></div>
-      <button class="btn-roster-add" onclick="addRosterRow()">+ Add agent group</button>
+      <button class="btn-roster-add" onclick="addRosterRow()" data-i18n="ai.addgroup">+ Add agent group</button>
 
       <button class="btn-run btn-ai" id="btn-ai-run" onclick="runAI()">
         <span class="spinner"></span>
-        <span class="label">Run AI Experiment</span>
+        <span class="label" data-i18n="btn.airun">Run AI Experiment</span>
       </button>
       <div class="ai-progress" id="ai-progress"></div>
     </div>

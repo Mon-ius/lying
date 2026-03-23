@@ -98,7 +98,7 @@ function plotJoint(agents) {
     groups[c].x.push(a.cl);
     groups[c].y.push(a.cd);
   }
-  const nameMap = { equilibrium: 'Equilibrium', lying_averse: 'Lying-averse', deception_averse: 'Deception-averse', inference_error: 'Inference error' };
+  const nameMap = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
   const traces = Object.entries(groups).map(([k, v]) => ({
     x: v.x, y: v.y,
     mode: 'markers',
@@ -110,8 +110,8 @@ function plotJoint(agents) {
   const axMax = Math.min(Math.max(...allCl, ...allCd) * 1.1, 15);
   const layout = _layout({
     height: 400,
-    xaxis: { ...(_layout().xaxis), title: 'Lying cost c<sub>l</sub>', range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
-    yaxis: { ...(_layout().yaxis), title: 'Deception cost c<sub>d</sub>', range: [0, axMax] },
+    xaxis: { ...(_layout().xaxis), title: t('ax.cl'), range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
+    yaxis: { ...(_layout().yaxis), title: t('ax.cd'), range: [0, axMax] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     margin: { l: 52, r: 12, t: 8, b: 42 },
   });
@@ -138,8 +138,8 @@ function plotStrat(R, gt) {
   const dark = _isDark();
   const layout = _layout({
     height: 260,
-    xaxis: { ...(_layout().xaxis), title: 'Truth-telling probability', range: [-0.02, 1.02] },
-    yaxis: { ...(_layout().yaxis), title: 'Observations (%)' },
+    xaxis: { ...(_layout().xaxis), title: t('ax.ttp'), range: [-0.02, 1.02] },
+    yaxis: { ...(_layout().yaxis), title: t('ax.obs') },
     shapes: [{
       type: 'line', x0: eq, x1: eq, y0: 0, y1: 1,
       xref: 'x', yref: 'paper',
@@ -161,10 +161,12 @@ function plotTypes(agents) {
     risk[a.riskType] = (risk[a.riskType] || 0) + 1;
     cls[a.classification] = (cls[a.classification] || 0) + 1;
   }
-  const mkTrace = (data, group) => {
+  const riskNames = { risk_loving: t('rt.rl'), risk_neutral: t('rt.rn'), risk_averse: t('rt.ra') };
+  const clsNames = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
+  const mkTrace = (data, group, nameMap) => {
     const entries = Object.entries(data).sort((a, b) => a[1] - b[1]);
     return {
-      y: entries.map(([k]) => k.replace(/_/g, ' ')),
+      y: entries.map(([k]) => (nameMap && nameMap[k]) || k.replace(/_/g, ' ')),
       x: entries.map(([, v]) => (v / n * 100)),
       type: 'bar',
       orientation: 'h',
@@ -177,8 +179,8 @@ function plotTypes(agents) {
       hovertemplate: '%{y}: %{x:.1f}%<extra></extra>',
     };
   };
-  const riskTrace = mkTrace(risk, 'Risk');
-  const clsTrace = mkTrace(cls, 'Classification');
+  const riskTrace = mkTrace(risk, 'Risk', riskNames);
+  const clsTrace = mkTrace(cls, 'Classification', clsNames);
   // Stack vertically using subplots
   riskTrace.xaxis = 'x'; riskTrace.yaxis = 'y';
   clsTrace.xaxis = 'x2'; clsTrace.yaxis = 'y2';
@@ -244,7 +246,7 @@ function plotRegions(agents) {
   const dashTrace = { x: dashedLine.x, y: dashedLine.y, mode: 'lines', line: { color: dashColor, width: 2, dash: 'dash' }, showlegend: false, hoverinfo: 'skip' };
   // Agent dots grouped by classification
   const groups = {};
-  const nameMap = { equilibrium: 'Equilibrium', lying_averse: 'Lying-averse', deception_averse: 'Deception-averse', inference_error: 'Inference error' };
+  const nameMap = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
   for (const a of agents) {
     if (a.cd > mx || a.cl > mx) continue;
     const c = a.classification;
@@ -262,8 +264,8 @@ function plotRegions(agents) {
   }));
   const layout = _layout({
     height: 320,
-    xaxis: { ...(_layout().xaxis), title: 'Deception cost c<sub>d</sub>', range: [0, mx] },
-    yaxis: { ...(_layout().yaxis), title: 'Lying cost c<sub>l</sub>', range: [0, mx] },
+    xaxis: { ...(_layout().xaxis), title: t('ax.cd'), range: [0, mx] },
+    yaxis: { ...(_layout().yaxis), title: t('ax.cl'), range: [0, mx] },
     showlegend: false,
     margin: { l: 48, r: 12, t: 8, b: 36 },
   });
