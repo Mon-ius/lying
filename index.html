@@ -353,6 +353,16 @@
         <br>Position reveals which cost dimension drives deviation from equilibrium.
       </div>
     </div>
+    <div class="chart-card">
+      <h4><span class="dot" style="background:var(--teal)"></span><span data-i18n="chart.lambda">Fig. 7 &mdash; Reputation Dynamics (&lambda; Trajectory)</span><button class="chart-dl" onclick="downloadChart('c-lambda','fig7-reputation-dynamics')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
+      <div id="c-lambda"></div>
+      <div class="chart-note" data-i18n="note.lambda">
+        <b>Note.</b> Average reputation belief (&lambda;) across N periods, showing how type inference evolves as state is carried between periods.
+        <br><strong>BT</strong>&thinsp;: bad-type truth-telling &mdash; &lambda; typically rises as the receiver updates beliefs from truthful signals.
+        <br><strong>GL</strong>&thinsp;: good-type lying &mdash; &lambda; trajectory depends on how lies interact with receiver inference.
+        <br>Shaded band shows &plusmn;1 s.d. across agents. Period weights (x<sub>t</sub>) shown as dashed grey line on secondary axis.
+      </div>
+    </div>
   </div>
 
 </main>

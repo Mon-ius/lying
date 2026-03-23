@@ -155,6 +155,9 @@ const I18N = {
     'ax.obs':'Observations (%)',
     'ax.cl':'Lying cost c<sub>l</sub>',
     'ax.cd':'Deception cost c<sub>d</sub>',
+    'ax.period':'Period',
+    'chart.lambda':'Fig. 7 &mdash; Reputation Dynamics (\u03bb Trajectory)',
+    'note.lambda':'<b>Note.</b> Average reputation belief (\u03bb) across N periods, showing how type inference evolves as state is carried between periods.<br><strong>BT</strong>&thinsp;: bad-type truth-telling — \u03bb typically rises as the receiver updates beliefs from truthful signals.<br><strong>GL</strong>&thinsp;: good-type lying — \u03bb trajectory depends on how lies interact with receiver inference.<br>Shaded band shows \u00b11 s.d. across agents. Period weights (x\u209c) shown as dashed grey line on secondary axis.',
     // Chart legend labels
     'cls.eq':'Equilibrium',
     'cls.la':'Lying-averse',
@@ -364,6 +367,9 @@ const I18N = {
     'ax.obs':'观测值 (%)',
     'ax.cl':'说谎成本 c<sub>l</sub>',
     'ax.cd':'欺骗成本 c<sub>d</sub>',
+    'ax.period':'期数',
+    'chart.lambda':'图 7 &mdash; 声誉动态 (\u03bb 轨迹)',
+    'note.lambda':'<b>注.</b> N 期内平均声誉信念 (\u03bb) 变化, 展示状态传递下类型推断的演化.<br><strong>BT</strong>&thinsp;: 坏类型说真话 — \u03bb 通常随接收者从真实信号更新信念而上升.<br><strong>GL</strong>&thinsp;: 好类型说谎 — \u03bb 轨迹取决于谎言与接收者推断的交互.<br>阴影区域为智能体间 \u00b11 标准差. 期权重 (x\u209c) 以虚线灰色线在副轴显示.',
     // Chart legend labels
     'cls.eq':'均衡',
     'cls.la':'说谎厌恶',
@@ -569,6 +575,9 @@ const I18N = {
     'ax.obs':'관측값 (%)',
     'ax.cl':'거짓말 비용 c<sub>l</sub>',
     'ax.cd':'기만 비용 c<sub>d</sub>',
+    'ax.period':'기간',
+    'chart.lambda':'그림 7 &mdash; 평판 역학 (\u03bb 궤적)',
+    'note.lambda':'<b>주.</b> N 기간에 걸친 평균 평판 믿음 (\u03bb), 상태 전이에 따른 유형 추론 진화.<br><strong>BT</strong>&thinsp;: 나쁜 유형 진실 말하기 — \u03bb는 수신자가 진실 신호로 믿음을 업데이트하면서 상승.<br><strong>GL</strong>&thinsp;: 좋은 유형 거짓말 — \u03bb 궤적은 거짓말과 수신자 추론의 상호작용에 의존.<br>음영 영역은 에이전트 간 \u00b11 표준편차. 기간 가중치 (x\u209c)는 보조 축에 점선 회색 선으로 표시.',
     // Chart legend labels
     'cls.eq':'균형',
     'cls.la':'거짓말 혐오',

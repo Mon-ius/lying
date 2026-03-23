@@ -395,6 +395,7 @@ function runExperiment() {
     if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
     plotTypes(agents);
     plotRegions(agents);
+    plotLambda(R);
 
     // Log — sample 1 round per agent (first round of each)
     const btSample = R.bt.filter((_, i) => i % rounds === 0);

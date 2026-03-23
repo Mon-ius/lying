@@ -387,12 +387,101 @@ async function downloadChart(id, name) {
   a.download = (name || id) + '.png'; a.click();
 }
 
+/** 7. Reputation dynamics — λ trajectory across N periods */
+function plotLambda(R) {
+  const el = document.getElementById('c-lambda');
+  if (!el) return;
+  const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  // Collect per-period lambda for BT and GL
+  const collect = (arr) => {
+    if (!arr.length || !arr[0].periods) return null;
+    const N = arr[0].periods.length;
+    if (N < 2) return null;
+    const sums = new Float64Array(N), sqSums = new Float64Array(N);
+    let count = 0;
+    for (const r of arr) {
+      if (!r.periods || r.periods.length !== N) continue;
+      for (let t = 0; t < N; t++) {
+        sums[t] += r.periods[t].lambda;
+        sqSums[t] += r.periods[t].lambda ** 2;
+      }
+      count++;
+    }
+    if (!count) return null;
+    const means = [], stds = [], xs = [];
+    for (let t = 0; t < N; t++) {
+      xs.push(t + 1);
+      const m = sums[t] / count;
+      means.push(m);
+      stds.push(Math.sqrt(Math.max(0, sqSums[t] / count - m * m)));
+    }
+    return { xs, means, stds, count };
+  };
+
+  const bt = collect(R.bt);
+  const gl = collect(R.gl);
+  if (!bt && !gl) { Plotly.purge(el); return; }
+
+  const traces = [];
+  const addBand = (d, name, color) => {
+    if (!d) return;
+    const upper = d.means.map((m, i) => m + d.stds[i]);
+    const lower = d.means.map((m, i) => m - d.stds[i]);
+    // Band fill
+    traces.push({
+      x: [...d.xs, ...d.xs.slice().reverse()],
+      y: [...upper, ...lower.reverse()],
+      fill: 'toself', fillcolor: color.replace('1)', '0.12)'),
+      line: { width: 0 }, showlegend: false, hoverinfo: 'skip',
+    });
+    // Mean line
+    traces.push({
+      x: d.xs, y: d.means,
+      mode: 'lines+markers', name,
+      line: { color: color, width: 2.5 },
+      marker: { size: 5 },
+    });
+  };
+
+  addBand(bt, 'BT', 'rgba(37,99,235,1)');
+  addBand(gl, 'GL', 'rgba(220,38,38,1)');
+
+  // Period weights on secondary y-axis
+  const ref = bt || gl;
+  const N = ref.xs.length;
+  const ratio = parseFloat(document.getElementById('s-ratio')?.value || 20);
+  const weights = [];
+  for (let t = 0; t < N; t++) weights.push(Math.pow(ratio, t / (N - 1)));
+  traces.push({
+    x: ref.xs, y: weights,
+    mode: 'lines', name: 'x\u209c',
+    line: { color: dark ? 'rgba(150,160,175,0.4)' : 'rgba(100,110,130,0.3)', width: 1.5, dash: 'dot' },
+    yaxis: 'y2',
+  });
+
+  const layout = _layout({
+    height: 320,
+    xaxis: { ...(_layout().xaxis), title: t('ax.period'), dtick: 1 },
+    yaxis: { ...(_layout().yaxis), title: '\u03bb', range: [0, 1.05] },
+    yaxis2: { overlaying: 'y', side: 'right', title: 'x\u209c', showgrid: false, zeroline: false,
+              gridcolor: gc, range: [0, Math.max(...weights) * 1.1],
+              tickfont: { size: 9, color: dark ? '#555' : '#bbb' },
+              titlefont: { size: 10, color: dark ? '#555' : '#bbb' } },
+    legend: { x: 0.02, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    margin: { l: 48, r: 48, t: 8, b: 36 },
+  });
+  Plotly.react('c-lambda', traces, layout, _cfg);
+}
+
 /** Redraw all charts from cached data */
 function redrawAll(agents, R) {
   if (!agents) return;
   plotParams(agents);
   plotJoint(agents);
-  if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); }
+  if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); plotLambda(R); }
   plotTypes(agents);
   plotRegions(agents);
 }
