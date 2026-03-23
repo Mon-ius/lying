@@ -23,8 +23,8 @@ function _openaiCall(label, defaultEP) {
 
 /* ---- Provider Registry ---- */
 const PROVIDERS = {
-  anthropic: {
-    name: 'Anthropic',
+  claude: {
+    name: 'Claude',
     models: [
       { id: 'claude-opus-4-6', label: 'Opus 4.6' },
       { id: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
@@ -33,7 +33,7 @@ const PROVIDERS = {
     ],
     defaultEndpoint: 'https://api.anthropic.com/v1/messages',
     call: async (cfg, system, prompt) => {
-      const r = await fetch(cfg.endpoint || PROVIDERS.anthropic.defaultEndpoint, {
+      const r = await fetch(cfg.endpoint || PROVIDERS.claude.defaultEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,13 +46,13 @@ const PROVIDERS = {
           system, messages: [{ role: 'user', content: prompt }],
         }),
       });
-      if (!r.ok) throw new Error(`Anthropic ${r.status}: ${await r.text()}`);
+      if (!r.ok) throw new Error(`Claude ${r.status}: ${await r.text()}`);
       const d = await r.json();
       return d.content[0].text.trim();
     },
   },
-  openai: {
-    name: 'OpenAI',
+  gpt: {
+    name: 'GPT',
     models: [
       { id: 'gpt-5.4', label: 'GPT-5.4' },
       { id: 'gpt-5.4-mini', label: 'GPT-5.4 Mini' },
@@ -65,10 +65,10 @@ const PROVIDERS = {
       { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
     ],
     defaultEndpoint: 'https://api.openai.com/v1/chat/completions',
-    call: _openaiCall('OpenAI', 'https://api.openai.com/v1/chat/completions'),
+    call: _openaiCall('GPT', 'https://api.openai.com/v1/chat/completions'),
   },
-  google: {
-    name: 'Google',
+  gemini: {
+    name: 'Gemini',
     models: [
       { id: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro' },
       { id: 'gemini-3-flash-preview', label: 'Gemini 3 Flash' },
@@ -78,7 +78,7 @@ const PROVIDERS = {
     ],
     defaultEndpoint: 'https://generativelanguage.googleapis.com/v1beta',
     call: async (cfg, system, prompt) => {
-      const ep = cfg.endpoint || PROVIDERS.google.defaultEndpoint;
+      const ep = cfg.endpoint || PROVIDERS.gemini.defaultEndpoint;
       const r = await fetch(`${ep}/models/${cfg.model}:generateContent?key=${cfg.apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,7 +88,7 @@ const PROVIDERS = {
           generationConfig: { temperature: 0.4, maxOutputTokens: 1024 },
         }),
       });
-      if (!r.ok) throw new Error(`Google ${r.status}: ${await r.text()}`);
+      if (!r.ok) throw new Error(`Gemini ${r.status}: ${await r.text()}`);
       const d = await r.json();
       return d.candidates[0].content.parts[0].text.trim();
     },
@@ -134,15 +134,15 @@ const PROVIDERS = {
     defaultEndpoint: 'https://api.moonshot.cn/v1/chat/completions',
     call: _openaiCall('Kimi', 'https://api.moonshot.cn/v1/chat/completions'),
   },
-  zhipu: {
-    name: 'Zhipu',
+  glm: {
+    name: 'GLM',
     models: [
       { id: 'glm-5', label: 'GLM-5' },
       { id: 'glm-4.5', label: 'GLM-4.5' },
       { id: 'glm-4.5-flash', label: 'GLM-4.5 Flash' },
     ],
     defaultEndpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-    call: _openaiCall('Zhipu', 'https://open.bigmodel.cn/api/paas/v4/chat/completions'),
+    call: _openaiCall('GLM', 'https://open.bigmodel.cn/api/paas/v4/chat/completions'),
   },
 };
 
@@ -448,7 +448,7 @@ function escapeHtml(s) {
 /* ---- Roster UI helpers ---- */
 function addRosterRow(provider, model) {
   const container = document.getElementById('agent-roster');
-  const p = provider || 'anthropic';
+  const p = provider || 'claude';
   const prov = PROVIDERS[p];
   const m = model || prov.models[0]?.id || '';
   const row = document.createElement('div');

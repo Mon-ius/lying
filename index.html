@@ -154,19 +154,19 @@
         <div class="form-hint">Session-only &mdash; never stored to disk</div>
       </div>
       <div class="form-group provider-key-group">
-        <div class="form-label"><span>Anthropic</span></div>
-        <input type="password" id="pk-anthropic" placeholder="sk-ant-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-anthropic" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
+        <div class="form-label"><span>Claude</span></div>
+        <input type="password" id="pk-claude" placeholder="sk-ant-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-claude" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
-        <div class="form-label"><span>OpenAI</span></div>
-        <input type="password" id="pk-openai" placeholder="sk-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-openai" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
+        <div class="form-label"><span>GPT</span></div>
+        <input type="password" id="pk-gpt" placeholder="sk-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-gpt" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
-        <div class="form-label"><span>Google</span></div>
-        <input type="password" id="pk-google" placeholder="AIza..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-google" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
+        <div class="form-label"><span>Gemini</span></div>
+        <input type="password" id="pk-gemini" placeholder="AIza..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-gemini" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>DeepSeek</span></div>
@@ -189,9 +189,9 @@
         <input type="text" id="pe-kimi" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
-        <div class="form-label"><span>Zhipu</span></div>
-        <input type="password" id="pk-zhipu" placeholder="..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-zhipu" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
+        <div class="form-label"><span>GLM</span></div>
+        <input type="password" id="pk-glm" placeholder="..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-glm" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
 
       <!-- Orchestrator -->
@@ -201,14 +201,14 @@
       </div>
       <div class="form-group form-row">
         <select id="orch-provider" onchange="updateOrchModels()">
-          <option value="anthropic">Anthropic</option>
-          <option value="openai">OpenAI</option>
-          <option value="google">Google</option>
+          <option value="claude">Claude</option>
+          <option value="gpt">GPT</option>
+          <option value="gemini">Gemini</option>
           <option value="deepseek">DeepSeek</option>
           <option value="qwen">Qwen</option>
           <option value="minimax">MiniMax</option>
           <option value="kimi">Kimi</option>
-          <option value="zhipu">Zhipu</option>
+          <option value="glm">GLM</option>
         </select>
         <select id="orch-model">
           <option value="claude-opus-4-6">Opus 4.6</option>
@@ -485,8 +485,8 @@
       <!-- Provider Registry -->
       <rect x="120" y="10" width="560" height="72" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4"/>
       <text x="400" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)">Provider Registry (8 Providers)</text>
-      <text x="400" y="48" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Anthropic &#x00B7; OpenAI &#x00B7; Google &#x00B7; DeepSeek</text>
-      <text x="400" y="64" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Qwen &#x00B7; MiniMax &#x00B7; Kimi &#x00B7; Zhipu</text>
+      <text x="400" y="48" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Claude &#x00B7; GPT &#x00B7; Gemini &#x00B7; DeepSeek</text>
+      <text x="400" y="64" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Qwen &#x00B7; MiniMax &#x00B7; Kimi &#x00B7; GLM</text>
 
       <line x1="400" y1="82" x2="400" y2="106" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
@@ -521,12 +521,12 @@
       <!-- Agent dispatches -->
       <rect x="70" y="394" width="140" height="58" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
       <text x="140" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-bt-t)">Agent 0</text>
-      <text x="140" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".8">Anthropic / Haiku</text>
+      <text x="140" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".8">Claude / Haiku</text>
       <text x="140" y="442" text-anchor="middle" font-size="8" fill="var(--node-bt-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
       <rect x="240" y="394" width="140" height="58" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
       <text x="310" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-gl-t)">Agent 1</text>
-      <text x="310" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".8">OpenAI / GPT-5.4</text>
+      <text x="310" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".8">GPT / GPT-5.4</text>
       <text x="310" y="442" text-anchor="middle" font-size="8" fill="var(--node-gl-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
       <rect x="420" y="394" width="140" height="58" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
