@@ -9,10 +9,10 @@ const PROVIDERS = {
   anthropic: {
     name: 'Anthropic',
     models: [
-      { id: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5' },
-      { id: 'claude-sonnet-4-5-20241022', label: 'Sonnet 4.5' },
-      { id: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
       { id: 'claude-opus-4-6', label: 'Opus 4.6' },
+      { id: 'claude-sonnet-4-6', label: 'Sonnet 4.6' },
+      { id: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
+      { id: 'claude-haiku-4-5', label: 'Haiku 4.5' },
     ],
     defaultEndpoint: 'https://api.anthropic.com/v1/messages',
     call: async (cfg, system, prompt) => {
@@ -37,11 +37,15 @@ const PROVIDERS = {
   openai: {
     name: 'OpenAI',
     models: [
-      { id: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' },
+      { id: 'gpt-5.4', label: 'GPT-5.4' },
+      { id: 'gpt-5.4-mini', label: 'GPT-5.4 Mini' },
+      { id: 'gpt-5.4-nano', label: 'GPT-5.4 Nano' },
+      { id: 'o3', label: 'o3' },
+      { id: 'o4-mini', label: 'o4-mini' },
       { id: 'gpt-4.1', label: 'GPT-4.1' },
+      { id: 'gpt-4.1-mini', label: 'GPT-4.1 Mini' },
       { id: 'gpt-4o', label: 'GPT-4o' },
       { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-      { id: 'o3-mini', label: 'o3-mini' },
     ],
     defaultEndpoint: 'https://api.openai.com/v1/chat/completions',
     call: async (cfg, system, prompt) => {
@@ -67,9 +71,10 @@ const PROVIDERS = {
   google: {
     name: 'Google',
     models: [
-      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
-      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+      { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
+      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
     ],
     defaultEndpoint: 'https://generativelanguage.googleapis.com/v1beta',
     call: async (cfg, system, prompt) => {

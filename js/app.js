@@ -168,7 +168,7 @@ function switchVersion(v) {
   document.body.classList.toggle('mode-ai', v === 'v2');
   // Seed default roster row if empty
   if (v === 'v2' && !document.querySelectorAll('.roster-row').length) {
-    addRosterRow('anthropic', 'claude-haiku-4-5-20251001');
+    addRosterRow('anthropic', 'claude-haiku-4-5');
     addRosterRow('openai', 'gpt-4o-mini');
   }
 }
