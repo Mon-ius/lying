@@ -278,18 +278,20 @@ function exportCSV() {
     ].join(',');
   });
 
-  // Per-period detail sheet (separate section)
-  const pdHeader = '\nagentId,gameType,period,theta,sent,rcv,action,lambda,isLie,isDec,dec,strat,payoff';
+  // Per-period detail — all rounds, all periods
+  const pdHeader = '\nagentId,gameType,round,period,theta,sent,rcv,action,lambda,isLie,isDec,dec,strat,augT,augL,payoff,mc';
   const pdRows = [];
   const addPeriods = (arr) => {
-    arr.forEach((r, i) => {
-      if (i % rounds !== 0) return; // first round per agent
+    let prevId = -1, rnd = 0;
+    arr.forEach(r => {
+      if (r.id !== prevId) { prevId = r.id; rnd = 0; } else { rnd++; }
       if (!r.periods) return;
       r.periods.forEach(p => {
-        pdRows.push([r.id, r.gt, p.t + 1, p.st, p.sent, p.rcv,
+        pdRows.push([r.id, r.gt, rnd + 1, p.t + 1, p.st, p.sent, p.rcv,
           p.at.toFixed(4), p.lambda.toFixed(4),
           p.isLie ? 1 : 0, p.isDec ? 1 : 0, p.dec.toFixed(4),
-          p.strat.toFixed(4), p.payoff.toFixed(4),
+          p.strat.toFixed(4), p.augT.toFixed(4), p.augL.toFixed(4),
+          p.payoff.toFixed(4), p.mc ? 1 : 0,
         ].join(','));
       });
     });
