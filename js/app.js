@@ -382,8 +382,10 @@ function runExperiment() {
     plotTypes(agents);
     plotRegions(agents);
 
-    // Log
-    window._logSample = [...R.bt.slice(0, 6), ...R.gl.slice(0, 6)];
+    // Log — sample 1 round per agent (first round of each), up to 6 agents
+    const btSample = R.bt.filter((_, i) => i % rounds === 0).slice(0, 6);
+    const glSample = R.gl.filter((_, i) => i % rounds === 0).slice(0, 6);
+    window._logSample = [...btSample, ...glSample];
     renderLog();
 
     btn.classList.remove('loading'); btn.disabled = false;
