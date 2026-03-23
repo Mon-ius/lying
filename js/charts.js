@@ -261,6 +261,40 @@ function plotRegions(agents) {
   Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
+/* ---- PNG DPI metadata (pHYs chunk injection) ---- */
+const _crc32t = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c;
+  }
+  return t;
+})();
+function _crc32(buf) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = _crc32t[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function _setPngDpi(dataUrl, dpi) {
+  const ppm = Math.round(dpi / 0.0254); // pixels per meter
+  const bin = atob(dataUrl.split(',')[1]);
+  const src = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) src[i] = bin.charCodeAt(i);
+  // Insert pHYs chunk after IHDR (8-byte sig + 25-byte IHDR = offset 33)
+  const pos = 33;
+  const phys = new Uint8Array(21); // 4 len + 4 type + 9 data + 4 crc
+  const dv = new DataView(phys.buffer);
+  dv.setUint32(0, 9);
+  phys[4]=0x70; phys[5]=0x48; phys[6]=0x59; phys[7]=0x73; // "pHYs"
+  dv.setUint32(8, ppm); dv.setUint32(12, ppm); phys[16] = 1; // unit=meter
+  dv.setUint32(17, _crc32(phys.subarray(4, 17)));
+  const out = new Uint8Array(src.length + 21);
+  out.set(src.subarray(0, pos)); out.set(phys, pos); out.set(src.subarray(pos), pos + 21);
+  let s = ''; for (let i = 0; i < out.length; i++) s += String.fromCharCode(out[i]);
+  return 'data:image/png;base64,' + btoa(s);
+}
+
 /** Download chart as high-res PNG with title + plot + notes */
 async function downloadChart(id, name) {
   const gd = document.getElementById(id);
@@ -338,7 +372,7 @@ async function downloadChart(id, name) {
 
   // Download
   const a = document.createElement('a');
-  a.href = canvas.toDataURL('image/png');
+  a.href = _setPngDpi(canvas.toDataURL('image/png'), 300);
   a.download = (name || id) + '.png'; a.click();
 }
 
