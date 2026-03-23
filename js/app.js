@@ -7,15 +7,74 @@
 function renderLog() {
   const log = document.getElementById('log');
   const sample = window._logSample;
-  if (!log || !sample) return;
-  log.innerHTML = sample.map(r => {
-    const tag = r.isLie
+  if (!log || !sample || !sample.length) return;
+  const rtMap = { risk_loving: t('rt.rl'), risk_neutral: t('rt.rn'), risk_averse: t('rt.ra') };
+
+  log.innerHTML = sample.map((r, i) => {
+    const lieTag = r.isLie
       ? `<span class="tag tag-lie">${t('log.lie')}</span>`
       : `<span class="tag tag-truth">${t('log.truth')}</span>`;
-    const dec = r.isDec ? `&ensp;<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
-    const mc = r.mc ? `&ensp;<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
-    return `<span class="${r.isLie ? 'lie' : 'truth'}">${r.gt}&ensp;${t('log.agent')} ${r.id}&ensp;\u03b8=${r.s1}&ensp;${t('log.sent')}=${r.sent}&ensp;${t('log.rcv')}=${r.rcv}&ensp;a=${r.a1.toFixed(2)}&ensp;${tag}${dec}${mc}&ensp;${t('log.payoff')}=${r.sp.toFixed(2)}</span>`;
-  }).join('<br>');
+    const decTag = r.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
+    const mcTag = r.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
+
+    let sobelNote = '';
+    if (!r.isLie && r.isDec) sobelNote = t('log.prop1');
+    else if (r.isLie && !r.isDec) sobelNote = t('log.prop2');
+
+    const truthWins = r.augT >= r.augL;
+    const diff = Math.abs(r.augT - r.augL).toFixed(3);
+    const winner = truthWins ? t('log.truth') : t('log.lie');
+
+    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
+  <summary>
+    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
+    ${t('log.agent')}\u2009${r.id}
+    \u2003\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
+    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
+    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
+  </summary>
+  <div class="log-detail">
+    <div class="log-section"><strong>${t('log.p1')}</strong>
+      <div class="log-grid">
+        <span>\u03b8\u2081 = ${r.s1}</span>
+        <span>m = ${r.sent} (${r.isLie ? t('log.lie') : t('log.truth')})</span>
+        <span>${t('log.rcv')} = ${r.rcv}${r.mc ? ' \u26a0' : ''}</span>
+        <span>a\u2081 = ${r.a1.toFixed(3)}</span>
+      </div>
+    </div>
+    <div class="log-section"><strong>${t('log.p2')}</strong>
+      <div class="log-grid">
+        <span>\u03b8\u2082 = ${r.s2}</span>
+        <span>\u03bb = ${r.lambda.toFixed(3)}</span>
+        <span>a\u2082 = ${r.a2.toFixed(3)}</span>
+        <span>${t('log.payoff')}: S=${r.sp.toFixed(2)} R=${r.rp.toFixed(2)}</span>
+      </div>
+    </div>
+    <div class="log-section"><strong>${t('log.decision')}</strong>
+      <div class="log-grid">
+        <span>EU\u1d43(${t('log.truth')}) = ${r.augT.toFixed(3)}</span>
+        <span>EU\u1d43(${t('log.lie')}) = ${r.augL.toFixed(3)}</span>
+        <span>\u2192 ${winner} ${t('log.better')} ${diff}</span>
+        <span>${t('log.strategy')} = ${r.strat.toFixed(2)}</span>
+      </div>
+    </div>
+    <div class="log-section"><strong>${t('log.sobel')}</strong>
+      <div class="log-grid">
+        <span>${r.isLie ? t('log.islie') : t('log.nolie')}</span>
+        <span>D = ${r.dec.toFixed(3)} \u2192 ${r.isDec ? t('log.isdec') : t('log.nodec')}</span>
+        ${sobelNote ? `<span class="tag tag-sobel">${sobelNote}</span>` : ''}
+      </div>
+    </div>
+    <div class="log-section"><strong>${t('log.profile')}</strong>
+      <div class="log-grid">
+        <span>c<sub>l</sub> = ${r.cl.toFixed(3)}</span>
+        <span>c<sub>d</sub> = ${r.cd.toFixed(3)}</span>
+        <span>\u03b1 = ${r.alpha.toFixed(3)} (${rtMap[r.riskType] || r.riskType})</span>
+      </div>
+    </div>
+  </div>
+</details>`;
+  }).join('');
 }
 
 /* ---- Theme management ---- */

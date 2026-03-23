@@ -109,21 +109,23 @@ function agentStrat(a, gt, x1, x2, pb) {
     const at = 1 / (2 - l00), al = 1 / (2 - l10);
     const augT = -x1 * (0 - 1) ** 2 - x2 * (at - 1) ** 2 - a.cd * B.btD(0, 0, v, pb);
     const augL = -x1 * (a11 - 1) ** 2 - x2 * (al - 1) ** 2 - a.cl - a.cd * B.btD(1, 0, v, pb);
-    return augT > augL + 1e-10 ? 1 : augL > augT + 1e-10 ? 0 : .5;
+    const s = augT > augL + 1e-10 ? 1 : augL > augT + 1e-10 ? 0 : .5;
+    return { strat: s, augT, augL };
   }
   const w = 1;
   const a10 = B.glA(0, w, pb), a11 = B.glA(1, w, pb);
   const l11 = B.glL(1, 1, w, pb);
   const augLie = -x1 * (a10 - 1) ** 2 - a.cl - a.cd * B.glD(0, 1, w, pb);
   const augTr  = -x1 * (a11 - 1) ** 2 - x2 * (1 - l11) ** 2 - a.cd * B.glD(1, 1, w, pb);
-  return augLie > augTr + 1e-10 ? 1 : augTr > augLie + 1e-10 ? 0 : .5;
+  const s = augLie > augTr + 1e-10 ? 1 : augTr > augLie + 1e-10 ? 0 : .5;
+  return { strat: s, augT: augTr, augL: augLie };
 }
 
 /* ---- Round execution ---- */
 function playRound(a, gt, P, g) {
   const { x1, x2, pb, miscomm } = P;
   const s1 = g() < .5 ? 0 : 1, s2 = g() < .5 ? 0 : 1;
-  const strat = agentStrat(a, gt, x1, x2, pb);
+  const { strat, augT, augL } = agentStrat(a, gt, x1, x2, pb);
   let sent, v, w;
   if (gt === 'BT') {
     if (!s1) { sent = g() < strat ? 0 : 1; v = 1 - strat; } else { sent = 1; v = 1 - strat; }
@@ -143,7 +145,7 @@ function playRound(a, gt, P, g) {
   const isLie = sent !== s1;
   const dec = gt === 'BT' ? B.btD(sent, s1, sp, pb) : B.glD(sent, s1, sp, pb);
   const tp = gt === 'BT' ? (s1 === 0 ? strat : 1) : (s1 === 1 ? 1 - strat : 1);
-  return { gt, id: a.id, s1, s2, sent, rcv, a1, a2, sp: sp_, rp: rp_, isLie, isDec: dec > 1e-6, tp, strat, mc: sent !== rcv };
+  return { gt, id: a.id, s1, s2, sent, rcv, a1, a2, sp: sp_, rp: rp_, isLie, isDec: dec > 1e-6, dec, tp, strat, mc: sent !== rcv, lambda: tb, v, w, augT, augL, cl: a.cl, cd: a.cd, alpha: a.alpha, riskType: a.riskType };
 }
 
 /* ---- Full simulation ---- */
