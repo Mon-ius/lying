@@ -111,6 +111,8 @@ const I18N = {
     'svg1.classify':'Behavioral Classification (Figure 5)',
     'svg1.classify.d':'Equilibrium (BT\u2713 GL\u2713) | Lying-averse (BT\u2713 GL\u2717) | Deception-averse (BT\u2717 GL\u2713) | Inf. Error',
     'svg1.welfare':'Welfare Analysis &amp; Visualization',
+    'svg1.sobel.d3':'Def 3: Lie','svg1.sobel.d4':'Def 4: Dec',
+    'svg1.choi.sec':'Sec 5','svg1.choi.eua':'EU\u1d43',
     // V2 SVG Architecture
     'svg2.provider':'Provider Registry (8 LLM APIs)',
     'svg2.roster':'Agent Roster Configuration',
@@ -313,6 +315,8 @@ const I18N = {
     'svg1.classify':'行为分类 (图 5)',
     'svg1.classify.d':'均衡 (BT✓ GL✓) | 说谎厌恶 (BT✓ GL✗) | 欺骗厌恶 (BT✗ GL✓) | 推断误差',
     'svg1.welfare':'福利分析与可视化',
+    'svg1.sobel.d3':'定义 3: 谎言','svg1.sobel.d4':'定义 4: 欺骗',
+    'svg1.choi.sec':'第 5 节','svg1.choi.eua':'EU\u1d43',
     // V2 SVG Architecture
     'svg2.provider':'提供商注册表 (8 个 LLM API)',
     'svg2.roster':'智能体配置表',
@@ -511,6 +515,8 @@ const I18N = {
     'svg1.classify':'행동 분류 (그림 5)',
     'svg1.classify.d':'균형 (BT✓ GL✓) | 거짓말 혐오 (BT✓ GL✗) | 기만 혐오 (BT✗ GL✓) | 추론 오류',
     'svg1.welfare':'후생 분석 및 시각화',
+    'svg1.sobel.d3':'정의 3: 거짓말','svg1.sobel.d4':'정의 4: 기만',
+    'svg1.choi.sec':'제5절','svg1.choi.eua':'EU\u1d43',
     // V2 SVG Architecture
     'svg2.provider':'프로바이더 레지스트리 (8개 LLM API)',
     'svg2.roster':'에이전트 로스터 구성',
