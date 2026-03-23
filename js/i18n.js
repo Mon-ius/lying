@@ -96,6 +96,7 @@ const I18N = {
     'svg1.strat4':'Strategy (Prop. 4)',
     'svg1.round':'Round Execution (2-Period Game)',
     'svg1.classify':'Behavioral Classification (Figure 5)',
+    'svg1.welfare':'Welfare Analysis &amp; Visualization',
     // V2 SVG Architecture
     'svg2.provider':'Provider Registry (8 LLM APIs)',
     'svg2.roster':'Agent Roster Configuration',
@@ -283,6 +284,7 @@ const I18N = {
     'svg1.strat4':'策略 (命题 4)',
     'svg1.round':'轮次执行 (2 期博弈)',
     'svg1.classify':'行为分类 (图 5)',
+    'svg1.welfare':'福利分析与可视化',
     // V2 SVG Architecture
     'svg2.provider':'提供商注册表 (8 个 LLM API)',
     'svg2.roster':'智能体配置表',
@@ -466,6 +468,7 @@ const I18N = {
     'svg1.strat4':'전략 (명제 4)',
     'svg1.round':'라운드 실행 (2기간 게임)',
     'svg1.classify':'행동 분류 (그림 5)',
+    'svg1.welfare':'후생 분석 및 시각화',
     // V2 SVG Architecture
     'svg2.provider':'프로바이더 레지스트리 (8개 LLM API)',
     'svg2.roster':'에이전트 로스터 구성',
