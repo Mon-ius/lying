@@ -433,6 +433,23 @@ body.mode-ai .btn-run { display: none; }
 .btn-export:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 .btn-export svg { width: 14px; height: 14px; }
 
+/* Architecture version toggle */
+.arch-version-switch {
+  display: flex; gap: 4px; margin-bottom: 16px;
+  background: var(--bg-2); border-radius: 8px; padding: 3px; width: fit-content;
+}
+.arch-ver-btn {
+  padding: 7px 16px; border: none; border-radius: 6px;
+  background: transparent; color: var(--fg-3); font-family: inherit;
+  font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .2s var(--ease);
+  white-space: nowrap;
+}
+.arch-ver-btn:hover { color: var(--fg-1); }
+.arch-ver-btn.active { background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm); }
+.arch-ver-btn[data-arch="v2"].active {
+  background: linear-gradient(135deg, var(--purple), var(--accent)); color: #fff;
+}
+
 /* ================================================================ Architecture definitions */
 .arch-defs {
   margin-top: 28px;
@@ -476,6 +493,9 @@ body.mode-ai .btn-run { display: none; }
   .mobile-toggle { display: flex; }
   .kpi-row { grid-template-columns: repeat(3, 1fr); }
   .nav-brand { display: none; }
+  .paradigm-label { display: none; }
+  .paradigm-btn { padding: 5px 8px; }
+  .paradigm-icon { font-size: .92rem; }
   .arch-defs { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .arch-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .arch-svg-container { padding: 12px; }

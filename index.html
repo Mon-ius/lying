@@ -334,7 +334,13 @@
     </a>
   </div>
 
-  <div class="arch-svg-container">
+  <!-- Architecture version toggle -->
+  <div class="arch-version-switch">
+    <button class="arch-ver-btn active" data-arch="v1" onclick="switchArchVersion('v1')">V1 &mdash; Mathematical Model</button>
+    <button class="arch-ver-btn" data-arch="v2" onclick="switchArchVersion('v2')">V2 &mdash; AI Agent Pipeline</button>
+  </div>
+
+  <div class="arch-svg-container" id="arch-v1">
     <svg viewBox="0 0 960 820" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--fg-3)"/></marker>
@@ -436,6 +442,124 @@
       <text x="932" y="504" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">EU&#x1D43;</text>
     </svg>
   </div>
+
+  <!-- V2 Architecture -->
+  <div class="arch-svg-container" id="arch-v2" style="display:none">
+    <svg viewBox="0 0 960 920" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--fg-3)"/></marker>
+        <linearGradient id="gAI" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--purple)" stop-opacity=".15"/><stop offset="100%" stop-color="var(--accent)" stop-opacity=".15"/></linearGradient>
+      </defs>
+
+      <!-- Provider Registry -->
+      <rect x="230" y="10" width="500" height="68" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4"/>
+      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--purple)">Provider Registry</text>
+      <text x="480" y="48" text-anchor="middle" font-size="10" fill="var(--fg-2)">Anthropic &#x00B7; OpenAI &#x00B7; Google Gemini &#x00B7; Custom (OpenAI-compatible)</text>
+      <text x="480" y="64" text-anchor="middle" font-size="9" fill="var(--fg-3)">API keys (session-only) &#x00B7; endpoints &#x00B7; model catalogues</text>
+
+      <line x1="480" y1="78" x2="480" y2="108" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Agent Roster -->
+      <rect x="230" y="112" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="480" y="134" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Agent Roster Configuration</text>
+      <text x="480" y="152" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Per-group: provider &#x00D7; model &#x00D7; count &#x00B7; game params from V1 sidebar</text>
+
+      <line x1="480" y1="168" x2="480" y2="198" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Population Generation -->
+      <rect x="230" y="202" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="480" y="224" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
+      <text x="480" y="242" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan>, &#x03B1;, &#x03B2; assigned per agent &#x00B7; provider + model attached from roster</text>
+
+      <line x1="480" y1="258" x2="480" y2="288" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Orchestrator -->
+      <rect x="180" y="292" width="600" height="80" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5"/>
+      <text x="480" y="316" text-anchor="middle" font-size="13" font-weight="700" fill="var(--purple)">Orchestrator Model</text>
+      <text x="480" y="334" text-anchor="middle" font-size="10" fill="var(--fg-1)">Main LLM generates personalised game prompts for each agent</text>
+      <text x="480" y="350" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Input: agent params + game type + game params &#x2192; Output: JSON array of {id, prompt}</text>
+      <text x="480" y="364" text-anchor="middle" font-size="9" fill="var(--fg-3)">Fallback: local prompt generation if orchestrator fails</text>
+
+      <!-- Fan-out arrows -->
+      <path d="M320,372 L320,398 L160,398 L160,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M420,372 L420,398 L370,398 L370,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M540,372 L540,398 L590,398 L590,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M640,372 L640,398 L800,398 L800,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Agent dispatches -->
+      <rect x="80" y="424" width="160" height="64" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
+      <text x="160" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-bt-t)">Agent 0</text>
+      <text x="160" y="464" text-anchor="middle" font-size="9" fill="var(--node-bt-t)" opacity=".8">Anthropic / Haiku</text>
+      <text x="160" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".7">&#x2192; truth-telling prob</text>
+
+      <rect x="290" y="424" width="160" height="64" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
+      <text x="370" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-gl-t)">Agent 1</text>
+      <text x="370" y="464" text-anchor="middle" font-size="9" fill="var(--node-gl-t)" opacity=".8">OpenAI / GPT-4o</text>
+      <text x="370" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".7">&#x2192; truth-telling prob</text>
+
+      <rect x="510" y="424" width="160" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
+      <text x="590" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-bel-t)">Agent 2</text>
+      <text x="590" y="464" text-anchor="middle" font-size="9" fill="var(--node-bel-t)" opacity=".8">Google / Gemini</text>
+      <text x="590" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-bel-t)" opacity=".7">&#x2192; truth-telling prob</text>
+
+      <rect x="720" y="424" width="160" height="64" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="800" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-pop-t)">Agent N</text>
+      <text x="800" y="464" text-anchor="middle" font-size="9" fill="var(--node-pop-t)" opacity=".8">Custom / ...</text>
+      <text x="800" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-pop-t)" opacity=".7">&#x2192; truth-telling prob</text>
+
+      <text x="480" y="410" text-anchor="middle" font-size="8" fill="var(--fg-3)">Concurrency limit = 4</text>
+
+      <!-- Fan-in arrows -->
+      <path d="M160,488 L160,518 L380,518 L380,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M370,488 L370,518 L420,518 L420,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M590,488 L590,518 L540,518 L540,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M800,488 L800,518 L580,518 L580,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Strategy Collection -->
+      <rect x="230" y="544" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="480" y="566" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Strategy Collection</text>
+      <text x="480" y="584" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">AI responses &#x2192; parse number [0, 1] &#x00B7; fallback to math strategy on error</text>
+
+      <line x1="480" y1="600" x2="480" y2="630" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Round Execution -->
+      <rect x="230" y="634" width="500" height="72" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="480" y="656" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
+      <text x="480" y="672" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m (AI strategy) &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
+      <text x="480" y="686" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
+
+      <line x1="480" y1="706" x2="480" y2="736" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Classification -->
+      <rect x="230" y="740" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="480" y="762" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification (Figure 5)</text>
+      <text x="480" y="780" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">Equilibrium | Lying-averse | Deception-averse | Inference Error</text>
+
+      <line x1="480" y1="796" x2="480" y2="826" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+
+      <!-- Rich Log + Visualization -->
+      <rect x="230" y="830" width="240" height="48" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="350" y="860" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg-1)">Rich Game Log</text>
+
+      <rect x="490" y="830" width="240" height="48" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="610" y="860" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg-1)">Plotly Visualization</text>
+
+      <path d="M420,826 L420,854 L470,854" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M540,826 L540,854 L490,854" fill="none" stroke="var(--fg-3)" stroke-width="1.5"/>
+
+      <!-- Side annotations -->
+      <rect x="4" y="292" width="68" height="52" rx="6" fill="url(#gAI)" stroke="var(--purple)" stroke-width=".5" opacity=".7"/>
+      <text x="38" y="310" text-anchor="middle" font-size="8" font-weight="600" fill="var(--purple)">LLM API</text>
+      <text x="38" y="324" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Messages</text>
+      <text x="38" y="336" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Chat / Gen</text>
+
+      <rect x="888" y="424" width="68" height="52" rx="6" fill="var(--bg-2)" stroke="var(--border)" stroke-width=".5" opacity=".7"/>
+      <text x="922" y="442" text-anchor="middle" font-size="8" font-weight="600" fill="var(--fg-3)">Fallback</text>
+      <text x="922" y="456" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Math strat</text>
+      <text x="922" y="468" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">on error</text>
+    </svg>
+  </div>
+
   <!-- Key Definitions -->
   <div class="arch-defs">
     <div class="arch-def-card">

@@ -157,6 +157,13 @@ function switchVersion(v) {
   }
 }
 
+/* ---- Architecture version toggle ---- */
+function switchArchVersion(v) {
+  document.querySelectorAll('.arch-ver-btn').forEach(b => b.classList.toggle('active', b.dataset.arch === v));
+  document.getElementById('arch-v1').style.display = v === 'v1' ? '' : 'none';
+  document.getElementById('arch-v2').style.display = v === 'v2' ? '' : 'none';
+}
+
 /* ---- Run AI experiment (V2 multi-provider) ---- */
 async function runAI() {
   const roster = buildAgentRoster();
