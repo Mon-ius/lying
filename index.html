@@ -142,23 +142,59 @@
       <span class="icon">&#x1F916;</span><h3>AI Agent Mode</h3><span class="badge-v2">V2</span><span class="chevron">&#x25BC;</span>
     </div>
     <div class="panel-body">
+
+      <!-- Provider API Keys -->
       <div class="form-group">
-        <div class="form-label">API Key</div>
-        <input type="password" id="s-api-key" placeholder="sk-ant-..." class="input-text" autocomplete="off">
-        <div class="form-hint">Anthropic API key (stored in session only)</div>
+        <div class="form-label" style="font-weight:600;margin-bottom:6px">Provider API Keys</div>
+        <div class="form-hint" style="margin-bottom:8px">Session-only &mdash; never stored to disk</div>
       </div>
-      <div class="form-group">
-        <div class="form-label">Model</div>
-        <select id="s-ai-model">
-          <option value="haiku">Haiku 4.5 (fast, low cost)</option>
-          <option value="sonnet">Sonnet 4.5 (higher quality)</option>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Anthropic</span></div>
+        <input type="password" id="pk-anthropic" placeholder="sk-ant-..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>OpenAI</span></div>
+        <input type="password" id="pk-openai" placeholder="sk-..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Google</span></div>
+        <input type="password" id="pk-google" placeholder="AIza..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Custom (OpenAI-compatible)</span></div>
+        <input type="password" id="pk-custom" placeholder="API key" class="input-text" autocomplete="off">
+        <input type="text" id="pe-custom" placeholder="https://api.example.com/v1/chat/completions" class="input-text" style="margin-top:4px" autocomplete="off">
+        <div class="form-hint">Endpoint for custom provider</div>
+      </div>
+
+      <!-- Orchestrator -->
+      <div class="form-group" style="margin-top:12px">
+        <div class="form-label" style="font-weight:600">Orchestrator Model</div>
+        <div class="form-hint" style="margin-bottom:6px">Generates tailored prompts for each agent</div>
+      </div>
+      <div class="form-group" style="display:flex;gap:6px">
+        <select id="orch-provider" onchange="updateOrchModels()" style="flex:1">
+          <option value="anthropic">Anthropic</option>
+          <option value="openai">OpenAI</option>
+          <option value="google">Google</option>
+          <option value="custom">Custom</option>
+        </select>
+        <select id="orch-model" style="flex:1">
+          <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+          <option value="claude-sonnet-4-5-20241022">Sonnet 4.5</option>
+          <option value="claude-sonnet-4-6">Sonnet 4.6</option>
+          <option value="claude-opus-4-6">Opus 4.6</option>
         </select>
       </div>
-      <div class="form-group">
-        <div class="form-label">AI Agents <span class="unit" id="v-ai-n">6</span></div>
-        <input type="range" id="s-ai-n" min="2" max="20" step="1" value="6">
-        <div class="form-hint">Each agent makes 1 API call per game type</div>
+
+      <!-- Agent Roster -->
+      <div class="form-group" style="margin-top:12px">
+        <div class="form-label" style="font-weight:600">Agent Roster</div>
+        <div class="form-hint" style="margin-bottom:6px">Configure provider, model, and count per group</div>
       </div>
+      <div id="agent-roster"></div>
+      <button class="btn-roster-add" onclick="addRosterRow()">+ Add agent group</button>
+
       <button class="btn-run btn-ai" id="btn-ai-run" onclick="runAI()">
         <span class="spinner"></span>
         <span class="label">Run AI Experiment</span>

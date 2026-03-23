@@ -227,6 +227,64 @@ select:focus { border-color: var(--accent); }
   font-size: .7rem; color: var(--fg-3); margin-top: 4px; min-height: 1em;
   font-family: 'JetBrains Mono', monospace;
 }
+/* Provider key groups */
+.provider-key-group { margin-bottom: 6px; }
+.provider-key-group .form-label { margin-bottom: 2px; }
+.provider-key-group .input-text { font-size: .74rem; padding: 5px 8px; }
+
+/* Agent roster */
+#agent-roster { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.roster-row {
+  display: grid; grid-template-columns: 1fr 1fr 48px 28px; gap: 4px; align-items: center;
+}
+.roster-row select {
+  font-size: .74rem; padding: 4px 6px; height: 28px;
+}
+.roster-row .roster-count {
+  font-family: 'JetBrains Mono', monospace; font-size: .74rem;
+  width: 100%; height: 28px; padding: 2px 4px; text-align: center;
+  background: var(--bg-2); color: var(--fg-0); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); outline: none;
+}
+.roster-row .roster-count:focus { border-color: var(--accent); }
+.roster-remove {
+  width: 28px; height: 28px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-2); color: var(--fg-3); cursor: pointer; font-size: 1rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center; transition: all .15s;
+}
+.roster-remove:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+.btn-roster-add {
+  width: 100%; padding: 6px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  background: transparent; color: var(--fg-3); font-family: inherit; font-size: .72rem;
+  font-weight: 500; cursor: pointer; transition: all .15s var(--ease); margin-bottom: 10px;
+}
+.btn-roster-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* Rich game log (V2) */
+.log-entries details.log-entry {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 4px; overflow: hidden;
+}
+.log-entries details.log-entry summary {
+  padding: 6px 10px; cursor: pointer; display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  font-size: .72rem; transition: background .15s;
+}
+.log-entries details.log-entry summary:hover { background: var(--bg-2); }
+.log-entries details.log-entry[open] summary { background: var(--bg-2); border-bottom: 1px solid var(--border); }
+.log-entries .log-detail { padding: 8px 10px; }
+.log-entries .log-section { margin-bottom: 8px; }
+.log-entries .log-section strong { font-size: .7rem; color: var(--fg-1); }
+.log-entries .log-section pre {
+  font-size: .68rem; line-height: 1.5; color: var(--fg-2);
+  background: var(--bg-2); padding: 8px 10px; border-radius: var(--radius-sm);
+  margin-top: 4px; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
+}
+.log-entries .log-error { color: var(--red); }
+.log-entries .log-orch {
+  padding: 6px 10px; font-size: .72rem; margin-bottom: 4px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
 /* Paradigm switch (navbar) */
 .paradigm-switch {
   display: flex; gap: 2px; background: var(--bg-2); border-radius: 8px;
@@ -284,7 +342,7 @@ body.mode-ai .btn-run { display: none; }
 .log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; }
 .log-card h4 { font-size: .78rem; font-weight: 600; color: var(--fg-1); margin-bottom: 8px; }
 .log-entries {
-  max-height: 180px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
+  max-height: 400px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
   font-size: .72rem; color: var(--fg-2); line-height: 1.7;
 }
 .log-entries .lie { color: var(--red); }

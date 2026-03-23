@@ -150,28 +150,28 @@ function switchVersion(v) {
   document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
   document.getElementById('p-ai').classList.toggle('collapsed', v === 'v1');
   document.body.classList.toggle('mode-ai', v === 'v2');
+  // Seed default roster row if empty
+  if (v === 'v2' && !document.querySelectorAll('.roster-row').length) {
+    addRosterRow('anthropic', 'claude-haiku-4-5-20251001');
+    addRosterRow('openai', 'gpt-4o-mini');
+  }
 }
 
-/* ---- AI slider display ---- */
-(function() {
-  const el = document.getElementById('s-ai-n');
-  if (el) el.addEventListener('input', () => {
-    document.getElementById('v-ai-n').textContent = el.value;
-  });
-})();
-
-/* ---- Run AI experiment ---- */
+/* ---- Run AI experiment (V2 multi-provider) ---- */
 async function runAI() {
-  const apiKey = document.getElementById('s-api-key').value.trim();
-  if (!apiKey) { alert('Please enter your Anthropic API key.'); return; }
-  const model = document.getElementById('s-ai-model').value;
+  const roster = buildAgentRoster();
+  if (roster.length < 2) { alert('Add at least 2 agents to the roster.'); return; }
+  // Check that at least one provider key is filled
+  const anyKey = ['anthropic','openai','google','custom'].some(p => document.getElementById('pk-'+p)?.value.trim());
+  if (!anyKey) { alert('Enter at least one provider API key.'); return; }
+
   const btn = document.getElementById('btn-ai-run');
   const prog = document.getElementById('ai-progress');
   btn.classList.add('loading'); btn.disabled = true;
-  prog.textContent = 'Querying agents...';
+  prog.textContent = 'Starting AI experiment...';
   try {
-    const { agents, R, aiLog } = await runAIExperiment(apiKey, model, (done, total) => {
-      prog.textContent = `Querying agents... ${done}/${total}`;
+    const { agents, R, gameLog } = await runAIExperiment((step, total, msg) => {
+      prog.textContent = `[${step}/${total}] ${msg}`;
     });
     LA = agents; LR = R;
     const n = agents.length;
@@ -197,13 +197,11 @@ async function runAI() {
     if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
     plotTypes(agents);
     plotRegions(agents);
-    // AI log
-    const log = document.getElementById('log');
-    log.innerHTML = aiLog.map(e => {
-      if (e.error) return `<span class="lie">Agent ${e.id} [${e.gt}] ERROR: ${e.error}</span>`;
-      return `<span class="truth">${e.gt}&ensp;Agent ${e.id}&ensp;AI strategy=${e.raw}&ensp;<span class="tag tag-truth">AI</span></span>`;
-    }).join('<br>');
-    prog.textContent = `Done — ${aiLog.filter(e => !e.error).length} AI calls, ${aiLog.filter(e => e.error).length} fallbacks`;
+    // Rich game log
+    renderGameLog(gameLog, agents);
+    const aiCalls = gameLog.filter(e => e.type === 'agent' && !e.error).length;
+    const fallbacks = gameLog.filter(e => e.type === 'agent' && e.error).length;
+    prog.textContent = `Done — ${aiCalls} AI calls, ${fallbacks} fallbacks, ${n} agents`;
   } catch (e) {
     prog.textContent = 'Error: ' + e.message;
   }
