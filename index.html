@@ -156,34 +156,42 @@
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Anthropic</span></div>
         <input type="password" id="pk-anthropic" placeholder="sk-ant-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-anthropic" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>OpenAI</span></div>
         <input type="password" id="pk-openai" placeholder="sk-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-openai" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Google</span></div>
         <input type="password" id="pk-google" placeholder="AIza..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-google" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>DeepSeek</span></div>
         <input type="password" id="pk-deepseek" placeholder="sk-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-deepseek" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Qwen</span></div>
         <input type="password" id="pk-qwen" placeholder="sk-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-qwen" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>MiniMax</span></div>
         <input type="password" id="pk-minimax" placeholder="..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-minimax" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Kimi</span></div>
         <input type="password" id="pk-kimi" placeholder="sk-..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-kimi" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Zhipu</span></div>
         <input type="password" id="pk-zhipu" placeholder="..." class="input-text" autocomplete="off">
+        <input type="text" id="pe-zhipu" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
 
       <!-- Orchestrator -->
@@ -468,118 +476,105 @@
 
   <!-- V2 Architecture -->
   <div class="arch-svg-container" id="arch-v2" style="display:none">
-    <svg viewBox="0 0 960 920" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 800 840" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="var(--fg-3)"/></marker>
         <linearGradient id="gAI" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--purple)" stop-opacity=".15"/><stop offset="100%" stop-color="var(--accent)" stop-opacity=".15"/></linearGradient>
       </defs>
 
       <!-- Provider Registry -->
-      <rect x="230" y="10" width="500" height="68" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4"/>
-      <text x="480" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="var(--purple)">Provider Registry</text>
-      <text x="480" y="48" text-anchor="middle" font-size="10" fill="var(--fg-2)">Anthropic &#x00B7; OpenAI &#x00B7; Google Gemini &#x00B7; Custom (OpenAI-compatible)</text>
-      <text x="480" y="64" text-anchor="middle" font-size="9" fill="var(--fg-3)">API keys (session-only) &#x00B7; endpoints &#x00B7; model catalogues</text>
+      <rect x="120" y="10" width="560" height="72" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5" stroke-dasharray="4"/>
+      <text x="400" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)">Provider Registry (8 Providers)</text>
+      <text x="400" y="48" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Anthropic &#x00B7; OpenAI &#x00B7; Google &#x00B7; DeepSeek</text>
+      <text x="400" y="64" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Qwen &#x00B7; MiniMax &#x00B7; Kimi &#x00B7; Zhipu</text>
 
-      <line x1="480" y1="78" x2="480" y2="108" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <line x1="400" y1="82" x2="400" y2="106" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Agent Roster -->
-      <rect x="230" y="112" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="480" y="134" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Agent Roster Configuration</text>
-      <text x="480" y="152" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Per-group: provider &#x00D7; model &#x00D7; count &#x00B7; game params from V1 sidebar</text>
+      <rect x="170" y="110" width="460" height="52" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="400" y="132" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Agent Roster Configuration</text>
+      <text x="400" y="148" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Per-group: provider &#x00D7; model &#x00D7; count &#x00B7; optional endpoint override</text>
 
-      <line x1="480" y1="168" x2="480" y2="198" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <line x1="400" y1="162" x2="400" y2="186" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Population Generation -->
-      <rect x="230" y="202" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="480" y="224" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
-      <text x="480" y="242" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan>, &#x03B1;, &#x03B2; assigned per agent &#x00B7; provider + model attached from roster</text>
+      <rect x="170" y="190" width="460" height="52" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="400" y="212" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)">Population Generation</text>
+      <text x="400" y="228" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8">c<tspan font-size="7" baseline-shift="sub">l</tspan>, c<tspan font-size="7" baseline-shift="sub">d</tspan>, &#x03B1;, &#x03B2; per agent &#x00B7; provider + model from roster</text>
 
-      <line x1="480" y1="258" x2="480" y2="288" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <line x1="400" y1="242" x2="400" y2="266" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Orchestrator -->
-      <rect x="180" y="292" width="600" height="80" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5"/>
-      <text x="480" y="316" text-anchor="middle" font-size="13" font-weight="700" fill="var(--purple)">Orchestrator Model</text>
-      <text x="480" y="334" text-anchor="middle" font-size="10" fill="var(--fg-1)">Main LLM generates personalised game prompts for each agent</text>
-      <text x="480" y="350" text-anchor="middle" font-size="9.5" fill="var(--fg-2)">Input: agent params + game type + game params &#x2192; Output: JSON array of {id, prompt}</text>
-      <text x="480" y="364" text-anchor="middle" font-size="9" fill="var(--fg-3)">Fallback: local prompt generation if orchestrator fails</text>
+      <rect x="120" y="270" width="560" height="76" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5"/>
+      <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)">Orchestrator Model</text>
+      <text x="400" y="308" text-anchor="middle" font-size="9.5" fill="var(--fg-1)">Main LLM generates personalised prompts for each agent</text>
+      <text x="400" y="324" text-anchor="middle" font-size="9" fill="var(--fg-2)">Input: agent params + game type &#x2192; Output: JSON [{id, prompt}]</text>
+      <text x="400" y="338" text-anchor="middle" font-size="8.5" fill="var(--fg-3)">Fallback: local prompt generation if orchestrator fails</text>
 
       <!-- Fan-out arrows -->
-      <path d="M320,372 L320,398 L160,398 L160,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M420,372 L420,398 L370,398 L370,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M540,372 L540,398 L590,398 L590,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M640,372 L640,398 L800,398 L800,420" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <text x="400" y="360" text-anchor="middle" font-size="8" fill="var(--fg-3)">Concurrency limit = 4</text>
+      <path d="M280,346 L280,370 L140,370 L140,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M350,346 L350,370 L310,370 L310,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M450,346 L450,370 L490,370 L490,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M520,346 L520,370 L660,370 L660,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Agent dispatches -->
-      <rect x="80" y="424" width="160" height="64" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
-      <text x="160" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-bt-t)">Agent 0</text>
-      <text x="160" y="464" text-anchor="middle" font-size="9" fill="var(--node-bt-t)" opacity=".8">Anthropic / Haiku</text>
-      <text x="160" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <rect x="70" y="394" width="140" height="58" rx="10" fill="var(--node-bt)" stroke="var(--node-bt-s)" stroke-width="1.5"/>
+      <text x="140" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-bt-t)">Agent 0</text>
+      <text x="140" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bt-t)" opacity=".8">Anthropic / Haiku</text>
+      <text x="140" y="442" text-anchor="middle" font-size="8" fill="var(--node-bt-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
-      <rect x="290" y="424" width="160" height="64" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
-      <text x="370" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-gl-t)">Agent 1</text>
-      <text x="370" y="464" text-anchor="middle" font-size="9" fill="var(--node-gl-t)" opacity=".8">OpenAI / GPT-4o</text>
-      <text x="370" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <rect x="240" y="394" width="140" height="58" rx="10" fill="var(--node-gl)" stroke="var(--node-gl-s)" stroke-width="1.5"/>
+      <text x="310" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-gl-t)">Agent 1</text>
+      <text x="310" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-gl-t)" opacity=".8">OpenAI / GPT-5.4</text>
+      <text x="310" y="442" text-anchor="middle" font-size="8" fill="var(--node-gl-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
-      <rect x="510" y="424" width="160" height="64" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
-      <text x="590" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-bel-t)">Agent 2</text>
-      <text x="590" y="464" text-anchor="middle" font-size="9" fill="var(--node-bel-t)" opacity=".8">Google / Gemini</text>
-      <text x="590" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-bel-t)" opacity=".7">&#x2192; truth-telling prob</text>
+      <rect x="420" y="394" width="140" height="58" rx="10" fill="var(--node-bel)" stroke="var(--node-bel-s)" stroke-width="1.5"/>
+      <text x="490" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-bel-t)">Agent 2</text>
+      <text x="490" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-bel-t)" opacity=".8">DeepSeek / R1</text>
+      <text x="490" y="442" text-anchor="middle" font-size="8" fill="var(--node-bel-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
-      <rect x="720" y="424" width="160" height="64" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="800" y="448" text-anchor="middle" font-size="11" font-weight="600" fill="var(--node-pop-t)">Agent N</text>
-      <text x="800" y="464" text-anchor="middle" font-size="9" fill="var(--node-pop-t)" opacity=".8">Custom / ...</text>
-      <text x="800" y="478" text-anchor="middle" font-size="8.5" fill="var(--node-pop-t)" opacity=".7">&#x2192; truth-telling prob</text>
-
-      <text x="480" y="410" text-anchor="middle" font-size="8" fill="var(--fg-3)">Concurrency limit = 4</text>
+      <rect x="590" y="394" width="140" height="58" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="660" y="414" text-anchor="middle" font-size="10.5" font-weight="600" fill="var(--node-pop-t)">Agent N</text>
+      <text x="660" y="428" text-anchor="middle" font-size="8.5" fill="var(--node-pop-t)" opacity=".8">Qwen / Kimi / ...</text>
+      <text x="660" y="442" text-anchor="middle" font-size="8" fill="var(--node-pop-t)" opacity=".7">&#x2192; truth-telling prob</text>
 
       <!-- Fan-in arrows -->
-      <path d="M160,488 L160,518 L380,518 L380,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M370,488 L370,518 L420,518 L420,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M590,488 L590,518 L540,518 L540,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M800,488 L800,518 L580,518 L580,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M140,452 L140,478 L340,478 L340,498" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M310,452 L310,478 L370,478 L370,498" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M490,452 L490,478 L430,478 L430,498" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M660,452 L660,478 L460,478 L460,498" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Strategy Collection -->
-      <rect x="230" y="544" width="500" height="56" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="480" y="566" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Strategy Collection</text>
-      <text x="480" y="584" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">AI responses &#x2192; parse number [0, 1] &#x00B7; fallback to math strategy on error</text>
+      <rect x="170" y="502" width="460" height="52" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="400" y="524" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Strategy Collection</text>
+      <text x="400" y="540" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">AI responses &#x2192; parse [0, 1] &#x00B7; fallback to math strategy on error</text>
 
-      <line x1="480" y1="600" x2="480" y2="630" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <line x1="400" y1="554" x2="400" y2="578" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Round Execution -->
-      <rect x="230" y="634" width="500" height="72" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
-      <text x="480" y="656" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
-      <text x="480" y="672" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m (AI strategy) &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
-      <text x="480" y="686" text-anchor="middle" font-size="10" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
+      <rect x="170" y="582" width="460" height="66" rx="10" fill="var(--node-cfg)" stroke="var(--node-cfg-s)" stroke-width="1.5"/>
+      <text x="400" y="602" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-cfg-t)">Round Execution (2-Period Game)</text>
+      <text x="400" y="618" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Period 1: &#x03B8;&#x2081; &#x2192; m (AI strategy) &#x2192; [&#x03B5; noise] &#x2192; a&#x2081; &#x2192; payoff</text>
+      <text x="400" y="634" text-anchor="middle" font-size="9.5" fill="var(--node-cfg-t)" opacity=".8">Period 2: &#x03B8;&#x2082; &#x2192; myopic play &#x2192; reputation &#x03BB; &#x2192; a&#x2082;</text>
 
-      <line x1="480" y1="706" x2="480" y2="736" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <line x1="400" y1="648" x2="400" y2="672" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Classification -->
-      <rect x="230" y="740" width="500" height="56" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
-      <text x="480" y="762" text-anchor="middle" font-size="13" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification (Figure 5)</text>
-      <text x="480" y="780" text-anchor="middle" font-size="10" fill="var(--node-pop-t)" opacity=".8">Equilibrium | Lying-averse | Deception-averse | Inference Error</text>
+      <rect x="170" y="676" width="460" height="52" rx="10" fill="var(--node-pop)" stroke="var(--node-pop-s)" stroke-width="1.5"/>
+      <text x="400" y="698" text-anchor="middle" font-size="12" font-weight="700" fill="var(--node-pop-t)">Behavioral Classification</text>
+      <text x="400" y="714" text-anchor="middle" font-size="9.5" fill="var(--node-pop-t)" opacity=".8">Equilibrium | Lying-averse | Deception-averse | Inference Error</text>
 
-      <line x1="480" y1="796" x2="480" y2="826" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <!-- Split to outputs -->
+      <path d="M400,728 L400,752 L275,752 L275,768" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <path d="M400,752 L525,752 L525,768" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
       <!-- Rich Log + Visualization -->
-      <rect x="230" y="830" width="240" height="48" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
-      <text x="350" y="860" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg-1)">Rich Game Log</text>
+      <rect x="170" y="772" width="210" height="44" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="275" y="798" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--fg-1)">Rich Game Log</text>
 
-      <rect x="490" y="830" width="240" height="48" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
-      <text x="610" y="860" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg-1)">Plotly Visualization</text>
-
-      <path d="M420,826 L420,854 L470,854" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
-      <path d="M540,826 L540,854 L490,854" fill="none" stroke="var(--fg-3)" stroke-width="1.5"/>
-
-      <!-- Side annotations -->
-      <rect x="4" y="292" width="68" height="52" rx="6" fill="url(#gAI)" stroke="var(--purple)" stroke-width=".5" opacity=".7"/>
-      <text x="38" y="310" text-anchor="middle" font-size="8" font-weight="600" fill="var(--purple)">LLM API</text>
-      <text x="38" y="324" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Messages</text>
-      <text x="38" y="336" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Chat / Gen</text>
-
-      <rect x="888" y="424" width="68" height="52" rx="6" fill="var(--bg-2)" stroke="var(--border)" stroke-width=".5" opacity=".7"/>
-      <text x="922" y="442" text-anchor="middle" font-size="8" font-weight="600" fill="var(--fg-3)">Fallback</text>
-      <text x="922" y="456" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">Math strat</text>
-      <text x="922" y="468" text-anchor="middle" font-size="7.5" fill="var(--fg-3)">on error</text>
+      <rect x="420" y="772" width="210" height="44" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="525" y="798" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--fg-1)">Plotly Visualization</text>
     </svg>
   </div>
 

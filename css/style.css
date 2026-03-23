@@ -243,6 +243,8 @@ select:focus { border-color: var(--accent); }
 .provider-key-group { margin-bottom: 6px; }
 .provider-key-group .form-label { margin-bottom: 2px; }
 .provider-key-group .input-text { font-size: .74rem; padding: 5px 8px; }
+.input-endpoint { font-size: .66rem !important; padding: 3px 8px !important; margin-top: 2px; opacity: .5; transition: opacity .15s; }
+.input-endpoint:focus { opacity: 1; }
 
 /* Agent roster */
 #agent-roster { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
