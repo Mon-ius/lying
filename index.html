@@ -22,29 +22,34 @@
     <button class="nav-tab" data-tab="architecture" data-i18n="nav.architecture">Architecture</button>
     <button class="nav-tab" data-tab="glossary" data-i18n="nav.glossary">Glossary</button>
   </div>
-  <div class="paradigm-switch" id="paradigm-switch">
-    <button class="paradigm-btn active" data-v="v1" onclick="switchVersion('v1')">
-      <span class="paradigm-icon">&#x03A3;</span>
-      <span class="paradigm-label">V1 Math</span>
-    </button>
-    <button class="paradigm-btn" data-v="v2" onclick="switchVersion('v2')">
-      <span class="paradigm-icon">&#x1F916;</span>
-      <span class="paradigm-label">V2 AI</span>
-    </button>
+  <div class="nav-menu" id="nav-menu">
+    <div class="paradigm-switch" id="paradigm-switch">
+      <button class="paradigm-btn active" data-v="v1" onclick="switchVersion('v1')">
+        <span class="paradigm-icon">&#x03A3;</span>
+        <span class="paradigm-label">V1 Math</span>
+      </button>
+      <button class="paradigm-btn" data-v="v2" onclick="switchVersion('v2')">
+        <span class="paradigm-icon">&#x1F916;</span>
+        <span class="paradigm-label">V2 AI</span>
+      </button>
+    </div>
+    <div class="nav-tools">
+      <button class="mobile-toggle" id="sidebar-toggle" title="Parameters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      </button>
+      <select id="lang-select" title="Language">
+        <option value="en">EN</option>
+        <option value="zh">&#x4E2D;&#x6587;</option>
+      </select>
+      <button class="theme-btn" id="theme-toggle" title="Toggle dark mode">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
   </div>
-  <div class="nav-tools">
-    <button class="mobile-toggle" id="sidebar-toggle" title="Parameters">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-    </button>
-    <select id="lang-select" title="Language">
-      <option value="en">EN</option>
-      <option value="zh">&#x4E2D;&#x6587;</option>
-    </select>
-    <button class="theme-btn" id="theme-toggle" title="Toggle dark mode">
-      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    </button>
-  </div>
+  <button class="nav-hamburger" id="nav-hamburger" title="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </nav>
 
 <!-- ============================================================ EXPERIMENT TAB -->
@@ -144,9 +149,9 @@
     <div class="panel-body">
 
       <!-- Provider API Keys -->
-      <div class="form-group">
-        <div class="form-label" style="font-weight:600;margin-bottom:6px">Provider API Keys</div>
-        <div class="form-hint" style="margin-bottom:8px">Session-only &mdash; never stored to disk</div>
+      <div class="form-group form-section">
+        <div class="form-section-title">Provider API Keys</div>
+        <div class="form-hint">Session-only &mdash; never stored to disk</div>
       </div>
       <div class="form-group provider-key-group">
         <div class="form-label"><span>Anthropic</span></div>
@@ -168,18 +173,18 @@
       </div>
 
       <!-- Orchestrator -->
-      <div class="form-group" style="margin-top:12px">
-        <div class="form-label" style="font-weight:600">Orchestrator Model</div>
-        <div class="form-hint" style="margin-bottom:6px">Generates tailored prompts for each agent</div>
+      <div class="form-group form-section">
+        <div class="form-section-title">Orchestrator Model</div>
+        <div class="form-hint">Generates tailored prompts for each agent</div>
       </div>
-      <div class="form-group" style="display:flex;gap:6px">
-        <select id="orch-provider" onchange="updateOrchModels()" style="flex:1">
+      <div class="form-group form-row">
+        <select id="orch-provider" onchange="updateOrchModels()">
           <option value="anthropic">Anthropic</option>
           <option value="openai">OpenAI</option>
           <option value="google">Google</option>
           <option value="custom">Custom</option>
         </select>
-        <select id="orch-model" style="flex:1">
+        <select id="orch-model">
           <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
           <option value="claude-sonnet-4-5-20241022">Sonnet 4.5</option>
           <option value="claude-sonnet-4-6">Sonnet 4.6</option>
@@ -188,9 +193,9 @@
       </div>
 
       <!-- Agent Roster -->
-      <div class="form-group" style="margin-top:12px">
-        <div class="form-label" style="font-weight:600">Agent Roster</div>
-        <div class="form-hint" style="margin-bottom:6px">Configure provider, model, and count per group</div>
+      <div class="form-group form-section">
+        <div class="form-section-title">Agent Roster</div>
+        <div class="form-hint">Configure provider, model, and count per group</div>
       </div>
       <div id="agent-roster"></div>
       <button class="btn-roster-add" onclick="addRosterRow()">+ Add agent group</button>

@@ -63,6 +63,22 @@ document.getElementById('lang-select').addEventListener('change', e => applyI18n
   if (backdrop) backdrop.addEventListener('click', closeSidebar);
 })();
 
+/* ---- Hamburger menu (mobile) ---- */
+(function setupHamburger() {
+  const btn = document.getElementById('nav-hamburger');
+  const menu = document.getElementById('nav-menu');
+  if (!btn || !menu) return;
+  btn.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('open'); });
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) menu.classList.remove('open');
+  });
+  menu.addEventListener('click', (e) => {
+    if (e.target.closest('.mobile-toggle, .theme-btn, .paradigm-btn')) menu.classList.remove('open');
+  });
+  const ls = document.getElementById('lang-select');
+  if (ls) ls.addEventListener('change', () => menu.classList.remove('open'));
+})();
+
 /* ---- Panel toggle ---- */
 function togglePanel(id) { document.getElementById(id).classList.toggle('collapsed'); }
 
