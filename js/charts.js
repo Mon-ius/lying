@@ -40,18 +40,15 @@ const _cfg = { responsive: true, displayModeBar: false };
 
 /** 1. Utility Parameter Distributions — 2×2 subplots with KDE */
 function plotParams(agents) {
-  const clMu = parseFloat(document.getElementById('s-cl')?.value || -0.5).toFixed(1);
-  const cdMu = parseFloat(document.getElementById('s-cd')?.value || -0.3).toFixed(1);
   const items = [
-    { k: 'cl',    l: 'c<sub>l</sub>',  c: CL.cl, src: `LogNormal(μ=${clMu}, σ=1)` },
-    { k: 'cd',    l: 'c<sub>d</sub>',  c: CL.cd, src: `LogNormal(μ=${cdMu}, σ=1)` },
-    { k: 'alpha', l: 'α',              c: CL.alpha, src: t('fig1.alpha.src') },
-    { k: 'beta',  l: 'β',              c: CL.beta, src: 'Normal(0.1, 0.3)' },
+    { k: 'cl',    l: 'c<sub>l</sub>',  c: CL.cl },
+    { k: 'cd',    l: 'c<sub>d</sub>',  c: CL.cd },
+    { k: 'alpha', l: 'α',              c: CL.alpha },
+    { k: 'beta',  l: 'β',              c: CL.beta },
   ];
   const dark = _isDark();
   const gc = dark ? '#1e242e' : '#eef0f3';
   const annColor = dark ? '#c9d1d9' : '#3d4250';
-  const subColor = dark ? '#8b949e' : '#6b7280';
   const traces = [];
   const annotations = [];
   items.forEach((p, i) => {
@@ -64,16 +61,10 @@ function plotParams(agents) {
       xaxis: 'x' + (i + 1), yaxis: 'y' + (i + 1),
     });
     annotations.push({
-      text: `<b>${p.l}</b>  x̄=${mean}  n=${agents.length}`,
+      text: `<b>${p.l}</b>  mean=${mean}  n=${agents.length}`,
       xref: 'x' + (i + 1) + ' domain', yref: 'y' + (i + 1) + ' domain',
-      x: 0, y: 1.12, showarrow: false,
-      font: { size: 10, color: annColor },
-    });
-    annotations.push({
-      text: `<i>${p.src}</i>`,
-      xref: 'x' + (i + 1) + ' domain', yref: 'y' + (i + 1) + ' domain',
-      x: 0, y: 1.01, showarrow: false,
-      font: { size: 8.5, color: subColor },
+      x: 0, y: 1.08, showarrow: false,
+      font: { size: 9.5, color: annColor },
     });
   });
   const layout = _layout({
