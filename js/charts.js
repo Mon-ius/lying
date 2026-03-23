@@ -261,9 +261,20 @@ function plotRegions(agents) {
   Plotly.react('c-regions', [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
-/** Download chart as PNG */
+/** Download chart as high-res PNG with solid background */
 function downloadChart(id, name) {
-  Plotly.downloadImage(id, { format: 'png', width: 1200, height: 800, filename: name || id });
+  const gd = document.getElementById(id);
+  const dark = _isDark();
+  const bg = dark ? '#0d1117' : '#ffffff';
+  const plotBg = dark ? '#161b22' : '#fafbfc';
+  const orig = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor };
+  Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg }).then(function() {
+    return Plotly.toImage(gd, { format: 'png', width: 1600, height: 1000, scale: 3 });
+  }).then(function(url) {
+    Plotly.relayout(gd, orig);
+    var a = document.createElement('a'); a.href = url;
+    a.download = (name || id) + '.png'; a.click();
+  });
 }
 
 /** Redraw all charts from cached data */
