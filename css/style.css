@@ -356,8 +356,9 @@ body.mode-ai .btn-run { display: none; }
 .chart-card h4 .dot { width: 8px; height: 8px; border-radius: 50%; }
 .chart-dl {
   margin-left: auto; border: 1px solid var(--border); background: var(--bg-2);
-  color: var(--fg-3); cursor: pointer; padding: 2px 6px; border-radius: var(--radius-sm);
-  font-size: .7rem; line-height: 1; transition: all .15s var(--ease); flex-shrink: 0;
+  color: var(--fg-3); cursor: pointer; padding: 4px; border-radius: var(--radius-sm);
+  line-height: 0; transition: all .15s var(--ease); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
 .chart-dl:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
 .chart-card .js-plotly-plot { width: 100%; border-radius: var(--radius-sm); }

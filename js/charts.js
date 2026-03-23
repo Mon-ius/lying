@@ -68,14 +68,14 @@ function plotParams(agents) {
     });
   });
   const layout = _layout({
-    grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.1, ygap: 0.22 },
-    height: 440,
-    margin: { l: 36, r: 12, t: 24, b: 20 },
+    grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.12, ygap: 0.26 },
+    height: 460,
+    margin: { l: 42, r: 16, t: 28, b: 26 },
     annotations,
   });
   for (let i = 1; i <= 4; i++) {
-    layout['xaxis' + i] = { gridcolor: gc, zeroline: false };
-    layout['yaxis' + i] = { gridcolor: gc, zeroline: false };
+    layout['xaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true };
+    layout['yaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, ticklabelstandoff: 4 };
   }
   Plotly.react('c-params', traces, layout, _cfg);
 }
