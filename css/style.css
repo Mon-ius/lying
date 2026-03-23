@@ -523,11 +523,11 @@ body.mode-ai .btn-run { display: none; }
   .nav-menu.open { display: flex; }
   .sidebar .panel-body { padding: 10px 12px 12px; }
   .sidebar .form-group { margin-bottom: 8px; }
-  .sidebar .form-label { font-size: .73rem; }
+  .sidebar .form-label { font-size: .74rem; }
   .sidebar .form-hint { font-size: .64rem; }
-  .sidebar select { font-size: .76rem; padding: 5px 8px; }
-  .sidebar .input-text { font-size: .72rem; padding: 5px 8px; }
-  .sidebar .form-section-title { font-size: .68rem; }
+  .sidebar select { font-size: .74rem; padding: 5px 8px; }
+  .sidebar .input-text { font-size: .74rem; padding: 5px 8px; }
+  .sidebar .form-section-title { font-size: .66rem; }
   .sidebar .btn-run { padding: 10px; font-size: .82rem; }
   .arch-defs { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .arch-header { flex-direction: column; align-items: flex-start; gap: 12px; }
