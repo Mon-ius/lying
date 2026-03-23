@@ -240,6 +240,7 @@ function exportJSON() {
     results: { bt: LR.bt, gl: LR.gl },
     params: {
       n: LA.length, env: document.getElementById('s-env').value,
+      nPeriods: +document.getElementById('s-periods').value,
       rounds: +document.getElementById('s-rounds').value,
       ratio: +document.getElementById('s-ratio').value,
       bp: +document.getElementById('s-bp').value,
@@ -256,18 +257,51 @@ function exportJSON() {
 
 function exportCSV() {
   if (!LA || !LR) return;
-  const header = 'id,cl,cd,alpha,beta,riskType,classification,btStrategy,glStrategy';
-  const rows = LA.map(a =>
-    [a.id, a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
+  const nP = +document.getElementById('s-periods').value;
+  const rounds = +document.getElementById('s-rounds').value;
+
+  // Agent-level summary
+  const header = 'id,cl,cd,alpha,beta,riskType,classification,btStrategy,glStrategy,nPeriods,btFinalLambda,glFinalLambda';
+  // Get first-round result per agent to extract final lambda
+  const btFirst = {}, glFirst = {};
+  LR.bt.forEach((r, i) => { if (i % rounds === 0) btFirst[r.id] = r; });
+  LR.gl.forEach((r, i) => { if (i % rounds === 0) glFirst[r.id] = r; });
+  const rows = LA.map(a => {
+    const btLam = btFirst[a.id]?.lambda;
+    const glLam = glFirst[a.id]?.lambda;
+    return [a.id, a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
      a.riskType, a.classification,
-     (LR.btS[a.id] ?? '').toString(), (LR.glS[a.id] ?? '').toString()
-    ].join(',')
-  );
-  const csv = [header, ...rows].join('\n');
+     (LR.btS[a.id] ?? '').toString(), (LR.glS[a.id] ?? '').toString(),
+     nP,
+     btLam != null ? btLam.toFixed(4) : '',
+     glLam != null ? glLam.toFixed(4) : '',
+    ].join(',');
+  });
+
+  // Per-period detail sheet (separate section)
+  const pdHeader = '\nagentId,gameType,period,theta,sent,rcv,action,lambda,isLie,isDec,dec,strat,payoff';
+  const pdRows = [];
+  const addPeriods = (arr) => {
+    arr.forEach((r, i) => {
+      if (i % rounds !== 0) return; // first round per agent
+      if (!r.periods) return;
+      r.periods.forEach(p => {
+        pdRows.push([r.id, r.gt, p.t + 1, p.st, p.sent, p.rcv,
+          p.at.toFixed(4), p.lambda.toFixed(4),
+          p.isLie ? 1 : 0, p.isDec ? 1 : 0, p.dec.toFixed(4),
+          p.strat.toFixed(4), p.payoff.toFixed(4),
+        ].join(','));
+      });
+    });
+  };
+  addPeriods(LR.bt);
+  addPeriods(LR.gl);
+
+  const csv = [header, ...rows, pdHeader, ...pdRows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'experiment_agents.csv';
+  a.download = 'experiment_data.csv';
   a.click();
   URL.revokeObjectURL(a.href);
 }
