@@ -306,11 +306,11 @@ async function downloadChart(id, name) {
   const fg2 = dark ? '#8b949e' : '#6b7080';
   const border = dark ? '#30363d' : '#dfe1e6';
 
-  // 1. Capture Plotly chart with solid background
-  const orig = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor };
-  await Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg });
+  // 1. Capture Plotly chart with solid background + extra top margin
+  const origLayout = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor, 'margin.t': gd.layout.margin?.t };
+  await Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg, 'margin.t': 36 });
   const dataUrl = await Plotly.toImage(gd, { format: 'png', width: 1600, height: 1000, scale: 2 });
-  await Plotly.relayout(gd, orig);
+  await Plotly.relayout(gd, { paper_bgcolor: origLayout.paper_bgcolor, plot_bgcolor: origLayout.plot_bgcolor, 'margin.t': origLayout['margin.t'] || 8 });
   const chartImg = new Image(); chartImg.src = dataUrl;
   await new Promise(r => { chartImg.onload = r; });
 
@@ -338,8 +338,8 @@ async function downloadChart(id, name) {
   }
 
   // 4. Build canvas
-  const titleH = titleSize + pad + 10;
-  const noteH = noteLines.length ? noteLines.length * lineH + pad : 0;
+  const titleH = titleSize + pad + 36;
+  const noteH = noteLines.length ? noteLines.length * lineH + pad + 10 : 0;
   const W = chartImg.width + pad * 2;
   const H = titleH + chartImg.height + noteH + pad;
   const canvas = document.createElement('canvas');
