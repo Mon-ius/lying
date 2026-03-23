@@ -1,8 +1,25 @@
 /**
  * V2 AI Agent Engine — Multi-provider LLM agents for the reputation game.
- * Supports: Anthropic, OpenAI, Google Gemini, and custom OpenAI-compatible endpoints.
+ * Supports: Anthropic, OpenAI, Google, DeepSeek, Qwen, MiniMax, Kimi, Zhipu.
  * Orchestrator model generates tailored prompts → dispatched to heterogeneous agents.
  */
+
+/* ---- Shared OpenAI-compatible API call ---- */
+function _openaiCall(label, defaultEP) {
+  return async (cfg, system, prompt) => {
+    const r = await fetch(cfg.endpoint || defaultEP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
+      body: JSON.stringify({
+        model: cfg.model, max_tokens: 1024, temperature: 0.4,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+      }),
+    });
+    if (!r.ok) throw new Error(`${label} ${r.status}: ${await r.text()}`);
+    const d = await r.json();
+    return d.choices[0].message.content.trim();
+  };
+}
 
 /* ---- Provider Registry ---- */
 const PROVIDERS = {
@@ -48,33 +65,16 @@ const PROVIDERS = {
       { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
     ],
     defaultEndpoint: 'https://api.openai.com/v1/chat/completions',
-    call: async (cfg, system, prompt) => {
-      const r = await fetch(cfg.endpoint || PROVIDERS.openai.defaultEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cfg.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: cfg.model, max_tokens: 1024, temperature: 0.4,
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: prompt },
-          ],
-        }),
-      });
-      if (!r.ok) throw new Error(`OpenAI ${r.status}: ${await r.text()}`);
-      const d = await r.json();
-      return d.choices[0].message.content.trim();
-    },
+    call: _openaiCall('OpenAI', 'https://api.openai.com/v1/chat/completions'),
   },
   google: {
     name: 'Google',
     models: [
+      { id: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro' },
+      { id: 'gemini-3-flash-preview', label: 'Gemini 3 Flash' },
       { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
       { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
-      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
     ],
     defaultEndpoint: 'https://generativelanguage.googleapis.com/v1beta',
     call: async (cfg, system, prompt) => {
@@ -93,30 +93,56 @@ const PROVIDERS = {
       return d.candidates[0].content.parts[0].text.trim();
     },
   },
-  custom: {
-    name: 'Custom',
-    models: [],
-    defaultEndpoint: '',
-    call: async (cfg, system, prompt) => {
-      // OpenAI-compatible format
-      const r = await fetch(cfg.endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cfg.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: cfg.model, max_tokens: 1024, temperature: 0.4,
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: prompt },
-          ],
-        }),
-      });
-      if (!r.ok) throw new Error(`Custom ${r.status}: ${await r.text()}`);
-      const d = await r.json();
-      return d.choices[0].message.content.trim();
-    },
+  deepseek: {
+    name: 'DeepSeek',
+    models: [
+      { id: 'deepseek-reasoner', label: 'DeepSeek R1' },
+      { id: 'deepseek-chat', label: 'DeepSeek V3' },
+    ],
+    defaultEndpoint: 'https://api.deepseek.com/v1/chat/completions',
+    call: _openaiCall('DeepSeek', 'https://api.deepseek.com/v1/chat/completions'),
+  },
+  qwen: {
+    name: 'Qwen',
+    models: [
+      { id: 'qwen3-max', label: 'Qwen3 Max' },
+      { id: 'qwen3.5-plus', label: 'Qwen3.5 Plus' },
+      { id: 'qwq-plus', label: 'QwQ Plus' },
+      { id: 'qwen3.5-flash', label: 'Qwen3.5 Flash' },
+      { id: 'qwen-turbo', label: 'Qwen Turbo' },
+    ],
+    defaultEndpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    call: _openaiCall('Qwen', 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'),
+  },
+  minimax: {
+    name: 'MiniMax',
+    models: [
+      { id: 'MiniMax-M2.7', label: 'M2.7' },
+      { id: 'MiniMax-M2.5', label: 'M2.5' },
+      { id: 'MiniMax-M2.1', label: 'M2.1' },
+    ],
+    defaultEndpoint: 'https://api.minimax.io/v1/chat/completions',
+    call: _openaiCall('MiniMax', 'https://api.minimax.io/v1/chat/completions'),
+  },
+  kimi: {
+    name: 'Kimi',
+    models: [
+      { id: 'kimi-k2.5', label: 'Kimi K2.5' },
+      { id: 'moonshot-v1-auto', label: 'Moonshot V1 Auto' },
+      { id: 'moonshot-v1-128k', label: 'Moonshot V1 128K' },
+    ],
+    defaultEndpoint: 'https://api.moonshot.cn/v1/chat/completions',
+    call: _openaiCall('Kimi', 'https://api.moonshot.cn/v1/chat/completions'),
+  },
+  zhipu: {
+    name: 'Zhipu',
+    models: [
+      { id: 'glm-5', label: 'GLM-5' },
+      { id: 'glm-4.5', label: 'GLM-4.5' },
+      { id: 'glm-4.5-flash', label: 'GLM-4.5 Flash' },
+    ],
+    defaultEndpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+    call: _openaiCall('Zhipu', 'https://open.bigmodel.cn/api/paas/v4/chat/completions'),
   },
 };
 
@@ -433,7 +459,6 @@ function addRosterRow(provider, model) {
     </select>
     <select class="roster-model">
       ${prov.models.map(mm => `<option value="${mm.id}" ${mm.id===m?'selected':''}>${mm.label}</option>`).join('')}
-      ${p === 'custom' ? `<option value="${m}">${m || 'custom-model'}</option>` : ''}
     </select>
     <div class="roster-row-sub">
       <span class="roster-count-label">Count</span>
@@ -449,12 +474,7 @@ function updateRosterModels(sel) {
   const modelSel = row.querySelector('.roster-model');
   const p = sel.value;
   const prov = PROVIDERS[p];
-  if (p === 'custom') {
-    modelSel.innerHTML = '<option value="">Enter model name</option>';
-    modelSel.setAttribute('contenteditable', 'true');
-  } else {
-    modelSel.innerHTML = prov.models.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
-  }
+  modelSel.innerHTML = prov.models.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
 }
 
 function updateOrchModels() {

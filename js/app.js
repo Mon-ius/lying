@@ -170,6 +170,7 @@ function switchVersion(v) {
   if (v === 'v2' && !document.querySelectorAll('.roster-row').length) {
     addRosterRow('anthropic', 'claude-haiku-4-5');
     addRosterRow('openai', 'gpt-4o-mini');
+    addRosterRow('deepseek', 'deepseek-chat');
   }
 }
 
@@ -185,7 +186,7 @@ async function runAI() {
   const roster = buildAgentRoster();
   if (roster.length < 2) { alert('Add at least 2 agents to the roster.'); return; }
   // Check that at least one provider key is filled
-  const anyKey = ['anthropic','openai','google','custom'].some(p => document.getElementById('pk-'+p)?.value.trim());
+  const anyKey = ['anthropic','openai','google','deepseek','qwen','minimax','kimi','zhipu'].some(p => document.getElementById('pk-'+p)?.value.trim());
   if (!anyKey) { alert('Enter at least one provider API key.'); return; }
 
   const btn = document.getElementById('btn-ai-run');

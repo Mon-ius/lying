@@ -166,10 +166,24 @@
         <input type="password" id="pk-google" placeholder="AIza..." class="input-text" autocomplete="off">
       </div>
       <div class="form-group provider-key-group">
-        <div class="form-label"><span>Custom (OpenAI-compatible)</span></div>
-        <input type="password" id="pk-custom" placeholder="API key" class="input-text" autocomplete="off">
-        <input type="text" id="pe-custom" placeholder="https://api.example.com/v1/chat/completions" class="input-text" style="margin-top:4px" autocomplete="off">
-        <div class="form-hint">Endpoint for custom provider</div>
+        <div class="form-label"><span>DeepSeek</span></div>
+        <input type="password" id="pk-deepseek" placeholder="sk-..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Qwen</span></div>
+        <input type="password" id="pk-qwen" placeholder="sk-..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>MiniMax</span></div>
+        <input type="password" id="pk-minimax" placeholder="..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Kimi</span></div>
+        <input type="password" id="pk-kimi" placeholder="sk-..." class="input-text" autocomplete="off">
+      </div>
+      <div class="form-group provider-key-group">
+        <div class="form-label"><span>Zhipu</span></div>
+        <input type="password" id="pk-zhipu" placeholder="..." class="input-text" autocomplete="off">
       </div>
 
       <!-- Orchestrator -->
@@ -182,7 +196,11 @@
           <option value="anthropic">Anthropic</option>
           <option value="openai">OpenAI</option>
           <option value="google">Google</option>
-          <option value="custom">Custom</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="qwen">Qwen</option>
+          <option value="minimax">MiniMax</option>
+          <option value="kimi">Kimi</option>
+          <option value="zhipu">Zhipu</option>
         </select>
         <select id="orch-model">
           <option value="claude-opus-4-6">Opus 4.6</option>
