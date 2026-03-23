@@ -430,8 +430,11 @@ function addRosterRow(provider, model) {
       ${prov.models.map(mm => `<option value="${mm.id}" ${mm.id===m?'selected':''}>${mm.label}</option>`).join('')}
       ${p === 'custom' ? `<option value="${m}">${m || 'custom-model'}</option>` : ''}
     </select>
-    <input type="number" class="roster-count" value="1" min="1" max="10" title="Number of agents with this config">
-    <button class="roster-remove" onclick="this.closest('.roster-row').remove()" title="Remove">&times;</button>
+    <div class="roster-row-sub">
+      <span class="roster-count-label">Count</span>
+      <input type="number" class="roster-count" value="1" min="1" max="10" title="Number of agents with this config">
+      <button class="roster-remove" onclick="this.closest('.roster-row').remove()" title="Remove">&times;</button>
+    </div>
   `;
   container.appendChild(row);
 }
