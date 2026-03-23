@@ -25,31 +25,44 @@ function renderLog() {
     const diff = Math.abs(r.augT - r.augL).toFixed(3);
     const winner = truthWins ? t('log.truth') : t('log.lie');
 
-    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
-  <summary>
-    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${r.id}
-    \u2003\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
-    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
-    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
-  </summary>
-  <div class="log-detail">
-    <div class="log-section"><strong>${t('log.p1')}</strong>
+    // Build period sections dynamically
+    const ps = r.periods || [];
+    const periodSections = ps.length > 0
+      ? ps.map((p, pi) => {
+          const isLast = pi === ps.length - 1;
+          const sfx = t('log.periodSuffix') || '';
+          const label = isLast && ps.length > 1
+            ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
+            : `${t('log.period')} ${pi + 1}${sfx}`;
+          return `<div class="log-section"><strong>${label}</strong>
+      <div class="log-grid">
+        <span>\u03b8<sub>${pi + 1}</sub> = ${p.st}</span>
+        <span>m = ${p.sent} (${p.isLie ? t('log.lie') : t('log.truth')})</span>
+        <span>${t('log.rcv')} = ${p.rcv}${p.mc ? ' \u26a0' : ''}</span>
+        <span>a<sub>${pi + 1}</sub> = ${p.at.toFixed(3)}</span>
+        <span>\u03bb<sub>${pi + 1}</sub> = ${p.lambda.toFixed(3)}</span>
+      </div>
+    </div>`;
+        }).join('')
+      : `<div class="log-section"><strong>${t('log.p1')}</strong>
       <div class="log-grid">
         <span>\u03b8\u2081 = ${r.s1}</span>
         <span>m = ${r.sent} (${r.isLie ? t('log.lie') : t('log.truth')})</span>
         <span>${t('log.rcv')} = ${r.rcv}${r.mc ? ' \u26a0' : ''}</span>
         <span>a\u2081 = ${r.a1.toFixed(3)}</span>
       </div>
-    </div>
-    <div class="log-section"><strong>${t('log.p2')}</strong>
-      <div class="log-grid">
-        <span>\u03b8\u2082 = ${r.s2}</span>
-        <span>\u03bb = ${r.lambda.toFixed(3)}</span>
-        <span>a\u2082 = ${r.a2.toFixed(3)}</span>
-        <span>${t('log.payoff')}: S=${r.sp.toFixed(2)} R=${r.rp.toFixed(2)}</span>
-      </div>
-    </div>
+    </div>`;
+
+    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
+  <summary>
+    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
+    ${t('log.agent')}\u2009${r.id}
+    \u2003${r.N > 2 ? r.N + 'P ' : ''}\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
+    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
+    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
+  </summary>
+  <div class="log-detail">
+    ${periodSections}
     <div class="log-section"><strong>${t('log.decision')}</strong>
       <div class="log-grid">
         <span>EU\u1d43(${t('log.truth')}) = ${r.augT.toFixed(3)}</span>
@@ -352,10 +365,11 @@ function runExperiment() {
     });
     const env = document.getElementById('s-env').value;
     const rounds = +document.getElementById('s-rounds').value;
+    const nPeriods = +document.getElementById('s-periods').value;
     const ratio = +document.getElementById('s-ratio').value;
     const bp = +document.getElementById('s-bp').value;
     const miscomm = +document.getElementById('s-miscomm').value / 100;
-    const R = runSim(agents, { env, rounds, x1: 1, x2: ratio, pb: bp, miscomm, seed: 42 });
+    const R = runSim(agents, { env, rounds, x1: 1, x2: ratio, nPeriods, pb: bp, miscomm, seed: 42 });
     const C = classify(agents, R);
     LA = agents; LR = R;
 

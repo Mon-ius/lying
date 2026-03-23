@@ -121,44 +121,89 @@ function agentStrat(a, gt, x1, x2, pb) {
   return { strat: s, augT: augTr, augL: augLie };
 }
 
-/* ---- Round execution ---- */
-function playRound(a, gt, P, g) {
-  const { x1, x2, pb, miscomm } = P;
-  const s1 = g() < .5 ? 0 : 1, s2 = g() < .5 ? 0 : 1;
-  const { strat, augT, augL } = agentStrat(a, gt, x1, x2, pb);
-  let sent, v, w;
-  if (gt === 'BT') {
-    if (!s1) { sent = g() < strat ? 0 : 1; v = 1 - strat; } else { sent = 1; v = 1 - strat; }
-    w = 0;
-  } else {
-    if (s1 === 1) { sent = g() < strat ? 0 : 1; w = strat; } else { sent = 0; w = strat; }
-    v = 0;
+/* ---- Period weight generation ---- */
+function periodWeights(N, ratio) {
+  if (N <= 1) return [1];
+  const w = [];
+  for (let t = 0; t < N; t++) w.push(Math.pow(ratio, t / (N - 1)));
+  return w;  // [1, ..., ratio] geometric interpolation
+}
+
+/* ---- N-period game execution with carried state ---- */
+function playNPeriodGame(a, gt, P, g) {
+  const { weights, pb, miscomm } = P;
+  const N = weights.length;
+  let lambda = pb;
+  const periods = [];
+  let totalSP = 0, totalRP = 0;
+
+  for (let t = 0; t < N; t++) {
+    const xt = weights[t];
+    const xNext = t < N - 1 ? weights[t + 1] : 0;
+    const st = g() < .5 ? 0 : 1;
+    const { strat, augT, augL } = agentStrat(a, gt, xt, xNext, lambda);
+
+    let sent, v, w;
+    if (gt === 'BT') {
+      if (!st) { sent = g() < strat ? 0 : 1; v = 1 - strat; } else { sent = 1; v = 1 - strat; }
+      w = 0;
+    } else {
+      if (st === 1) { sent = g() < strat ? 0 : 1; w = strat; } else { sent = 0; w = strat; }
+      v = 0;
+    }
+
+    let rcv = sent;
+    if (miscomm > 0 && g() < miscomm) rcv = 1 - rcv;
+
+    const sp = gt === 'BT' ? v : w;
+    const at = gt === 'BT' ? B.btA(rcv, sp, lambda) : B.glA(rcv, sp, lambda);
+    const newLambda = gt === 'BT' ? B.btL(rcv, st, sp, lambda) : B.glL(rcv, st, sp, lambda);
+    const isLie = sent !== st;
+    const dec = gt === 'BT' ? B.btD(sent, st, sp, lambda) : B.glD(sent, st, sp, lambda);
+    const pSP = gt === 'BT' ? -xt * (at - 1) ** 2 : -xt * (at - st) ** 2;
+    const pRP = -xt * (at - st) ** 2;
+
+    periods.push({ t, st, sent, rcv, at, lambda: newLambda, isLie, dec, isDec: dec > 1e-6, strat, augT, augL, v, w, sp, mc: sent !== rcv, payoff: pSP });
+    totalSP += pSP;
+    totalRP += pRP;
+    lambda = newLambda;
   }
-  let rcv = sent;
-  if (miscomm > 0 && g() < miscomm) rcv = 1 - rcv;
-  const sp = gt === 'BT' ? v : w;
-  const a1 = gt === 'BT' ? B.btA(rcv, sp, pb) : B.glA(rcv, sp, pb);
-  const tb = gt === 'BT' ? B.btL(rcv, s1, sp, pb) : B.glL(rcv, s1, sp, pb);
-  const a2 = gt === 'BT' ? clamp(tb * s2 + (1 - tb), 0, 1) : clamp(tb * s2 + (1 - tb) * .5, 0, 1);
-  const sp_ = gt === 'BT' ? -x1 * (a1 - 1) ** 2 - x2 * (a2 - 1) ** 2 : -x1 * (a1 - s1) ** 2 - x2 * (a2 - s2) ** 2;
-  const rp_ = -x1 * (a1 - s1) ** 2 - x2 * (a2 - s2) ** 2;
-  const isLie = sent !== s1;
-  const dec = gt === 'BT' ? B.btD(sent, s1, sp, pb) : B.glD(sent, s1, sp, pb);
-  const tp = gt === 'BT' ? (s1 === 0 ? strat : 1) : (s1 === 1 ? 1 - strat : 1);
-  return { gt, id: a.id, s1, s2, sent, rcv, a1, a2, sp: sp_, rp: rp_, isLie, isDec: dec > 1e-6, dec, tp, strat, mc: sent !== rcv, lambda: tb, v, w, augT, augL, cl: a.cl, cd: a.cd, alpha: a.alpha, riskType: a.riskType };
+
+  // Lying / deception costs (applied once based on first strategic period)
+  const p0 = periods[0];
+  totalSP += -(p0.isLie ? a.cl : 0) - a.cd * p0.dec;
+
+  // Truth-telling probability for classification (first period strategic choice)
+  const tp = gt === 'BT' ? (p0.st === 0 ? p0.strat : 1) : (p0.st === 1 ? 1 - p0.strat : 1);
+
+  // Backward-compatible result object
+  return {
+    gt, id: a.id, N,
+    s1: p0.st, s2: periods[N - 1].st,
+    sent: p0.sent, rcv: p0.rcv,
+    a1: p0.at, a2: periods[N - 1].at,
+    sp: totalSP, rp: totalRP,
+    isLie: p0.isLie, isDec: p0.isDec, dec: p0.dec,
+    tp, strat: p0.strat, mc: p0.mc,
+    lambda: periods[N - 1].lambda,
+    v: p0.v, w: p0.w, augT: p0.augT, augL: p0.augL,
+    cl: a.cl, cd: a.cd, alpha: a.alpha, riskType: a.riskType,
+    periods,
+  };
 }
 
 /* ---- Full simulation ---- */
 function runSim(agents, P) {
-  const { env, rounds, x1, x2, pb, miscomm } = P;
+  const { env, rounds, x1, x2, pb, miscomm, nPeriods } = P;
   const g = mulberry32(P.seed || 42);
   const gts = env === 'both' ? ['BT', 'GL'] : [env];
+  const weights = periodWeights(nPeriods || 2, x2 / x1);
   const R = { bt: [], gl: [], btS: {}, glS: {} };
   for (const gt of gts) {
     for (const a of agents) {
       const ss = [];
       for (let r = 0; r < rounds; r++) {
-        const res = playRound(a, gt, { x1, x2, pb, miscomm }, g);
+        const res = playNPeriodGame(a, gt, { weights, pb, miscomm }, g);
         (gt === 'BT' ? R.bt : R.gl).push(res);
         ss.push(res.tp);
       }
