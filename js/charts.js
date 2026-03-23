@@ -51,9 +51,13 @@ function plotParams(agents) {
   const annColor = dark ? '#c9d1d9' : '#3d4250';
   const traces = [];
   const annotations = [];
+  const xRanges = [];
   items.forEach((p, i) => {
     const vals = agents.map(a => a[p.k]);
     const mu = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = (hi - lo) * 0.04 || 0.04;
+    xRanges.push([lo - pad, hi + pad]);
     traces.push({
       x: vals, type: 'histogram', nbinsx: 22,
       marker: { color: p.c, opacity: 0.45 },
@@ -74,7 +78,7 @@ function plotParams(agents) {
     annotations,
   });
   for (let i = 1; i <= 4; i++) {
-    layout['xaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true };
+    layout['xaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, range: xRanges[i - 1] };
     layout['yaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, ticklabelstandoff: 4 };
   }
   Plotly.react('c-params', traces, layout, _cfg);
