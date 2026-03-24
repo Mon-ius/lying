@@ -646,9 +646,13 @@ function plotModelDeviation(stats) {
   Plotly.react('c-model-deviation', traces, layout, _cfg);
 }
 
-/** Point Cloud — 3D temporal trajectory of agent interactions
- *  X: Period (time)  Y: λ (belief evolution)  Z: Receiver action
- *  Lines connect same-agent periods showing communication development */
+/** Point Cloud — 3D strategy-welfare landscape (Sobel 2020 × Choi+ 2025)
+ *  X: v (BT truth-telling prob, v*=1)
+ *  Y: GL truth-telling prob (equilibrium at 0)
+ *  Z: Welfare (avg sender + receiver payoff)
+ *  Each agent = one node. Color by Fig.5 classification or model.
+ *  Floor shows classification quadrant boundaries + labels.
+ *  Diamond marks theoretical equilibrium (v*=1, w*=0). */
 function plotPointCloud(R, agents) {
   const el = document.getElementById('c-pointcloud');
   if (!el || !R) return;
@@ -656,85 +660,103 @@ function plotPointCloud(R, agents) {
   if (view3d && view3d.style.display === 'none') return;
 
   const dark = _isDark();
-  const rounds = +(document.getElementById('s-rounds')?.value) || 1;
-
-  // First-round results per agent (matches text log)
-  const btData = R.bt.filter((_, i) => i % rounds === 0);
-  const glData = R.gl.filter((_, i) => i % rounds === 0);
-  const all = [...btData, ...glData];
-  if (!all.length || !all[0].periods) { Plotly.purge(el); return; }
-
-  const agentMap = {};
-  agents.forEach(a => { agentMap[a.id] = a; });
   const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'v2';
+  const clsC = { equilibrium:'#2563eb', lying_averse:'#16a34a', deception_averse:'#dc2626', inference_error:'#d97706' };
+  const clsN = { equilibrium:t('cls.eq'), lying_averse:t('cls.la'), deception_averse:t('cls.da'), inference_error:t('cls.ie') };
 
-  // Build trajectory groups — each group becomes one trace with null-separated agent lines
-  const groups = {};
-  for (const r of all) {
-    const a = agentMap[r.id];
-    if (!r.periods || !r.periods.length) continue;
-    const gKey = isV2 && a?.modelKey
-      ? (a.modelKey || 'unknown').split('/').pop()
-      : `${r.gt} ${r.isLie ? 'Lie' : 'Truth'}`;
-    if (!groups[gKey]) groups[gKey] = { x:[], y:[], z:[], text:[], syms:[] };
-    const g = groups[gKey];
-
-    // Period-level points for this agent
-    for (const p of r.periods) {
-      g.x.push(p.t + 1);       // 1-indexed period
-      g.y.push(p.lambda);      // belief after this period
-      g.z.push(p.at);          // receiver action
-      g.syms.push(p.isLie ? 'x' : 'circle');
-      g.text.push(
-        `<b>Agent ${r.id}</b> \u00b7 P${p.t + 1}<br>` +
-        `${r.gt}: \u03b8=${p.st}\u2192m=${p.sent}\u2192a=${p.at.toFixed(2)}<br>` +
-        `${p.isLie ? 'Lie' : 'Truth'}${p.isDec ? ' (dec)' : ''}${p.mc ? ' \u26a0mc' : ''}<br>` +
-        `\u03bb=${p.lambda.toFixed(3)} | payoff=${p.payoff.toFixed(3)}`
-      );
-    }
-    // Null gap to disconnect agent trajectories within the same trace
-    g.x.push(null); g.y.push(null); g.z.push(null);
-    g.text.push(''); g.syms.push('circle');
+  // Aggregate welfare per agent across all rounds & game types
+  const wm = {};
+  for (const r of [...R.bt, ...R.gl]) {
+    if (!wm[r.id]) wm[r.id] = { s:0, n:0 };
+    wm[r.id].s += r.sp + r.rp;
+    wm[r.id].n++;
   }
 
-  // Build traces
-  const v1Col = { 'BT Truth':'#2563eb','BT Lie':'#7c3aed','GL Truth':'#16a34a','GL Lie':'#dc2626' };
-  const v2Pal = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
+  // One node per agent: (v, gl_tp, welfare)
+  const pts = agents.map(a => ({
+    id: a.id,
+    v:   R.btS[a.id] ?? 1,   // BT truth-telling prob (default eq if BT not run)
+    gtp: R.glS[a.id] ?? 0,   // GL truth-telling prob (default eq if GL not run)
+    w:   wm[a.id] ? wm[a.id].s / wm[a.id].n : 0,
+    cls: a.classification || 'unknown',
+    a,
+  }));
+
+  // Group by classification (V1) or model (V2)
+  const groups = {};
+  for (const p of pts) {
+    const gk = isV2 && p.a.modelKey
+      ? (p.a.modelKey || 'unknown').split('/').pop() : p.cls;
+    if (!groups[gk]) groups[gk] = { x:[], y:[], z:[], text:[] };
+    const g = groups[gk];
+    g.x.push(p.v); g.y.push(p.gtp); g.z.push(p.w);
+    const mk = p.a.modelKey ? ` (${p.a.modelKey.split('/').pop()})` : '';
+    g.text.push(
+      `<b>Agent ${p.id}</b>${mk}<br>` +
+      `v\u2009=\u2009${p.v.toFixed(3)}\u2003GL\u2009=\u2009${p.gtp.toFixed(3)}<br>` +
+      `Welfare\u2009=\u2009${p.w.toFixed(3)}<br>` +
+      `${clsN[p.cls] || p.cls.replace(/_/g, ' ')}`
+    );
+  }
+
+  const v2P = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
   const traces = [];
   let ci = 0;
-  for (const [key, g] of Object.entries(groups)) {
-    const col = isV2 ? v2Pal[ci % v2Pal.length] : (v1Col[key] || '#888');
+  for (const [k, g] of Object.entries(groups)) {
     traces.push({
       x: g.x, y: g.y, z: g.z, text: g.text,
-      mode: 'lines+markers', type: 'scatter3d', name: key,
-      connectgaps: false,
-      line: { color: col, width: 2.5 },
-      marker: { color: col, size: 3, opacity: 0.85, symbol: g.syms },
+      mode: 'markers', type: 'scatter3d',
+      name: isV2 ? k : (clsN[k] || k.replace(/_/g, ' ')),
+      marker: { color: isV2 ? v2P[ci % v2P.length] : (clsC[k] || '#888'), size: 4.5, opacity: 0.8 },
       hovertemplate: '%{text}<extra></extra>',
     });
     ci++;
   }
 
-  const gc = dark ? '#1e242e' : '#eef0f3';
-  const fc = dark ? '#8b949e' : '#6b7080';
-  const nP = Math.max(...all.map(r => r.periods?.length || 1));
+  // Equilibrium reference diamond (v*=1, w*=0)
+  const maxW = Math.max(...pts.map(p => p.w));
+  const minW = Math.min(...pts.map(p => p.w));
+  traces.push({
+    x:[1], y:[0], z:[maxW * 1.01],
+    mode:'markers', type:'scatter3d', name:'v*\u2009=\u20091, w*\u2009=\u20090',
+    marker: { color: dark ? '#e6edf3':'#1a1d23', size:8, symbol:'diamond', opacity:0.9,
+              line:{ width:1.5, color: dark ? '#fff':'#000' } },
+    hovertemplate: '<b>Equilibrium</b><br>v*=1 (BT truth-tell)<br>w*=0 (GL lie)<extra></extra>',
+  });
+
+  // Classification boundary lines on the floor (v=0.5, gl_tp=0.5)
+  const fl = minW - (maxW - minW) * 0.04;
+  const bc = dark ? 'rgba(200,210,225,0.22)':'rgba(100,110,130,0.18)';
+  traces.push({ x:[.5,.5], y:[-0.05,1.1], z:[fl,fl], mode:'lines', type:'scatter3d', showlegend:false, line:{color:bc,width:2,dash:'dash'}, hoverinfo:'skip' });
+  traces.push({ x:[-0.05,1.1], y:[.5,.5], z:[fl,fl], mode:'lines', type:'scatter3d', showlegend:false, line:{color:bc,width:2,dash:'dash'}, hoverinfo:'skip' });
+
+  // Floor quadrant labels (Fig. 5 regions)
+  const qa = [
+    { x:.82, y:.18, z:fl, text:t('cls.eq')||'Equilibrium',       font:{size:9, color:'rgba(37,99,235,0.7)'} },
+    { x:.82, y:.82, z:fl, text:t('cls.la')||'Lying-averse',      font:{size:9, color:'rgba(22,163,74,0.7)'} },
+    { x:.18, y:.18, z:fl, text:t('cls.da')||'Deception-averse',  font:{size:9, color:'rgba(220,38,38,0.7)'} },
+    { x:.18, y:.82, z:fl, text:t('cls.ie')||'Inference error',   font:{size:9, color:'rgba(217,119,6,0.7)'} },
+  ].map(a => ({ ...a, showarrow:false }));
+
+  const gc = dark ? '#1e242e':'#eef0f3';
+  const fc = dark ? '#8b949e':'#6b7080';
   const layout = {
     paper_bgcolor: 'rgba(0,0,0,0)',
-    font: { family: 'Inter, sans-serif', size: 10, color: fc },
-    margin: { l: 0, r: 0, t: 8, b: 0 },
-    autosize: true,
+    font: { family:'Inter, sans-serif', size:10, color:fc },
+    margin: { l:0, r:0, t:8, b:0 }, autosize: true,
     scene: {
-      xaxis: { title: { text: 'Period', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)', dtick: 1, range: [0.5, nP + 0.5] },
-      yaxis: { title: { text: '\u03bb (belief)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)', range: [-0.05, 1.05] },
-      zaxis: { title: { text: 'Receiver action', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
-      bgcolor: dark ? '#0d1117' : '#fafbfc',
-      camera: { eye: { x: 1.8, y: 1.4, z: 0.9 } },
+      xaxis: { title:{text:'v (BT truth-telling)',font:{size:10}}, gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)', range:[-0.05,1.1] },
+      yaxis: { title:{text:'GL truth-telling',font:{size:10}},     gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)', range:[-0.05,1.1] },
+      zaxis: { title:{text:'Welfare',font:{size:10}},              gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)' },
+      bgcolor: dark ? '#0d1117':'#fafbfc',
+      camera: { eye:{x:1.7, y:1.5, z:1.0} },
+      annotations: qa,
     },
-    legend: { x: 0.01, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    legend: { x:0.01, y:0.98, font:{size:9}, bgcolor:'rgba(0,0,0,0)' },
     showlegend: true,
   };
 
-  Plotly.react('c-pointcloud', traces, layout, { responsive: true, displayModeBar: 'hover' });
+  Plotly.react('c-pointcloud', traces, layout, { responsive:true, displayModeBar:'hover' });
 }
 
 /** Redraw all charts from cached data */
