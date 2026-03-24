@@ -281,6 +281,25 @@ select:focus { border-color: var(--accent); }
 }
 .btn-roster-add:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 
+/* Period-grouped log sections */
+.log-entries .log-period {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 6px; overflow: hidden;
+}
+.log-entries .log-period > summary {
+  padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  font-size: .75rem; background: var(--bg-2); transition: background .15s;
+}
+.log-entries .log-period > summary:hover { filter: brightness(1.08); }
+.log-entries .log-period[open] > summary { border-bottom: 1px solid var(--border); }
+.log-period-stats { font-weight: 400; color: var(--fg-2); font-size: .68rem; margin-left: auto; }
+.log-period-body { padding: 4px 8px; }
+.log-period-row {
+  padding: 5px 8px; font-size: .7rem; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.log-period-row:last-child { border-bottom: none; }
+
 /* Rich game log (V2) */
 .log-entries details.log-entry {
   border: 1px solid var(--border); border-radius: var(--radius-sm);

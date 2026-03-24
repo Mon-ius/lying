@@ -90,6 +90,7 @@ const I18N = {
     'log.nodec':'Not deceptive (D=0)','log.isdec':'Deceptive (D>0)',
     'log.prop1':'Deceptive truth (Prop. 1)','log.prop2':'Non-deceptive lie (Prop. 2)',
     'log.profile':'Agent Profile',
+    'log.analysis':'Analysis',
     // V1 SVG Architecture
     'svg1.config':'Configuration',
     'svg1.config.d':'N agents, risk attitudes, costs, rounds',
@@ -323,6 +324,7 @@ const I18N = {
     'log.nodec':'非欺骗性 (D=0)','log.isdec':'欺骗性 (D>0)',
     'log.prop1':'欺骗性真话 (命题 1)','log.prop2':'非欺骗性谎言 (命题 2)',
     'log.profile':'智能体特征',
+    'log.analysis':'分析',
     // V1 SVG Architecture
     'svg1.config':'配置',
     'svg1.config.d':'N 个智能体, 风险态度, 成本, 轮次',
@@ -552,6 +554,7 @@ const I18N = {
     'log.nodec':'비기만적 (D=0)','log.isdec':'기만적 (D>0)',
     'log.prop1':'기만적 진실 (명제 1)','log.prop2':'비기만적 거짓말 (명제 2)',
     'log.profile':'에이전트 프로필',
+    'log.analysis':'분석',
     // V1 SVG Architecture
     'svg1.config':'구성',
     'svg1.config.d':'N 에이전트, 위험 태도, 비용, 라운드',

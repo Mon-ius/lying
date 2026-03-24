@@ -10,60 +10,17 @@ function renderLog() {
   if (!log || !sample || !sample.length) return;
   const rtMap = { risk_loving: t('rt.rl'), risk_neutral: t('rt.rn'), risk_averse: t('rt.ra') };
 
-  log.innerHTML = sample.map((r, i) => {
-    const lieTag = r.isLie
-      ? `<span class="tag tag-lie">${t('log.lie')}</span>`
-      : `<span class="tag tag-truth">${t('log.truth')}</span>`;
-    const decTag = r.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
-    const mcTag = r.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
+  const N = Math.max(...sample.map(r => (r.periods || []).length), 1);
 
+  /* Helper: per-agent decision / Sobel / profile block */
+  function agentAnalysis(r) {
     let sobelNote = '';
     if (!r.isLie && r.isDec) sobelNote = t('log.prop1');
     else if (r.isLie && !r.isDec) sobelNote = t('log.prop2');
-
     const truthWins = r.augT >= r.augL;
     const diff = Math.abs(r.augT - r.augL).toFixed(3);
     const winner = truthWins ? t('log.truth') : t('log.lie');
-
-    // Build period sections dynamically
-    const ps = r.periods || [];
-    const periodSections = ps.length > 0
-      ? ps.map((p, pi) => {
-          const isLast = pi === ps.length - 1;
-          const sfx = t('log.periodSuffix') || '';
-          const label = isLast && ps.length > 1
-            ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
-            : `${t('log.period')} ${pi + 1}${sfx}`;
-          return `<div class="log-section"><strong>${label}</strong>
-      <div class="log-grid">
-        <span>\u03b8<sub>${pi + 1}</sub> = ${p.st}</span>
-        <span>m = ${p.sent} (${p.isLie ? t('log.lie') : t('log.truth')})</span>
-        <span>${t('log.rcv')} = ${p.rcv}${p.mc ? ' \u26a0' : ''}</span>
-        <span>a<sub>${pi + 1}</sub> = ${p.at.toFixed(3)}</span>
-        <span>\u03bb<sub>${pi + 1}</sub> = ${p.lambda.toFixed(3)}</span>
-      </div>
-    </div>`;
-        }).join('')
-      : `<div class="log-section"><strong>${t('log.p1')}</strong>
-      <div class="log-grid">
-        <span>\u03b8\u2081 = ${r.s1}</span>
-        <span>m = ${r.sent} (${r.isLie ? t('log.lie') : t('log.truth')})</span>
-        <span>${t('log.rcv')} = ${r.rcv}${r.mc ? ' \u26a0' : ''}</span>
-        <span>a\u2081 = ${r.a1.toFixed(3)}</span>
-      </div>
-    </div>`;
-
-    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
-  <summary>
-    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${r.id}
-    \u2003${r.N > 2 ? r.N + 'P ' : ''}\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
-    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
-    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
-  </summary>
-  <div class="log-detail">
-    ${periodSections}
-    <div class="log-section"><strong>${t('log.decision')}</strong>
+    return `<div class="log-section"><strong>${t('log.decision')}</strong>
       <div class="log-grid">
         <span>EU\u1d43(${t('log.truth')}) = ${r.augT.toFixed(3)}</span>
         <span>EU\u1d43(${t('log.lie')}) = ${r.augL.toFixed(3)}</span>
@@ -84,10 +41,100 @@ function renderLog() {
         <span>c<sub>d</sub> = ${r.cd.toFixed(3)}</span>
         <span>\u03b1 = ${r.alpha.toFixed(3)} (${rtMap[r.riskType] || r.riskType})</span>
       </div>
+    </div>`;
+  }
+
+  /* --- N < 2: flat per-agent view --- */
+  if (N < 2) {
+    log.innerHTML = sample.map((r, i) => {
+      const lieTag = r.isLie
+        ? `<span class="tag tag-lie">${t('log.lie')}</span>`
+        : `<span class="tag tag-truth">${t('log.truth')}</span>`;
+      const decTag = r.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
+      const mcTag = r.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
+      return `<details class="log-entry"${i === 0 ? ' open' : ''}>
+  <summary>
+    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
+    ${t('log.agent')}\u2009${r.id}
+    \u2003\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
+    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
+    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
+  </summary>
+  <div class="log-detail">
+    <div class="log-section"><strong>${t('log.p1')}</strong>
+      <div class="log-grid">
+        <span>\u03b8\u2081 = ${r.s1}</span>
+        <span>m = ${r.sent} (${r.isLie ? t('log.lie') : t('log.truth')})</span>
+        <span>${t('log.rcv')} = ${r.rcv}${r.mc ? ' \u26a0' : ''}</span>
+        <span>a\u2081 = ${r.a1.toFixed(3)}</span>
+      </div>
     </div>
+    ${agentAnalysis(r)}
   </div>
 </details>`;
+    }).join('');
+    return;
+  }
+
+  /* --- N >= 2: period-grouped view with collapsible sections --- */
+  let html = '';
+
+  for (let pi = 0; pi < N; pi++) {
+    const isLast = pi === N - 1;
+    const sfx = t('log.periodSuffix') || '';
+    const label = isLast && N > 1
+      ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
+      : `${t('log.period')} ${pi + 1}${sfx}`;
+
+    const pds = sample.map(r => (r.periods || [])[pi]).filter(Boolean);
+    const nLie = pds.filter(p => p.isLie).length;
+    const nDec = pds.filter(p => p.isDec).length;
+    const stats = `${pds.length} agents \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
+
+    const rows = sample.map(r => {
+      const p = (r.periods || [])[pi];
+      if (!p) return '';
+      const lieTag = p.isLie
+        ? `<span class="tag tag-lie">${t('log.lie')}</span>`
+        : `<span class="tag tag-truth">${t('log.truth')}</span>`;
+      const decTag = p.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
+      const mcTag = p.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
+      return `<div class="log-period-row">
+  <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700;font-size:.65rem">${r.gt}</span>
+  ${t('log.agent')}\u2009${r.id}
+  \u2003\u03b8<sub>${pi+1}</sub>=${p.st} \u2192 m=${p.sent} \u2192 a<sub>${pi+1}</sub>=${p.at.toFixed(2)}
+  \u2003\u03bb<sub>${pi+1}</sub>=${p.lambda.toFixed(3)}
+  \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
+</div>`;
+    }).filter(Boolean).join('');
+
+    html += `<details class="log-period"${pi === 0 ? ' open' : ''}>
+  <summary><strong>${label}</strong><span class="log-period-stats">${stats}</span></summary>
+  <div class="log-period-body">${rows}</div>
+</details>`;
+  }
+
+  /* Analysis summary — per-agent decision / Sobel / profile */
+  html += `<details class="log-period">
+  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${sample.length} agents</span></summary>
+  <div class="log-period-body">`;
+
+  html += sample.map((r, i) => {
+    const lieTag = r.isLie
+      ? `<span class="tag tag-lie">${t('log.lie')}</span>`
+      : `<span class="tag tag-truth">${t('log.truth')}</span>`;
+    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
+  <summary>
+    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
+    ${t('log.agent')}\u2009${r.id}
+    \u2003${t('log.payoff')}=${r.sp.toFixed(2)} \u2003${lieTag}
+  </summary>
+  <div class="log-detail">${agentAnalysis(r)}</div>
+</details>`;
   }).join('');
+
+  html += '</div></details>';
+  log.innerHTML = html;
 }
 
 /* ---- Theme management ---- */
