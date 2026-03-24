@@ -292,6 +292,17 @@
     </div>
     <div id="log-view-3d" style="display:none">
       <div id="c-pointcloud"></div>
+      <div class="chart-note" data-i18n="note.pointcloud">
+        <b>Note.</b> <strong>Communication Trajectory Cloud</strong> &mdash; 3D visualization of the N-period sender&ndash;receiver game (Choi, Lee &amp; Lim 2025; Sobel 2020).
+        <br><strong>X-axis</strong>&thinsp;: Period (time). BT and GL games are shown side-by-side, separated by a dashed divider plane. Each tick (BT.1, BT.2, &hellip; | GL.1, GL.2, &hellip;) is one period of the repeated game.
+        <br><strong>Y-axis</strong>&thinsp;: &lambda; (belief) &mdash; the receiver&rsquo;s posterior type belief, which <em>carries between periods</em> as inherited state. This is the core reputation variable: each period&rsquo;s &lambda; becomes the next period&rsquo;s prior.
+        <br><strong>Z-axis</strong>&thinsp;: Receiver action (a<sub>t</sub>) &mdash; the behavioral response to the message, conditioned on the current belief.
+        <br><strong>Markers</strong>&thinsp;: &#x25CF; circle&thinsp;=&thinsp;truth (m&thinsp;=&thinsp;&theta;, Sobel Def.&thinsp;3), &#x25C6; diamond&thinsp;=&thinsp;lie (m&thinsp;&ne;&thinsp;&theta;). Smaller markers indicate <em>deceptive</em> messages (Sobel Def.&thinsp;4) &mdash; belief distortion independent of literal truth.
+        <br><strong>Trajectory lines</strong>&thinsp;: semi-transparent lines connect the same agent across periods, making &lambda;-inheritance visible. Rising lines&thinsp;=&thinsp;reputation building; falling lines&thinsp;=&thinsp;trust erosion from detected lies.
+        <br><strong>Mean trajectories</strong>&thinsp;: bold <span style="color:#2563eb">blue</span> (BT) and <span style="color:#dc2626">red</span> (GL) lines show the population average &lambda; and action per period, computed from all agents.
+        <br><strong>Dotted floor line</strong>&thinsp;: prior belief &lambda;<sub>0</sub> = p<sub>b</sub>, the starting point before any communication.
+        <br><strong>Color</strong>&thinsp;: by behavioral classification (V1) or AI model (V2). When N&thinsp;&lt;&thinsp;2, the chart falls back to the aggregate strategy&ndash;welfare landscape (v, GL truth-telling, welfare).
+      </div>
     </div>
   </details>
 
