@@ -130,7 +130,7 @@ function periodWeights(N, ratio) {
 }
 
 /* ---- N-period game execution with carried state ---- */
-function playNPeriodGame(a, gt, P, g) {
+function playNPeriodGame(a, gt, P, g, stratOverride) {
   const { weights, pb, miscomm } = P;
   const N = weights.length;
   let lambda = pb;
@@ -141,7 +141,9 @@ function playNPeriodGame(a, gt, P, g) {
     const xt = weights[t];
     const xNext = t < N - 1 ? weights[t + 1] : 0;
     const st = g() < .5 ? 0 : 1;
-    const { strat, augT, augL } = agentStrat(a, gt, xt, xNext, lambda);
+    const { strat, augT, augL } = stratOverride != null
+      ? { strat: stratOverride, augT: NaN, augL: NaN }
+      : agentStrat(a, gt, xt, xNext, lambda);
 
     let sent, v, w;
     if (gt === 'BT') {

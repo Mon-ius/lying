@@ -234,6 +234,15 @@
       <div id="agent-roster"></div>
       <button class="btn-roster-add" onclick="addRosterRow()" data-i18n="ai.addgroup">+ Add agent group</button>
 
+      <div class="form-group form-section" style="margin-top:14px">
+        <div class="form-section-title" data-i18n="ai.trials">Experiment Trials</div>
+        <div class="form-hint" data-i18n="ai.trialshint">Independent repetitions for statistical robustness</div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span data-i18n="label.trials">Trials per experiment</span> <span class="unit" id="v-trials">3</span></div>
+        <input type="range" id="s-trials" min="1" max="10" step="1" value="3">
+      </div>
+
       <button class="btn-run btn-ai" id="btn-ai-run" onclick="runAI()">
         <span class="spinner"></span>
         <span class="label" data-i18n="btn.airun">Run AI Experiment</span>
@@ -362,6 +371,32 @@
         <br><strong>GL</strong>&thinsp;: good-type lying &mdash; &lambda; trajectory depends on how lies interact with receiver inference.
         <br>Shaded band shows &plusmn;1 s.d. across agents. Period weights (x<sub>t</sub>) shown as dashed grey line on secondary axis.
       </div>
+    </div>
+
+    <!-- V2 Cross-Model Comparison (hidden in V1) -->
+    <div class="v2-chart" style="display:none">
+      <div class="stats-panel" id="stats-panel">
+        <h4><span data-i18n="stats.title">Cross-Model Statistics</span></h4>
+        <div class="stats-table-container" id="stats-table"></div>
+      </div>
+    </div>
+
+    <div class="chart-card v2-chart" style="display:none">
+      <h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.modelstrats">Fig. 8 &mdash; Cross-Model Strategy Comparison</span><button class="chart-dl" onclick="downloadChart('c-model-strats','fig8-model-strats')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
+      <div id="c-model-strats"></div>
+      <div class="chart-note" data-i18n="note.modelstrats"><b>Note.</b> Per-model mean truth-telling probability with 95% CI error bars. Dashed lines mark equilibrium predictions (BT: v*=1, GL: w*=0). Deviations driven by c<sub>l</sub> and c<sub>d</sub> decomposition (Prop. 3–4).</div>
+    </div>
+
+    <div class="chart-card v2-chart" style="display:none">
+      <h4><span class="dot" style="background:var(--green)"></span><span data-i18n="chart.modeltypes">Fig. 9 &mdash; Cross-Model Classification</span><button class="chart-dl" onclick="downloadChart('c-model-types','fig9-model-types')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
+      <div id="c-model-types"></div>
+      <div class="chart-note" data-i18n="note.modeltypes"><b>Note.</b> Behavioral classification proportions per model across all trials. Consistent patterns across heterogeneous models validate the Choi+ 2025 framework over legacy definitions.</div>
+    </div>
+
+    <div class="chart-card v2-chart" style="display:none">
+      <h4><span class="dot" style="background:var(--accent)"></span><span data-i18n="chart.modeldev">Fig. 10 &mdash; Model vs. Equilibrium Deviation</span><button class="chart-dl" onclick="downloadChart('c-model-deviation','fig10-model-deviation')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
+      <div id="c-model-deviation"></div>
+      <div class="chart-note" data-i18n="note.modeldev"><b>Note.</b> Each model's mean deviation from equilibrium in (BT, GL) space. Points near origin conform to equilibrium. Clustering away from origin in predictable directions demonstrates augmented utility effects. Star marks perfect equilibrium.</div>
     </div>
   </div>
 

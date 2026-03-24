@@ -367,6 +367,15 @@ body.mode-ai .btn-run { display: none; }
 .note-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
 
 /* Game log */
+/* Stats panel (V2 cross-model) */
+.stats-panel { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; }
+.stats-panel h4 { font-size: .78rem; font-weight: 600; color: var(--fg-1); margin-bottom: 8px; }
+.stats-table-container { overflow-x: auto; }
+.stats-table { width: 100%; border-collapse: collapse; font-size: .72rem; }
+.stats-table th, .stats-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.stats-table th { font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; font-size: .62rem; }
+.stats-table td { font-family: 'JetBrains Mono', monospace; }
+
 .log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; }
 .log-card h4 { font-size: .78rem; font-weight: 600; color: var(--fg-1); margin-bottom: 8px; }
 .log-entries {

@@ -109,12 +109,12 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   const next = eff === 'dark' ? 'light' : 'dark';
   localStorage.setItem(THEME_KEY, next);
   applyTheme();
-  redrawAll(LA, LR);
+  redrawAll(LA, LR, LS);
 });
 
 window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
   applyTheme();
-  redrawAll(LA, LR);
+  redrawAll(LA, LR, LS);
 });
 
 applyTheme();
@@ -236,6 +236,7 @@ function exportJSON() {
       id: a.id, cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
       riskType: a.riskType, classification: a.classification,
       btStrategy: LR.btS[a.id], glStrategy: LR.glS[a.id],
+      ...(a.aiProvider ? { aiProvider: a.aiProvider, aiModel: a.aiModel, modelKey: a.modelKey } : {}),
     })),
     results: { bt: LR.bt, gl: LR.gl },
     params: {
@@ -245,7 +246,9 @@ function exportJSON() {
       ratio: +document.getElementById('s-ratio').value,
       bp: +document.getElementById('s-bp').value,
       miscomm: +document.getElementById('s-miscomm').value,
+      ...(currentVersion === 'v2' ? { trials: +(document.getElementById('s-trials')?.value || 1) } : {}),
     },
+    ...(LS ? { modelStats: LS } : {}),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -316,6 +319,8 @@ function switchVersion(v) {
   document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
   document.getElementById('p-ai').classList.toggle('collapsed', v === 'v1');
   document.body.classList.toggle('mode-ai', v === 'v2');
+  // Show/hide V2-only elements
+  document.querySelectorAll('.v2-chart').forEach(el => el.style.display = v === 'v2' ? '' : 'none');
   // Seed default roster row if empty
   if (v === 'v2' && !document.querySelectorAll('.roster-row').length) {
     addRosterRow('claude', 'claude-haiku-4-5');
@@ -331,23 +336,77 @@ function switchArchVersion(v) {
   document.getElementById('arch-v2').style.display = v === 'v2' ? '' : 'none';
 }
 
-/* ---- Run AI experiment (V2 multi-provider) ---- */
+/* ---- Stats table renderer ---- */
+function renderStatsTable(stats) {
+  const el = document.getElementById('stats-table');
+  if (!el || !stats?.perModel) return;
+  const models = Object.keys(stats.perModel);
+  if (!models.length) { el.innerHTML = ''; return; }
+
+  const fmt = (v, d) => isNaN(v) ? '--' : v.toFixed(d || 3);
+  const fmtCI = (m, ci) => `${fmt(m)} \u00b1 ${fmt(ci)}`;
+
+  let html = `<table class="stats-table">
+    <thead><tr>
+      <th>${t('stats.model')}</th><th>n</th>
+      <th>${t('stats.btstrat')}</th><th>${t('stats.glstrat')}</th>
+      <th>${t('cls.eq')}</th><th>${t('cls.la')}</th><th>${t('cls.da')}</th><th>${t('cls.ie')}</th>
+    </tr></thead><tbody>`;
+
+  for (const [mk, d] of Object.entries(stats.perModel)) {
+    const label = mk.split('/').pop();
+    html += `<tr>
+      <td><strong>${label}</strong></td>
+      <td>${d.n}</td>
+      <td>${fmtCI(d.bt.mean, d.bt.ci)}</td>
+      <td>${fmtCI(d.gl.mean, d.gl.ci)}</td>
+      <td>${(d.cls.equilibrium * 100).toFixed(0)}%</td>
+      <td>${(d.cls.lying_averse * 100).toFixed(0)}%</td>
+      <td>${(d.cls.deception_averse * 100).toFixed(0)}%</td>
+      <td>${(d.cls.inference_error * 100).toFixed(0)}%</td>
+    </tr>`;
+  }
+
+  // Aggregate row
+  const agg = stats.aggregate;
+  html += `<tr style="border-top:2px solid var(--border);font-weight:600">
+    <td>${t('stats.aggregate') || 'All models'}</td>
+    <td>${agg.nModels}</td>
+    <td>${fmtCI(agg.bt.mean, agg.bt.ci)}</td>
+    <td>${fmtCI(agg.gl.mean, agg.gl.ci)}</td>
+    <td colspan="4">${agg.nTrials} ${t('stats.trials') || 'trials'}</td>
+  </tr>`;
+
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+/* ---- Cached V2 stats for redraw ---- */
+let LS = null;
+
+/* ---- Run AI experiment (V2 multi-provider, multi-trial) ---- */
 async function runAI() {
   const roster = buildAgentRoster();
   if (roster.length < 2) { alert('Add at least 2 agents to the roster.'); return; }
-  // Check that at least one provider key is filled
   const anyKey = ['claude','gpt','gemini','deepseek','qwen','minimax','kimi','glm'].some(p => document.getElementById('pk-'+p)?.value.trim());
   if (!anyKey) { alert('Enter at least one provider API key.'); return; }
 
   const btn = document.getElementById('btn-ai-run');
   const prog = document.getElementById('ai-progress');
   btn.classList.add('loading'); btn.disabled = true;
-  prog.textContent = 'Starting AI experiment...';
+  const nTrials = +(document.getElementById('s-trials')?.value || 1);
+  prog.textContent = nTrials > 1 ? `Starting multi-trial AI experiment (${nTrials} trials)...` : 'Starting AI experiment...';
+
   try {
-    const { agents, R, gameLog } = await runAIExperiment((step, total, msg) => {
+    const { agents, allTrialResults, stats, allGameLogs } = await runMultiTrialAIExperiment((step, total, msg) => {
       prog.textContent = `[${step}/${total}] ${msg}`;
     });
-    LA = agents; LR = R;
+
+    // Use last trial for standard charts
+    const lastTrial = allTrialResults[allTrialResults.length - 1];
+    LA = agents; LR = lastTrial.R; LS = stats;
+
+    // KPIs from aggregate stats
     const n = agents.length;
     const C = { equilibrium: 0, lying_averse: 0, deception_averse: 0, inference_error: 0 };
     for (const a of agents) C[a.classification]++;
@@ -361,21 +420,32 @@ async function runAI() {
       const vals = [C.equilibrium, C.lying_averse, C.deception_averse, C.inference_error];
       if (i < 4) bar.style.width = (vals[i] / n * 100) + '%';
     });
-    const allP = [...R.bt, ...R.gl].map(r => r.sp + r.rp);
+    const allP = [...LR.bt, ...LR.gl].map(r => r.sp + r.rp);
     document.getElementById('st-welfare').textContent = allP.length
       ? (allP.reduce((a, b) => a + b, 0) / allP.length).toFixed(2) : '--';
+
+    // Standard charts
     const env = document.getElementById('s-env').value;
     plotParams(agents);
     plotJoint(agents);
-    if (env === 'both' || env === 'BT') plotStrat(R, 'BT');
-    if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
+    if (env === 'both' || env === 'BT') plotStrat(LR, 'BT');
+    if (env === 'both' || env === 'GL') plotStrat(LR, 'GL');
     plotTypes(agents);
     plotRegions(agents);
-    // Rich game log
-    renderGameLog(gameLog, agents);
-    const aiCalls = gameLog.filter(e => e.type === 'agent' && !e.error).length;
-    const fallbacks = gameLog.filter(e => e.type === 'agent' && e.error).length;
-    prog.textContent = `Done — ${aiCalls} AI calls, ${fallbacks} fallbacks, ${n} agents`;
+    plotLambda(LR);
+
+    // V2 cross-model charts + stats table
+    plotModelStrats(stats);
+    plotModelTypes(stats);
+    plotModelDeviation(stats);
+    renderStatsTable(stats);
+
+    // Game log (last trial)
+    const lastLog = allGameLogs[allGameLogs.length - 1];
+    renderGameLog(lastLog, agents);
+    const totalAI = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && !e.error).length, 0);
+    const totalFB = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && e.error).length, 0);
+    prog.textContent = `Done — ${nTrials} trial${nTrials > 1 ? 's' : ''}, ${totalAI} AI calls, ${totalFB} fallbacks, ${n} agents`;
   } catch (e) {
     prog.textContent = 'Error: ' + e.message;
   }
@@ -451,4 +521,4 @@ window.addEventListener('load', () => {
   setTimeout(runExperiment, 200);
 });
 
-window.addEventListener('resize', () => redrawAll(LA, LR));
+window.addEventListener('resize', () => redrawAll(LA, LR, LS));

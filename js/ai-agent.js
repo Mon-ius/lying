@@ -163,12 +163,13 @@ function getProviderCfg(provider, modelOverride) {
 }
 
 /* ---- System prompt (shared) ---- */
-const GAME_CONTEXT = `You are participating in a two-period reputation game studied by Choi, Lee & Lim (2025), building on Sobel's (2020) formal definitions of lying and deception.
+const GAME_CONTEXT = `You are participating in an N-period reputation game studied by Choi, Lee & Lim (2025), building on Sobel's (2020) formal definitions of lying and deception.
 
 GAME STRUCTURE:
-- Period 1: Nature draws state θ∈{0,1}. The sender observes θ and sends message m∈{0,1}. The receiver observes m (possibly with noise ε) and takes action a₁.
-- Period 2: Myopic play. The receiver's belief about the sender's type (reputation λ) determines action a₂.
-- Payoff: U = −x₁(a₁−target)² − x₂(a₂−target)² where x₂/x₁ reflects reputation incentive.
+- N periods with increasing reputation weight: x_t interpolates from x₁=1 to x_N=x₂/x₁.
+- Each period t: Nature draws state θ_t∈{0,1}. The sender observes θ_t and sends message m_t∈{0,1}. The receiver observes m_t (possibly with noise ε) and takes action a_t.
+- Reputation λ_t evolves via Bayesian updating across periods. The final period is myopic.
+- Payoff: U = Σ_t −x_t(a_t−target)² with lying and deception costs applied.
 
 FORMAL DEFINITIONS (Sobel 2020):
 - Lie (Def. 3): m ≠ θ — the sender's message does not match the true state.
@@ -202,6 +203,7 @@ async function orchestratePrompts(agents, gameType, gameParams, orchCfg) {
 GAME TYPE: ${gtDesc}
 
 GAME PARAMETERS:
+- N periods = ${gameParams.nPeriods || 2} (reputation weight escalates from x₁=1 to x_N)
 - x₂/x₁ ratio = ${gameParams.x2} (reputation incentive)
 - Behavioral-type prior p_b = ${gameParams.pb}
 - Miscommunication rate ε = ${(gameParams.miscomm * 100).toFixed(0)}%
@@ -261,8 +263,57 @@ function buildAgentRoster() {
   return roster;
 }
 
-/* ---- Full AI Experiment (V2) ---- */
-async function runAIExperiment(progressCb) {
+/* ---- Dispatch strategies for one game type in one trial ---- */
+async function _dispatchGameType(agents, gt, params, orchCfg, progressCb, stepRef, totalSteps, gameLog) {
+  // Orchestrator generates prompts
+  if (progressCb) progressCb(++stepRef.v, totalSteps, `Orchestrator generating ${gt} prompts...`);
+  let agentPrompts;
+  try {
+    agentPrompts = await orchestratePrompts(agents, gt, params, orchCfg);
+  } catch (e) {
+    agentPrompts = agents.map(a => ({
+      id: a.id,
+      prompt: buildFallbackPrompt(a, gt, params),
+    }));
+    gameLog.push({ type: 'orchestrator', gt, status: 'fallback', error: e.message });
+  }
+
+  const promptMap = {};
+  for (const p of agentPrompts) promptMap[p.id] = p.prompt;
+
+  // Dispatch to each agent (concurrency 4)
+  const strategies = {};
+  const concurrency = 4;
+  for (let i = 0; i < agents.length; i += concurrency) {
+    const batch = agents.slice(i, i + concurrency);
+    const results = await Promise.all(batch.map(async (a) => {
+      const prompt = promptMap[a.id] || buildFallbackPrompt(a, gt, params);
+      const entry = {
+        type: 'agent', gt, id: a.id,
+        provider: a.aiProvider, model: a.aiModel,
+        prompt, response: null, strategy: null, error: null,
+      };
+      try {
+        const { value, raw } = await dispatchToAgent(a, prompt);
+        entry.response = raw;
+        entry.strategy = value;
+      } catch (e) {
+        entry.error = e.message;
+        const fb = agentStrat(a, gt, params.x1, params.x2, params.pb);
+        entry.strategy = fb.strat;
+        entry.response = `[fallback: math strategy = ${entry.strategy.toFixed(3)}]`;
+      }
+      gameLog.push(entry);
+      if (progressCb) progressCb(++stepRef.v, totalSteps, `${gt} Agent ${a.id} (${a.aiProvider})...`);
+      return { id: a.id, strat: entry.strategy };
+    }));
+    for (const r of results) strategies[r.id] = r.strat;
+  }
+  return strategies;
+}
+
+/* ---- Multi-trial AI Experiment (V2) ---- */
+async function runMultiTrialAIExperiment(progressCb) {
   // Get orchestrator config
   const orchProvider = document.getElementById('orch-provider').value;
   const orchModel = document.getElementById('orch-model').value;
@@ -274,9 +325,11 @@ async function runAIExperiment(progressCb) {
 
   const env = document.getElementById('s-env').value;
   const rounds = +document.getElementById('s-rounds').value;
+  const nPeriods = +document.getElementById('s-periods').value;
   const ratio = +document.getElementById('s-ratio').value;
   const bp = +document.getElementById('s-bp').value;
   const miscomm = +document.getElementById('s-miscomm').value / 100;
+  const nTrials = +(document.getElementById('s-trials')?.value || 1);
 
   let rl = +document.getElementById('s-rl').value;
   let rn = +document.getElementById('s-rn').value;
@@ -294,98 +347,159 @@ async function runAIExperiment(progressCb) {
   agents.forEach((a, i) => {
     a.aiProvider = roster[i].provider;
     a.aiModel = roster[i].model;
+    a.modelKey = `${roster[i].provider}/${roster[i].model}`;
   });
 
-  const params = { x1: 1, x2: ratio, pb: bp, miscomm };
+  const weights = periodWeights(nPeriods, ratio);
   const gts = env === 'both' ? ['BT', 'GL'] : [env];
-  const R = { bt: [], gl: [], btS: {}, glS: {} };
-  const g = mulberry32(42);
-  const gameLog = []; // rich log
 
-  let step = 0;
-  const totalSteps = gts.length * (1 + agents.length); // orchestrate + dispatch per gt
+  // Progress: per trial → per gt → orchestrate + agents
+  const stepsPerTrial = gts.length * (1 + agents.length);
+  const totalSteps = nTrials * stepsPerTrial;
+  const stepRef = { v: 0 };
 
-  for (const gt of gts) {
-    // Step 1: Orchestrator generates prompts
-    if (progressCb) progressCb(++step, totalSteps, `Orchestrator generating ${gt} prompts...`);
-    let agentPrompts;
-    try {
-      agentPrompts = await orchestratePrompts(agents, gt, params, orchCfg);
-    } catch (e) {
-      // Fallback: generate prompts locally
-      agentPrompts = agents.map(a => ({
-        id: a.id,
-        prompt: buildFallbackPrompt(a, gt, params),
-      }));
-      gameLog.push({ type: 'orchestrator', gt, status: 'fallback', error: e.message });
+  const allTrialResults = [];
+  const allGameLogs = [];
+  // Per-model tracking: { "provider/model": { btStrats: [], glStrats: [], trials: [] } }
+  const modelResults = {};
+  for (const a of agents) {
+    if (!modelResults[a.modelKey]) {
+      modelResults[a.modelKey] = { btStrats: [], glStrats: [], trials: [], agentIds: [] };
     }
-
-    const promptMap = {};
-    for (const p of agentPrompts) promptMap[p.id] = p.prompt;
-
-    // Step 2: Dispatch to each agent (concurrency 4)
-    const strategies = {};
-    const concurrency = 4;
-    for (let i = 0; i < agents.length; i += concurrency) {
-      const batch = agents.slice(i, i + concurrency);
-      const results = await Promise.all(batch.map(async (a) => {
-        const prompt = promptMap[a.id] || buildFallbackPrompt(a, gt, params);
-        const entry = {
-          type: 'agent', gt, id: a.id,
-          provider: a.aiProvider, model: a.aiModel,
-          prompt, response: null, strategy: null, error: null,
-        };
-        try {
-          const { value, raw } = await dispatchToAgent(a, prompt);
-          entry.response = raw;
-          entry.strategy = value;
-        } catch (e) {
-          entry.error = e.message;
-          entry.strategy = agentStrat(a, gt, params.x1, params.x2, params.pb);
-          entry.response = `[fallback: math strategy = ${entry.strategy.toFixed(3)}]`;
-        }
-        gameLog.push(entry);
-        if (progressCb) progressCb(++step, totalSteps, `${gt} Agent ${a.id} (${a.aiProvider})...`);
-        return { id: a.id, strat: entry.strategy };
-      }));
-      for (const r of results) strategies[r.id] = r.strat;
-    }
-
-    // Step 3: Simulate rounds with AI strategies
-    for (const a of agents) {
-      const aiStrat = strategies[a.id];
-      for (let r = 0; r < rounds; r++) {
-        const s1 = g() < .5 ? 0 : 1, s2 = g() < .5 ? 0 : 1;
-        let sent, v, w;
-        if (gt === 'BT') {
-          if (!s1) { sent = g() < aiStrat ? 0 : 1; v = 1 - aiStrat; } else { sent = 1; v = 1 - aiStrat; }
-          w = 0;
-        } else {
-          if (s1 === 1) { sent = g() < aiStrat ? 0 : 1; w = aiStrat; } else { sent = 0; w = aiStrat; }
-          v = 0;
-        }
-        let rcv = sent;
-        if (miscomm > 0 && g() < miscomm) rcv = 1 - rcv;
-        const sp = gt === 'BT' ? v : w;
-        const a1 = gt === 'BT' ? B.btA(rcv, sp, bp) : B.glA(rcv, sp, bp);
-        const tb = gt === 'BT' ? B.btL(rcv, s1, sp, bp) : B.glL(rcv, s1, sp, bp);
-        const a2 = gt === 'BT' ? clamp(tb * s2 + (1 - tb), 0, 1) : clamp(tb * s2 + (1 - tb) * .5, 0, 1);
-        const sp_ = gt === 'BT' ? -1*(a1-1)**2 - ratio*(a2-1)**2 : -1*(a1-s1)**2 - ratio*(a2-s2)**2;
-        const rp_ = -1*(a1-s1)**2 - ratio*(a2-s2)**2;
-        const isLie = sent !== s1;
-        const dec = gt === 'BT' ? B.btD(sent, s1, sp, bp) : B.glD(sent, s1, sp, bp);
-        const tp = gt === 'BT' ? (s1 === 0 ? aiStrat : 1) : (s1 === 1 ? 1 - aiStrat : 1);
-        (gt === 'BT' ? R.bt : R.gl).push({
-          gt, id: a.id, s1, s2, sent, rcv, a1, a2, sp: sp_, rp: rp_,
-          isLie, isDec: dec > 1e-6, tp, strat: aiStrat, mc: sent !== rcv,
-        });
-      }
-      (gt === 'BT' ? R.btS : R.glS)[a.id] = strategies[a.id];
-    }
+    modelResults[a.modelKey].agentIds.push(a.id);
   }
 
-  classify(agents, R);
-  return { agents, R, gameLog };
+  for (let trial = 0; trial < nTrials; trial++) {
+    const seed = 42 + trial * 137;
+    const g = mulberry32(seed);
+    const R = { bt: [], gl: [], btS: {}, glS: {} };
+    const gameLog = [];
+
+    if (progressCb && nTrials > 1) {
+      progressCb(stepRef.v, totalSteps, `Trial ${trial + 1}/${nTrials}...`);
+    }
+
+    for (const gt of gts) {
+      const params = { x1: 1, x2: ratio, pb: bp, miscomm, nPeriods };
+      const strategies = await _dispatchGameType(
+        agents, gt, params, orchCfg, progressCb, stepRef, totalSteps, gameLog
+      );
+
+      // Simulate rounds using playNPeriodGame with AI strategy override
+      const P = { weights, pb: bp, miscomm };
+      for (const a of agents) {
+        const aiStrat = strategies[a.id];
+        for (let r = 0; r < rounds; r++) {
+          const result = playNPeriodGame(a, gt, P, g, aiStrat);
+          (gt === 'BT' ? R.bt : R.gl).push(result);
+        }
+        (gt === 'BT' ? R.btS : R.glS)[a.id] = aiStrat;
+
+        // Track per-model strategies
+        const mk = a.modelKey;
+        if (gt === 'BT') modelResults[mk].btStrats.push(aiStrat);
+        else modelResults[mk].glStrats.push(aiStrat);
+      }
+    }
+
+    classify(agents, R);
+
+    // Store per-trial classification snapshot
+    const trialSnap = { R, classifications: {} };
+    for (const a of agents) {
+      trialSnap.classifications[a.id] = a.classification;
+      const mk = a.modelKey;
+      modelResults[mk].trials.push({ trial, id: a.id, cls: a.classification });
+    }
+
+    allTrialResults.push(trialSnap);
+    allGameLogs.push(gameLog);
+  }
+
+  // Compute cross-model statistics
+  const stats = computeModelStats(modelResults, allTrialResults, agents);
+  return { agents, allTrialResults, modelResults, stats, allGameLogs };
+}
+
+/* ---- Backward-compatible single-trial wrapper ---- */
+async function runAIExperiment(progressCb) {
+  const saved = document.getElementById('s-trials')?.value;
+  if (document.getElementById('s-trials')) document.getElementById('s-trials').value = '1';
+  const res = await runMultiTrialAIExperiment(progressCb);
+  if (document.getElementById('s-trials') && saved) document.getElementById('s-trials').value = saved;
+  const lastTrial = res.allTrialResults[res.allTrialResults.length - 1];
+  return { agents: res.agents, R: lastTrial.R, gameLog: res.allGameLogs[0] };
+}
+
+/* ---- Cross-model statistics ---- */
+function computeModelStats(modelResults, allTrialResults, agents) {
+  const _mean = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0;
+  const _std = (arr, mu) => {
+    if (arr.length < 2) return 0;
+    return Math.sqrt(arr.reduce((s, v) => s + (v - mu) ** 2, 0) / (arr.length - 1));
+  };
+  const _ci95 = (mu, sd, n) => n < 2 ? 0 : 1.96 * sd / Math.sqrt(n);
+
+  const perModel = {};
+  const CLS_KEYS = ['equilibrium', 'lying_averse', 'deception_averse', 'inference_error'];
+
+  for (const [mk, data] of Object.entries(modelResults)) {
+    const btMu = _mean(data.btStrats);
+    const btSd = _std(data.btStrats, btMu);
+    const glMu = _mean(data.glStrats);
+    const glSd = _std(data.glStrats, glMu);
+
+    // Classification proportions across trials
+    const clsCounts = {};
+    for (const k of CLS_KEYS) clsCounts[k] = 0;
+    let totalCls = 0;
+    for (const t of data.trials) {
+      if (t.cls && clsCounts[t.cls] !== undefined) clsCounts[t.cls]++;
+      totalCls++;
+    }
+    const clsProps = {};
+    for (const k of CLS_KEYS) clsProps[k] = totalCls ? clsCounts[k] / totalCls : 0;
+
+    perModel[mk] = {
+      label: mk,
+      n: data.agentIds.length,
+      bt: { mean: btMu, std: btSd, ci: _ci95(btMu, btSd, data.btStrats.length), values: data.btStrats },
+      gl: { mean: glMu, std: glSd, ci: _ci95(glMu, glSd, data.glStrats.length), values: data.glStrats },
+      cls: clsProps,
+      clsCounts,
+      totalCls,
+      // Deviation from equilibrium: BT v*=1, GL w*=0
+      btDev: Math.abs(btMu - 1),
+      glDev: Math.abs(glMu - 0),
+    };
+  }
+
+  // Aggregate across all models
+  const allBt = Object.values(modelResults).flatMap(d => d.btStrats);
+  const allGl = Object.values(modelResults).flatMap(d => d.glStrats);
+  const aggBtMu = _mean(allBt);
+  const aggGlMu = _mean(allGl);
+  const aggClsCounts = {};
+  for (const k of CLS_KEYS) aggClsCounts[k] = 0;
+  let aggTotal = 0;
+  for (const data of Object.values(modelResults)) {
+    for (const t of data.trials) {
+      if (t.cls && aggClsCounts[t.cls] !== undefined) aggClsCounts[t.cls]++;
+      aggTotal++;
+    }
+  }
+  const aggClsProps = {};
+  for (const k of CLS_KEYS) aggClsProps[k] = aggTotal ? aggClsCounts[k] / aggTotal : 0;
+
+  const aggregate = {
+    bt: { mean: aggBtMu, std: _std(allBt, aggBtMu), ci: _ci95(aggBtMu, _std(allBt, aggBtMu), allBt.length) },
+    gl: { mean: aggGlMu, std: _std(allGl, aggGlMu), ci: _ci95(aggGlMu, _std(allGl, aggGlMu), allGl.length) },
+    cls: aggClsProps,
+    nTrials: allTrialResults.length,
+    nModels: Object.keys(perModel).length,
+  };
+
+  return { perModel, aggregate };
 }
 
 /* ---- Fallback prompt (no orchestrator) ---- */
@@ -394,8 +508,8 @@ function buildFallbackPrompt(agent, gameType, params) {
     ? `BT (Bad-type Truth-telling): You are the BAD type. In equilibrium v*=1: tell truth to build reputation (deceptive). Your strategy: v = P(m=1|θ=0).`
     : `GL (Good-type Lying): You are the GOOD type. In equilibrium w*=0: lie to reveal type (non-deceptive). Your strategy: w = P(m=0|θ=1).`;
   return `GAME: ${gt}
+N periods = ${params.nPeriods || 2}, x₂/x₁=${params.x2}, p_b=${params.pb}, ε=${(params.miscomm*100).toFixed(0)}%
 YOUR PARAMS: c_l=${agent.cl.toFixed(3)}, c_d=${agent.cd.toFixed(3)}, α=${agent.alpha.toFixed(3)} (${agent.riskType.replace('_','-')}), β=${agent.beta.toFixed(3)}
-GAME: x₂/x₁=${params.x2}, p_b=${params.pb}, ε=${(params.miscomm*100).toFixed(0)}%
 Output truth-telling probability (0.0–1.0):`;
 }
 
