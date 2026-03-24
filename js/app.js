@@ -166,6 +166,16 @@ document.getElementById('lang-select').addEventListener('change', e => applyI18n
   if (ls) ls.addEventListener('change', () => menu.classList.remove('open'));
 })();
 
+/* ---- Log view toggle (TXT / 3D) ---- */
+function switchLogView(view) {
+  document.querySelectorAll('.log-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.getElementById('log-view-txt').style.display = view === 'txt' ? '' : 'none';
+  document.getElementById('log-view-3d').style.display = view === '3d' ? '' : 'none';
+  if (view === '3d' && LR && LA) {
+    setTimeout(() => plotPointCloud(LR, LA), 60);
+  }
+}
+
 /* ---- Panel toggle ---- */
 function togglePanel(id) { document.getElementById(id).classList.toggle('collapsed'); }
 
@@ -443,6 +453,7 @@ async function runAI() {
     // Game log (last trial)
     const lastLog = allGameLogs[allGameLogs.length - 1];
     renderGameLog(lastLog, agents);
+    plotPointCloud(LR, LA);
     const totalAI = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && !e.error).length, 0);
     const totalFB = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && e.error).length, 0);
     prog.textContent = `Done — ${nTrials} trial${nTrials > 1 ? 's' : ''}, ${totalAI} AI calls, ${totalFB} fallbacks, ${n} agents`;
@@ -508,6 +519,7 @@ function runExperiment() {
     const glSample = R.gl.filter((_, i) => i % rounds === 0);
     window._logSample = [...btSample, ...glSample];
     renderLog();
+    plotPointCloud(R, agents);
 
     btn.classList.remove('loading'); btn.disabled = false;
   }, 60); });

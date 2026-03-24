@@ -283,7 +283,16 @@
   <!-- Game Log -->
   <details class="log-card" id="log-card">
     <summary><h4 data-i18n="log.title">Game Log</h4><span class="log-toggle-hint" data-i18n="log.toggle">click to expand</span></summary>
-    <div class="log-entries" id="log"></div>
+    <div class="log-view-tabs">
+      <button class="log-view-btn active" data-view="txt" onclick="switchLogView('txt')">TXT</button>
+      <button class="log-view-btn" data-view="3d" onclick="switchLogView('3d')">3D</button>
+    </div>
+    <div id="log-view-txt">
+      <div class="log-entries" id="log"></div>
+    </div>
+    <div id="log-view-3d" style="display:none">
+      <div id="c-pointcloud"></div>
+    </div>
   </details>
 
   <!-- Charts -->

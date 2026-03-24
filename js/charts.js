@@ -646,12 +646,117 @@ function plotModelDeviation(stats) {
   Plotly.react('c-model-deviation', traces, layout, _cfg);
 }
 
+/** Point Cloud — 3D Agent Interaction Scatter (c_l × c_d × payoff) */
+function plotPointCloud(R, agents) {
+  const el = document.getElementById('c-pointcloud');
+  if (!el || !R) return;
+  // Skip if container is hidden (will re-render on tab switch)
+  const view3d = document.getElementById('log-view-3d');
+  if (view3d && view3d.style.display === 'none') return;
+
+  const dark = _isDark();
+  const rounds = +(document.getElementById('s-rounds')?.value) || 1;
+
+  // First-round data per agent (matches text log sample)
+  const btData = R.bt.filter((_, i) => i % rounds === 0);
+  const glData = R.gl.filter((_, i) => i % rounds === 0);
+  const all = [...btData, ...glData];
+  if (!all.length) { Plotly.purge(el); return; }
+
+  const agentMap = {};
+  agents.forEach(a => { agentMap[a.id] = a; });
+
+  const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'v2';
+  const traces = [];
+
+  if (isV2 && agents.some(a => a.modelKey)) {
+    // V2: color by model
+    const palette = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
+    const groups = {};
+    for (const r of all) {
+      const a = agentMap[r.id];
+      const mk = a?.modelKey || 'unknown';
+      const label = mk.split('/').pop();
+      if (!groups[label]) groups[label] = { x:[], y:[], z:[], text:[], sym:[] };
+      const g = groups[label];
+      g.x.push(a.cl); g.y.push(a.cd); g.z.push(r.sp);
+      g.sym.push(r.gt === 'BT' ? 'circle' : 'diamond');
+      g.text.push(
+        `<b>${label}</b> #${r.id}<br>${r.gt}: \u03b8=${r.s1}\u2192m=${r.sent}\u2192a=${r.a1.toFixed(2)}<br>` +
+        `${r.isLie ? 'Lie' : 'Truth'}${r.isDec ? ' (dec)' : ''}<br>` +
+        `c\u2097=${a.cl.toFixed(2)}, c\u2091=${a.cd.toFixed(2)}<br>payoff=${r.sp.toFixed(3)}`
+      );
+    }
+    let i = 0;
+    for (const [label, g] of Object.entries(groups)) {
+      traces.push({
+        x: g.x, y: g.y, z: g.z, text: g.text,
+        mode: 'markers', type: 'scatter3d', name: label,
+        marker: { color: palette[i % palette.length], size: 3.5, opacity: 0.75, symbol: g.sym },
+        hovertemplate: '%{text}<extra></extra>',
+      });
+      i++;
+    }
+  } else {
+    // V1: group by game type × lie/truth
+    const cfg = {
+      'BT Truth': { color: '#2563eb', sym: 'circle' },
+      'BT Lie':   { color: '#7c3aed', sym: 'cross' },
+      'GL Truth': { color: '#16a34a', sym: 'diamond' },
+      'GL Lie':   { color: '#dc2626', sym: 'x' },
+    };
+    const groups = {};
+    for (const r of all) {
+      const a = agentMap[r.id];
+      const k = `${r.gt} ${r.isLie ? 'Lie' : 'Truth'}`;
+      if (!groups[k]) groups[k] = { x:[], y:[], z:[], text:[] };
+      const g = groups[k];
+      g.x.push(a.cl); g.y.push(a.cd); g.z.push(r.sp);
+      g.text.push(
+        `Agent ${r.id}<br>${r.gt}: \u03b8=${r.s1}\u2192m=${r.sent}\u2192a=${r.a1.toFixed(2)}<br>` +
+        `${r.isLie ? 'Lie' : 'Truth'}${r.isDec ? ' (dec)' : ''}${r.mc ? ' \u26a0mc' : ''}<br>` +
+        `c\u2097=${a.cl.toFixed(2)}, c\u2091=${a.cd.toFixed(2)}<br>payoff=${r.sp.toFixed(3)}`
+      );
+    }
+    for (const [k, c] of Object.entries(cfg)) {
+      const g = groups[k];
+      if (!g || !g.x.length) continue;
+      traces.push({
+        x: g.x, y: g.y, z: g.z, text: g.text,
+        mode: 'markers', type: 'scatter3d', name: k,
+        marker: { color: c.color, size: 3, opacity: 0.65, symbol: c.sym },
+        hovertemplate: '%{text}<extra></extra>',
+      });
+    }
+  }
+
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const fc = dark ? '#8b949e' : '#6b7080';
+  const layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Inter, sans-serif', size: 10, color: fc },
+    margin: { l: 0, r: 0, t: 8, b: 0 },
+    autosize: true,
+    scene: {
+      xaxis: { title: { text: 'c\u2097 (lying cost)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
+      yaxis: { title: { text: 'c\u2091 (deception cost)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
+      zaxis: { title: { text: 'Sender payoff', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
+      bgcolor: dark ? '#0d1117' : '#fafbfc',
+      camera: { eye: { x: 1.6, y: 1.6, z: 1.1 } },
+    },
+    legend: { x: 0.01, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    showlegend: true,
+  };
+
+  Plotly.react('c-pointcloud', traces, layout, { responsive: true, displayModeBar: 'hover' });
+}
+
 /** Redraw all charts from cached data */
 function redrawAll(agents, R, stats) {
   if (!agents) return;
   plotParams(agents);
   plotJoint(agents);
-  if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); plotLambda(R); }
+  if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); plotLambda(R); plotPointCloud(R, agents); }
   plotTypes(agents);
   plotRegions(agents);
   if (stats) { plotModelStrats(stats); plotModelTypes(stats); plotModelDeviation(stats); }
