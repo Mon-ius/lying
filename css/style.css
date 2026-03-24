@@ -376,7 +376,7 @@ body.mode-ai .btn-run { display: none; }
 .stats-table th { font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; font-size: .62rem; }
 .stats-table td { font-family: 'JetBrains Mono', monospace; }
 
-.log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; }
+.log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; margin-bottom: 16px; }
 .log-card > summary { display: flex; align-items: center; cursor: pointer; list-style: none; user-select: none; }
 .log-card > summary::-webkit-details-marker { display: none; }
 .log-card > summary::before { content: '\25B6'; font-size: .6rem; color: var(--fg-3); margin-right: 8px; transition: transform .2s; }
