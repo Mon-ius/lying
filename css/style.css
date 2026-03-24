@@ -397,7 +397,7 @@ body.mode-ai .btn-run { display: none; }
 .log-view-btn:hover:not(.active) { color: var(--fg-2); background: var(--bg-3); }
 #log-view-txt { margin-top: 0; border-top: 1px solid var(--border); padding-top: 10px; }
 #log-view-3d { border-top: 1px solid var(--border); padding-top: 4px; }
-#c-pointcloud { height: 500px; }
+#c-pointcloud { height: 600px; }
 .log-entries {
   max-height: 600px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
   font-size: .72rem; color: var(--fg-2); line-height: 1.7;
