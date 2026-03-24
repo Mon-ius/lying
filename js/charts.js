@@ -646,103 +646,89 @@ function plotModelDeviation(stats) {
   Plotly.react('c-model-deviation', traces, layout, _cfg);
 }
 
-/** Point Cloud — 3D Agent Interaction Scatter (c_l × c_d × payoff) */
+/** Point Cloud — 3D temporal trajectory of agent interactions
+ *  X: Period (time)  Y: λ (belief evolution)  Z: Receiver action
+ *  Lines connect same-agent periods showing communication development */
 function plotPointCloud(R, agents) {
   const el = document.getElementById('c-pointcloud');
   if (!el || !R) return;
-  // Skip if container is hidden (will re-render on tab switch)
   const view3d = document.getElementById('log-view-3d');
   if (view3d && view3d.style.display === 'none') return;
 
   const dark = _isDark();
   const rounds = +(document.getElementById('s-rounds')?.value) || 1;
 
-  // First-round data per agent (matches text log sample)
+  // First-round results per agent (matches text log)
   const btData = R.bt.filter((_, i) => i % rounds === 0);
   const glData = R.gl.filter((_, i) => i % rounds === 0);
   const all = [...btData, ...glData];
-  if (!all.length) { Plotly.purge(el); return; }
+  if (!all.length || !all[0].periods) { Plotly.purge(el); return; }
 
   const agentMap = {};
   agents.forEach(a => { agentMap[a.id] = a; });
-
   const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'v2';
-  const traces = [];
 
-  if (isV2 && agents.some(a => a.modelKey)) {
-    // V2: color by model
-    const palette = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
-    const groups = {};
-    for (const r of all) {
-      const a = agentMap[r.id];
-      const mk = a?.modelKey || 'unknown';
-      const label = mk.split('/').pop();
-      if (!groups[label]) groups[label] = { x:[], y:[], z:[], text:[], sym:[] };
-      const g = groups[label];
-      g.x.push(a.cl); g.y.push(a.cd); g.z.push(r.sp);
-      g.sym.push(r.gt === 'BT' ? 'circle' : 'diamond');
+  // Build trajectory groups — each group becomes one trace with null-separated agent lines
+  const groups = {};
+  for (const r of all) {
+    const a = agentMap[r.id];
+    if (!r.periods || !r.periods.length) continue;
+    const gKey = isV2 && a?.modelKey
+      ? (a.modelKey || 'unknown').split('/').pop()
+      : `${r.gt} ${r.isLie ? 'Lie' : 'Truth'}`;
+    if (!groups[gKey]) groups[gKey] = { x:[], y:[], z:[], text:[], syms:[] };
+    const g = groups[gKey];
+
+    // Period-level points for this agent
+    for (const p of r.periods) {
+      g.x.push(p.t + 1);       // 1-indexed period
+      g.y.push(p.lambda);      // belief after this period
+      g.z.push(p.at);          // receiver action
+      g.syms.push(p.isLie ? 'x' : 'circle');
       g.text.push(
-        `<b>${label}</b> #${r.id}<br>${r.gt}: \u03b8=${r.s1}\u2192m=${r.sent}\u2192a=${r.a1.toFixed(2)}<br>` +
-        `${r.isLie ? 'Lie' : 'Truth'}${r.isDec ? ' (dec)' : ''}<br>` +
-        `c\u2097=${a.cl.toFixed(2)}, c\u2091=${a.cd.toFixed(2)}<br>payoff=${r.sp.toFixed(3)}`
+        `<b>Agent ${r.id}</b> \u00b7 P${p.t + 1}<br>` +
+        `${r.gt}: \u03b8=${p.st}\u2192m=${p.sent}\u2192a=${p.at.toFixed(2)}<br>` +
+        `${p.isLie ? 'Lie' : 'Truth'}${p.isDec ? ' (dec)' : ''}${p.mc ? ' \u26a0mc' : ''}<br>` +
+        `\u03bb=${p.lambda.toFixed(3)} | payoff=${p.payoff.toFixed(3)}`
       );
     }
-    let i = 0;
-    for (const [label, g] of Object.entries(groups)) {
-      traces.push({
-        x: g.x, y: g.y, z: g.z, text: g.text,
-        mode: 'markers', type: 'scatter3d', name: label,
-        marker: { color: palette[i % palette.length], size: 3.5, opacity: 0.75, symbol: g.sym },
-        hovertemplate: '%{text}<extra></extra>',
-      });
-      i++;
-    }
-  } else {
-    // V1: group by game type × lie/truth
-    const cfg = {
-      'BT Truth': { color: '#2563eb', sym: 'circle' },
-      'BT Lie':   { color: '#7c3aed', sym: 'cross' },
-      'GL Truth': { color: '#16a34a', sym: 'diamond' },
-      'GL Lie':   { color: '#dc2626', sym: 'x' },
-    };
-    const groups = {};
-    for (const r of all) {
-      const a = agentMap[r.id];
-      const k = `${r.gt} ${r.isLie ? 'Lie' : 'Truth'}`;
-      if (!groups[k]) groups[k] = { x:[], y:[], z:[], text:[] };
-      const g = groups[k];
-      g.x.push(a.cl); g.y.push(a.cd); g.z.push(r.sp);
-      g.text.push(
-        `Agent ${r.id}<br>${r.gt}: \u03b8=${r.s1}\u2192m=${r.sent}\u2192a=${r.a1.toFixed(2)}<br>` +
-        `${r.isLie ? 'Lie' : 'Truth'}${r.isDec ? ' (dec)' : ''}${r.mc ? ' \u26a0mc' : ''}<br>` +
-        `c\u2097=${a.cl.toFixed(2)}, c\u2091=${a.cd.toFixed(2)}<br>payoff=${r.sp.toFixed(3)}`
-      );
-    }
-    for (const [k, c] of Object.entries(cfg)) {
-      const g = groups[k];
-      if (!g || !g.x.length) continue;
-      traces.push({
-        x: g.x, y: g.y, z: g.z, text: g.text,
-        mode: 'markers', type: 'scatter3d', name: k,
-        marker: { color: c.color, size: 3, opacity: 0.65, symbol: c.sym },
-        hovertemplate: '%{text}<extra></extra>',
-      });
-    }
+    // Null gap to disconnect agent trajectories within the same trace
+    g.x.push(null); g.y.push(null); g.z.push(null);
+    g.text.push(''); g.syms.push('circle');
+  }
+
+  // Build traces
+  const v1Col = { 'BT Truth':'#2563eb','BT Lie':'#7c3aed','GL Truth':'#16a34a','GL Lie':'#dc2626' };
+  const v2Pal = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
+  const traces = [];
+  let ci = 0;
+  for (const [key, g] of Object.entries(groups)) {
+    const col = isV2 ? v2Pal[ci % v2Pal.length] : (v1Col[key] || '#888');
+    traces.push({
+      x: g.x, y: g.y, z: g.z, text: g.text,
+      mode: 'lines+markers', type: 'scatter3d', name: key,
+      connectgaps: false,
+      line: { color: col, width: 2.5 },
+      marker: { color: col, size: 3, opacity: 0.85, symbol: g.syms },
+      hovertemplate: '%{text}<extra></extra>',
+    });
+    ci++;
   }
 
   const gc = dark ? '#1e242e' : '#eef0f3';
   const fc = dark ? '#8b949e' : '#6b7080';
+  const nP = Math.max(...all.map(r => r.periods?.length || 1));
   const layout = {
     paper_bgcolor: 'rgba(0,0,0,0)',
     font: { family: 'Inter, sans-serif', size: 10, color: fc },
     margin: { l: 0, r: 0, t: 8, b: 0 },
     autosize: true,
     scene: {
-      xaxis: { title: { text: 'c\u2097 (lying cost)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
-      yaxis: { title: { text: 'c\u2091 (deception cost)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
-      zaxis: { title: { text: 'Sender payoff', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
+      xaxis: { title: { text: 'Period', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)', dtick: 1, range: [0.5, nP + 0.5] },
+      yaxis: { title: { text: '\u03bb (belief)', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)', range: [-0.05, 1.05] },
+      zaxis: { title: { text: 'Receiver action', font: { size: 10 } }, gridcolor: gc, backgroundcolor: 'rgba(0,0,0,0)' },
       bgcolor: dark ? '#0d1117' : '#fafbfc',
-      camera: { eye: { x: 1.6, y: 1.6, z: 1.1 } },
+      camera: { eye: { x: 1.8, y: 1.4, z: 0.9 } },
     },
     legend: { x: 0.01, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     showlegend: true,
