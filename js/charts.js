@@ -113,7 +113,7 @@ function plotJoint(agents) {
     xaxis: { ...(_layout().xaxis), title: t('ax.cl'), range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
     yaxis: { ...(_layout().yaxis), title: t('ax.cd'), range: [0, axMax] },
     legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 52, r: 12, t: 8, b: 42 },
+    margin: { l: 52, r: 80, t: 8, b: 42 },
   });
   Plotly.react('c-joint', traces, layout, _cfg);
 }
