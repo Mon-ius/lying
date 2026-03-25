@@ -89,7 +89,7 @@ function renderLog() {
     const pds = sample.map(r => (r.periods || [])[pi]).filter(Boolean);
     const nLie = pds.filter(p => p.isLie).length;
     const nDec = pds.filter(p => p.isDec).length;
-    const stats = `${pds.length} agents \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
+    const stats = `${pds.length} ${t('log.agents')} \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
 
     const rows = sample.map(r => {
       const p = (r.periods || [])[pi];
@@ -116,7 +116,7 @@ function renderLog() {
 
   /* Analysis summary — per-agent decision / Sobel / profile */
   html += `<details class="log-period">
-  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${sample.length} agents</span></summary>
+  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${sample.length} ${t('log.agents')}</span></summary>
   <div class="log-period-body">`;
 
   html += sample.map((r, i) => {

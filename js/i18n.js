@@ -78,7 +78,7 @@ const I18N = {
     'log.lie':'LIE',
     'log.deceptive':'DECEPTIVE',
     'log.miscomm':'MISCOMM',
-    'log.agent':'Agent',
+    'log.agent':'Agent','log.agents':'agents',
     'log.sent':'sent',
     'log.rcv':'rcv',
     'log.payoff':'payoff',
@@ -312,7 +312,7 @@ const I18N = {
     'log.lie':'谎言',
     'log.deceptive':'欺骗性',
     'log.miscomm':'误传',
-    'log.agent':'智能体',
+    'log.agent':'智能体','log.agents':'个智能体',
     'log.sent':'发送',
     'log.rcv':'接收',
     'log.payoff':'收益',
@@ -542,7 +542,7 @@ const I18N = {
     'log.lie':'거짓말',
     'log.deceptive':'기만적',
     'log.miscomm':'오전달',
-    'log.agent':'에이전트',
+    'log.agent':'에이전트','log.agents':'에이전트',
     'log.sent':'전송',
     'log.rcv':'수신',
     'log.payoff':'보수',
@@ -661,7 +661,11 @@ let currentLang = localStorage.getItem('lang') || 'en';
 /** Translate a single key using current language */
 function t(key) {
   const dict = I18N[currentLang] || I18N.en;
-  return dict[key] || (I18N.en && I18N.en[key]) || key;
+  const v = dict[key];
+  if (v !== undefined && v !== null) return v;
+  const fb = I18N.en && I18N.en[key];
+  if (fb !== undefined && fb !== null) return fb;
+  return key;
 }
 
 function applyI18n(lang) {
