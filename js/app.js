@@ -81,15 +81,18 @@ function renderLog() {
 
   for (let pi = 0; pi < N; pi++) {
     const isLast = pi === N - 1;
-    const sfx = t('log.periodSuffix') || '';
+    const sfx = t('log.periodSuffix');
     const label = isLast && N > 1
       ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
       : `${t('log.period')} ${pi + 1}${sfx}`;
 
     const pds = sample.map(r => (r.periods || [])[pi]).filter(Boolean);
+    const nBT = sample.filter(r => r.gt === 'BT' && (r.periods || [])[pi]).length;
+    const nGL = sample.filter(r => r.gt === 'GL' && (r.periods || [])[pi]).length;
+    const countLabel = nBT && nGL ? `${nBT} BT + ${nGL} GL` : `${pds.length} ${t('log.agents')}`;
     const nLie = pds.filter(p => p.isLie).length;
     const nDec = pds.filter(p => p.isDec).length;
-    const stats = `${pds.length} ${t('log.agents')} \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
+    const stats = `${countLabel} \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
 
     const rows = sample.map(r => {
       const p = (r.periods || [])[pi];
@@ -115,8 +118,10 @@ function renderLog() {
   }
 
   /* Analysis summary — per-agent decision / Sobel / profile */
+  const aBT = sample.filter(r => r.gt === 'BT').length;
+  const aGL = sample.filter(r => r.gt === 'GL').length;
   html += `<details class="log-period">
-  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${sample.length} ${t('log.agents')}</span></summary>
+  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${aBT && aGL ? aBT + ' BT + ' + aGL + ' GL' : sample.length + ' ' + t('log.agents')}</span></summary>
   <div class="log-period-body">`;
 
   html += sample.map((r, i) => {
