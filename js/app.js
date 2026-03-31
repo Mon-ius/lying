@@ -293,6 +293,7 @@ document.getElementById('s-n').addEventListener('input', () => {
   if (typeof updateGroupCounts === 'function') updateGroupCounts();
 });
 updateCompBar();
+initGroupModels();
 
 /* ---- Export data ---- */
 function exportJSON() {
