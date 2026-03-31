@@ -582,6 +582,7 @@ window.addEventListener('load', () => {
   const ls = document.getElementById('lang-select');
   ls.value = currentLang;
   applyI18n(currentLang);
+  initGroupModels();
   setTimeout(runExperiment, 200);
 });
 
