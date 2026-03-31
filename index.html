@@ -140,6 +140,7 @@
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.bp">Behavioral-type prior</span> <span class="unit" id="v-bp">0.50</span></div>
         <input type="range" id="s-bp" min="0.1" max="0.9" step="0.05" value="0.5">
+        <div class="form-hint" data-i18n="hint.bp">p<sub>b</sub> = Pr(sender is behavioral type). Higher &rarr; receiver starts more trusting (Choi et al. &sect;3)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.miscomm">Miscommunication rate</span> <span class="unit" id="v-miscomm">20%</span></div>
@@ -202,9 +203,9 @@
         <input type="text" id="pe-glm" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
 
-      <!-- Orchestrator -->
+      <!-- Administrator -->
       <div class="form-group form-section">
-        <div class="form-section-title" data-i18n="ai.orch">Orchestrator Model</div>
+        <div class="form-section-title" data-i18n="ai.orch">Administrator Model</div>
         <div class="form-hint" data-i18n="ai.orchhint">Generates tailored prompts for each agent</div>
       </div>
       <div class="form-group form-row">
@@ -579,12 +580,12 @@
 
       <line x1="400" y1="242" x2="400" y2="266" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah2)"/>
 
-      <!-- Orchestrator -->
+      <!-- Administrator -->
       <rect x="120" y="270" width="560" height="76" rx="10" fill="url(#gAI)" stroke="var(--purple)" stroke-width="1.5"/>
-      <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)" data-i18n="svg2.orchestrator">Orchestrator Model</text>
+      <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="700" fill="var(--purple)" data-i18n="svg2.orchestrator">Administrator Model</text>
       <text x="400" y="308" text-anchor="middle" font-size="9.5" fill="var(--fg-1)" data-i18n="svg2.orch.d1">Main LLM generates personalised prompts for each agent</text>
       <text x="400" y="324" text-anchor="middle" font-size="9" fill="var(--fg-2)" data-i18n="svg2.orch.d2">Input: agent params + game type &#x2192; Output: JSON [{id, prompt}]</text>
-      <text x="400" y="338" text-anchor="middle" font-size="8.5" fill="var(--fg-3)" data-i18n="svg2.orch.d3">Fallback: local prompt generation if orchestrator fails</text>
+      <text x="400" y="338" text-anchor="middle" font-size="8.5" fill="var(--fg-3)" data-i18n="svg2.orch.d3">Fallback: local prompt generation if administrator fails</text>
 
       <!-- Fan-out arrows -->
       <text x="400" y="360" text-anchor="middle" font-size="8" fill="var(--fg-3)" data-i18n="svg2.conc">Concurrency limit = 4</text>

@@ -1,5 +1,5 @@
 /**
- * Application shell — theme, tabs, UI event wiring, experiment orchestration.
+ * Application shell — theme, tabs, UI event wiring, experiment administration.
  * Depends on: engine.js, charts.js, i18n.js
  */
 

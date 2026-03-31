@@ -1,7 +1,7 @@
 /**
  * V2 AI Agent Engine — Multi-provider LLM agents for the reputation game.
  * Supports: Anthropic, OpenAI, Google, DeepSeek, Qwen, MiniMax, Kimi, Zhipu.
- * Orchestrator model generates tailored prompts → dispatched to heterogeneous agents.
+ * Administrator model generates tailored prompts → dispatched to heterogeneous agents.
  */
 
 /* ---- Shared OpenAI-compatible API call ---- */
@@ -185,10 +185,10 @@ KEY PROPOSITIONS:
 - Prop. 3: BT deviations from equilibrium are driven by c_d.
 - Prop. 4: GL deviations from equilibrium are driven by c_l.`;
 
-/* ---- Orchestrator: generate tailored prompts via main model ---- */
+/* ---- Administrator: generate tailored prompts via main model ---- */
 async function orchestratePrompts(agents, gameType, gameParams, orchCfg) {
   const provider = PROVIDERS[orchCfg.provider];
-  if (!provider) throw new Error('Invalid orchestrator provider');
+  if (!provider) throw new Error('Invalid administrator provider');
 
   const agentList = agents.map(a =>
     `  Agent ${a.id}: c_l=${a.cl.toFixed(3)}, c_d=${a.cd.toFixed(3)}, α=${a.alpha.toFixed(3)} (${a.riskType.replace('_','-')}), β=${a.beta.toFixed(3)}, model=${a.aiProvider}/${a.aiModel}`
@@ -198,7 +198,7 @@ async function orchestratePrompts(agents, gameType, gameParams, orchCfg) {
     ? 'BT (Bad-type Truth-telling): bad type sends m=θ with probability v=P(m=1|θ=0). Equilibrium: v*=1.'
     : 'GL (Good-type Lying): good type sends m=0 with probability w=P(m=0|θ=1). Equilibrium: w*=0.';
 
-  const orchPrompt = `You are the orchestrator for a multi-agent reputation game experiment.
+  const orchPrompt = `You are the administrator for a multi-agent reputation game experiment.
 
 GAME TYPE: ${gtDesc}
 
@@ -228,7 +228,7 @@ Output ONLY the JSON array, no other text.`;
   try {
     return JSON.parse(jsonStr);
   } catch {
-    throw new Error('Orchestrator returned invalid JSON: ' + raw.substring(0, 200));
+    throw new Error('Administrator returned invalid JSON: ' + raw.substring(0, 200));
   }
 }
 
@@ -265,8 +265,8 @@ function buildAgentRoster() {
 
 /* ---- Dispatch strategies for one game type in one trial ---- */
 async function _dispatchGameType(agents, gt, params, orchCfg, progressCb, stepRef, totalSteps, gameLog) {
-  // Orchestrator generates prompts
-  if (progressCb) progressCb(++stepRef.v, totalSteps, `Orchestrator generating ${gt} prompts...`);
+  // Administrator generates prompts
+  if (progressCb) progressCb(++stepRef.v, totalSteps, `Administrator generating ${gt} prompts...`);
   let agentPrompts;
   try {
     agentPrompts = await orchestratePrompts(agents, gt, params, orchCfg);
@@ -314,7 +314,7 @@ async function _dispatchGameType(agents, gt, params, orchCfg, progressCb, stepRe
 
 /* ---- Multi-trial AI Experiment (V2) ---- */
 async function runMultiTrialAIExperiment(progressCb) {
-  // Get orchestrator config
+  // Get administrator config
   const orchProvider = document.getElementById('orch-provider').value;
   const orchModel = document.getElementById('orch-model').value;
   const orchCfg = { provider: orchProvider, model: orchModel };
@@ -353,7 +353,7 @@ async function runMultiTrialAIExperiment(progressCb) {
   const weights = periodWeights(nPeriods, ratio);
   const gts = env === 'both' ? ['BT', 'GL'] : [env];
 
-  // Progress: per trial → per gt → orchestrate + agents
+  // Progress: per trial → per gt → administer + agents
   const stepsPerTrial = gts.length * (1 + agents.length);
   const totalSteps = nTrials * stepsPerTrial;
   const stepRef = { v: 0 };
@@ -502,7 +502,7 @@ function computeModelStats(modelResults, allTrialResults, agents) {
   return { perModel, aggregate };
 }
 
-/* ---- Fallback prompt (no orchestrator) ---- */
+/* ---- Fallback prompt (no administrator) ---- */
 function buildFallbackPrompt(agent, gameType, params) {
   const gt = gameType === 'BT'
     ? `BT (Bad-type Truth-telling): You are the BAD type. In equilibrium v*=1: tell truth to build reputation (deceptive). Your strategy: v = P(m=1|θ=0).`
