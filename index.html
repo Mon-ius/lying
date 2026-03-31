@@ -187,7 +187,7 @@
       </div>
       <div id="agent-roster">
         <div class="roster-row" data-group="rl">
-          <div class="roster-group-label"><span class="dot" style="background:var(--red)"></span> <span data-i18n="ai.grp.rl">Risk-loving</span> <span class="roster-auto-count" id="rc-rl"></span></div>
+          <div class="roster-group-label"><span class="dot" style="background:var(--red)"></span> <span data-i18n="ai.grp.rl">Risk-loving</span> <input type="text" class="roster-auto-count" id="rc-rl" disabled></div>
           <select class="roster-provider" id="grp-rl-prov" onchange="updateGroupModels('rl');updateSectionKey('rl')">
             <option value="claude">Claude</option><option value="gpt">GPT</option><option value="gemini">Gemini</option>
             <option value="deepseek">DeepSeek</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>
@@ -198,7 +198,7 @@
           <input type="text" id="pe-rl" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
         </div>
         <div class="roster-row" data-group="rn">
-          <div class="roster-group-label"><span class="dot" style="background:var(--amber)"></span> <span data-i18n="ai.grp.rn">Risk-neutral</span> <span class="roster-auto-count" id="rc-rn"></span></div>
+          <div class="roster-group-label"><span class="dot" style="background:var(--amber)"></span> <span data-i18n="ai.grp.rn">Risk-neutral</span> <input type="text" class="roster-auto-count" id="rc-rn" disabled></div>
           <select class="roster-provider" id="grp-rn-prov" onchange="updateGroupModels('rn');updateSectionKey('rn')">
             <option value="gpt" selected>GPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option>
             <option value="deepseek">DeepSeek</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>
@@ -209,7 +209,7 @@
           <input type="text" id="pe-rn" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
         </div>
         <div class="roster-row" data-group="ra">
-          <div class="roster-group-label"><span class="dot" style="background:var(--blue)"></span> <span data-i18n="ai.grp.ra">Risk-averse</span> <span class="roster-auto-count" id="rc-ra"></span></div>
+          <div class="roster-group-label"><span class="dot" style="background:var(--blue)"></span> <span data-i18n="ai.grp.ra">Risk-averse</span> <input type="text" class="roster-auto-count" id="rc-ra" disabled></div>
           <select class="roster-provider" id="grp-ra-prov" onchange="updateGroupModels('ra');updateSectionKey('ra')">
             <option value="deepseek" selected>DeepSeek</option><option value="claude">Claude</option><option value="gpt">GPT</option>
             <option value="gemini">Gemini</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>

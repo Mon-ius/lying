@@ -286,9 +286,9 @@ function getGroupCounts() {
 /* ---- Update auto-count badges ---- */
 function updateGroupCounts() {
   const c = getGroupCounts();
-  document.getElementById('rc-rl').textContent = `n=${c.rl}`;
-  document.getElementById('rc-rn').textContent = `n=${c.rn}`;
-  document.getElementById('rc-ra').textContent = `n=${c.ra}`;
+  document.getElementById('rc-rl').value = c.rl;
+  document.getElementById('rc-rn').value = c.rn;
+  document.getElementById('rc-ra').value = c.ra;
 }
 
 /* ---- Dispatch strategies for one game type in one trial ---- */

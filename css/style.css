@@ -263,8 +263,11 @@ select:focus { border-color: var(--accent); }
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
 }
 .roster-auto-count {
-  margin-left: auto; font-weight: 400; font-size: .68rem; color: var(--fg-3);
-  font-family: 'JetBrains Mono', monospace;
+  margin-left: auto; width: 48px; height: 24px; padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 500;
+  color: var(--fg-2); background: var(--bg-1); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); text-align: center; cursor: default;
+  opacity: .75;
 }
 .roster-row select {
   font-size: .74rem; padding: 4px 6px; height: 28px; min-width: 0;
