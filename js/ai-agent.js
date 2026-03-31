@@ -576,16 +576,16 @@ function renderGameLog(gameLog, agents) {
       ? '<span class="tag tag-lie">FALLBACK</span>'
       : '<span class="tag tag-truth">AI</span>';
     const modelTag = providerBadge(e.provider);
-    html += `<details class="log-entry">
+    html += `<details class="log-entry" open>
       <summary>
         ${e.gt} Agent ${e.id} ${modelTag} <span class="tag" style="background:var(--bg-3);color:var(--fg-2)">${e.model}</span>
         ${stratTag} strategy=${e.strategy?.toFixed(3) ?? '?'}
         ${a ? `c<sub>l</sub>=${a.cl.toFixed(2)} c<sub>d</sub>=${a.cd.toFixed(2)}` : ''}
       </summary>
       <div class="log-detail">
-        <div class="log-section"><strong>Prompt:</strong><pre>${escapeHtml(e.prompt)}</pre></div>
-        <div class="log-section"><strong>Response:</strong><pre>${escapeHtml(e.response || 'N/A')}</pre></div>
-        ${e.error ? `<div class="log-section log-error"><strong>Error:</strong> ${escapeHtml(e.error)}</div>` : ''}
+        <div class="log-section"><strong>${t('log.prompt')}:</strong><pre>${escapeHtml(e.prompt)}</pre></div>
+        <div class="log-section"><strong>${t('log.response')}:</strong><pre>${escapeHtml(e.response || 'N/A')}</pre></div>
+        ${e.error ? `<div class="log-section log-error"><strong>${t('log.error')}:</strong> ${escapeHtml(e.error)}</div>` : ''}
       </div>
     </details>`;
   }
