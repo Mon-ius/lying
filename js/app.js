@@ -283,10 +283,14 @@ function constrainRisk(changedId) {
     sliders[oi[1]].value = remaining - half;
   }
   updateCompBar();
+  if (typeof updateGroupCounts === 'function') updateGroupCounts();
 }
 
 ['s-rl', 's-rn', 's-ra'].forEach(id => {
   document.getElementById(id).addEventListener('input', () => constrainRisk(id));
+});
+document.getElementById('s-n').addEventListener('input', () => {
+  if (typeof updateGroupCounts === 'function') updateGroupCounts();
 });
 updateCompBar();
 
@@ -383,12 +387,8 @@ function switchVersion(v) {
   document.body.classList.toggle('mode-ai', v === 'v2');
   // Show/hide V2-only elements
   document.querySelectorAll('.v2-chart').forEach(el => el.style.display = v === 'v2' ? '' : 'none');
-  // Seed default roster row if empty
-  if (v === 'v2' && !document.querySelectorAll('.roster-row').length) {
-    addRosterRow('claude', 'claude-haiku-4-5');
-    addRosterRow('gpt', 'gpt-4o-mini');
-    addRosterRow('deepseek', 'deepseek-chat');
-  }
+  // Initialize group model dropdowns and counts
+  if (v === 'v2') initGroupModels();
 }
 
 /* ---- Architecture version toggle ---- */
@@ -449,7 +449,7 @@ let LS = null;
 /* ---- Run AI experiment (V2 multi-provider, multi-trial) ---- */
 async function runAI() {
   const roster = buildAgentRoster();
-  if (roster.length < 2) { alert('Add at least 2 agents to the roster.'); return; }
+  if (roster.length < 2) { alert('Need at least 2 agents — increase agent count or adjust composition.'); return; }
   const anyKey = ['claude','gpt','gemini','deepseek','qwen','minimax','kimi','glm'].some(p => document.getElementById('pk-'+p)?.value.trim());
   if (!anyKey) { alert('Enter at least one provider API key.'); return; }
 

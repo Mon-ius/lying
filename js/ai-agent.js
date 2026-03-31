@@ -248,19 +248,39 @@ async function dispatchToAgent(agent, prompt) {
   return { value: Math.max(0, Math.min(1, parseFloat(match[1]))), raw };
 }
 
-/* ---- Build agent roster from UI ---- */
+/* ---- Build agent roster from risk-group UI ---- */
 function buildAgentRoster() {
-  const rows = document.querySelectorAll('.roster-row');
+  const counts = getGroupCounts();
+  const groups = ['rl', 'rn', 'ra'];
   const roster = [];
-  rows.forEach(row => {
-    const provider = row.querySelector('.roster-provider')?.value;
-    const model = row.querySelector('.roster-model')?.value;
-    const count = +(row.querySelector('.roster-count')?.value || 1);
-    if (provider && model) {
-      for (let i = 0; i < count; i++) roster.push({ provider, model });
-    }
-  });
+  for (const g of groups) {
+    const provider = document.getElementById(`grp-${g}-prov`).value;
+    const model = document.getElementById(`grp-${g}-model`).value;
+    for (let i = 0; i < counts[g]; i++) roster.push({ provider, model, riskGroup: g });
+  }
   return roster;
+}
+
+/* ---- Compute per-group agent counts from N × composition ---- */
+function getGroupCounts() {
+  const n = +document.getElementById('s-n').value;
+  const rl = +document.getElementById('s-rl').value;
+  const rn = +document.getElementById('s-rn').value;
+  const ra = +document.getElementById('s-ra').value;
+  const tot = rl + rn + ra || 1;
+  let nRL = Math.round(n * rl / tot);
+  let nRN = Math.round(n * rn / tot);
+  let nRA = n - nRL - nRN; // remainder goes to risk-averse to keep sum exact
+  if (nRA < 0) { nRN += nRA; nRA = 0; }
+  return { rl: nRL, rn: nRN, ra: nRA };
+}
+
+/* ---- Update auto-count badges ---- */
+function updateGroupCounts() {
+  const c = getGroupCounts();
+  document.getElementById('rc-rl').textContent = `n=${c.rl}`;
+  document.getElementById('rc-rn').textContent = `n=${c.rn}`;
+  document.getElementById('rc-ra').textContent = `n=${c.ra}`;
 }
 
 /* ---- Dispatch strategies for one game type in one trial ---- */
@@ -343,11 +363,20 @@ async function runMultiTrialAIExperiment(progressCb) {
     cdMean: +document.getElementById('s-cd').value,
   });
 
-  // Assign providers to agents
-  agents.forEach((a, i) => {
-    a.aiProvider = roster[i].provider;
-    a.aiModel = roster[i].model;
-    a.modelKey = `${roster[i].provider}/${roster[i].model}`;
+  // Build per-group model config from roster
+  const groupModel = {};
+  for (const r of roster) {
+    if (!groupModel[r.riskGroup]) groupModel[r.riskGroup] = { provider: r.provider, model: r.model };
+  }
+  const riskToGroup = { risk_loving: 'rl', risk_neutral: 'rn', risk_averse: 'ra' };
+
+  // Assign providers by risk type (not by index)
+  agents.forEach(a => {
+    const g = riskToGroup[a.riskType];
+    const cfg = groupModel[g] || groupModel.ra;
+    a.aiProvider = cfg.provider;
+    a.aiModel = cfg.model;
+    a.modelKey = `${cfg.provider}/${cfg.model}`;
   });
 
   const weights = periodWeights(nPeriods, ratio);
@@ -559,36 +588,17 @@ function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-/* ---- Roster UI helpers ---- */
-function addRosterRow(provider, model) {
-  const container = document.getElementById('agent-roster');
-  const p = provider || 'claude';
-  const prov = PROVIDERS[p];
-  const m = model || prov.models[0]?.id || '';
-  const row = document.createElement('div');
-  row.className = 'roster-row';
-  row.innerHTML = `
-    <select class="roster-provider" onchange="updateRosterModels(this)">
-      ${Object.entries(PROVIDERS).map(([k, v]) => `<option value="${k}" ${k===p?'selected':''}>${v.name}</option>`).join('')}
-    </select>
-    <select class="roster-model">
-      ${prov.models.map(mm => `<option value="${mm.id}" ${mm.id===m?'selected':''}>${mm.label}</option>`).join('')}
-    </select>
-    <div class="roster-row-sub">
-      <span class="roster-count-label">Count</span>
-      <input type="number" class="roster-count" value="1" min="1" max="10" title="Number of agents with this config">
-      <button class="roster-remove" onclick="this.closest('.roster-row').remove()" title="Remove">&times;</button>
-    </div>
-  `;
-  container.appendChild(row);
-}
-
-function updateRosterModels(sel) {
-  const row = sel.closest('.roster-row');
-  const modelSel = row.querySelector('.roster-model');
-  const p = sel.value;
+/* ---- Group model UI helpers ---- */
+function updateGroupModels(group) {
+  const p = document.getElementById(`grp-${group}-prov`).value;
+  const modelSel = document.getElementById(`grp-${group}-model`);
   const prov = PROVIDERS[p];
   modelSel.innerHTML = prov.models.map(m => `<option value="${m.id}">${m.label}</option>`).join('');
+}
+
+function initGroupModels() {
+  ['rl', 'rn', 'ra'].forEach(g => updateGroupModels(g));
+  updateGroupCounts();
 }
 
 function updateOrchModels() {
