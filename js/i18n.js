@@ -145,8 +145,6 @@ const I18N = {
     'svg2.classify.d':'Equilibrium | Lying-averse | Deception-averse | Inference Error',
     // V2 AI Panel
     'panel.ai':'AI Agent Mode',
-    'ai.provkeys':'Provider API Keys',
-    'ai.provhint':'Session-only &mdash; never stored to disk',
     'ai.orch':'Administrator Model',
     'ai.orchhint':'Generates tailored prompts for each agent',
     'ai.roster':'Agent Groups',
@@ -380,8 +378,6 @@ const I18N = {
     'svg2.classify.d':'均衡 | 说谎厌恶 | 欺骗厌恶 | 推断误差',
     // V2 AI Panel
     'panel.ai':'AI 智能体模式',
-    'ai.provkeys':'提供商 API 密钥',
-    'ai.provhint':'仅本次会话 &mdash; 不保存到磁盘',
     'ai.orch':'管理员模型',
     'ai.orchhint':'为每个智能体生成定制化提示',
     'ai.roster':'智能体分组',
@@ -611,8 +607,6 @@ const I18N = {
     'svg2.classify.d':'균형 | 거짓말 혐오 | 기만 혐오 | 추론 오류',
     // V2 AI Panel
     'panel.ai':'AI 에이전트 모드',
-    'ai.provkeys':'프로바이더 API 키',
-    'ai.provhint':'세션 전용 &mdash; 디스크에 저장하지 않음',
     'ai.orch':'관리자 모델',
     'ai.orchhint':'각 에이전트에 맞춤형 프롬프트 생성',
     'ai.roster':'에이전트 그룹',

@@ -146,20 +146,28 @@ const PROVIDERS = {
   },
 };
 
-/* ---- Provider config store (sessionStorage) ---- */
-function getProviderConfig(provider) {
+/* ---- Provider config — reads API key/endpoint per section ---- */
+function getProviderCfg(provider, modelOverride, section) {
   const el = id => document.getElementById(id);
+  const sec = section || 'admin';
   return {
-    apiKey: el(`pk-${provider}`)?.value.trim() || '',
-    endpoint: el(`pe-${provider}`)?.value.trim() || '',
-    model: el(`pm-${provider}`)?.value || '',
+    apiKey: el(`pk-${sec}`)?.value.trim() || '',
+    endpoint: el(`pe-${sec}`)?.value.trim() || '',
+    model: modelOverride || '',
   };
 }
 
-function getProviderCfg(provider, modelOverride) {
-  const c = getProviderConfig(provider);
-  if (modelOverride) c.model = modelOverride;
-  return c;
+/* ---- Key placeholder hints per provider ---- */
+const KEY_PLACEHOLDERS = {
+  claude:'sk-ant-...', gpt:'sk-...', gemini:'AIza...', deepseek:'sk-...',
+  qwen:'sk-...', minimax:'...', kimi:'sk-...', glm:'...',
+};
+function updateSectionKey(sec) {
+  const provSel = sec === 'admin'
+    ? document.getElementById('orch-provider')
+    : document.getElementById(`grp-${sec}-prov`);
+  const pkEl = document.getElementById(`pk-${sec}`);
+  if (provSel && pkEl) pkEl.placeholder = KEY_PLACEHOLDERS[provSel.value] || 'API Key';
 }
 
 /* ---- System prompt (shared) ---- */
@@ -220,7 +228,7 @@ TASK: Generate a personalised game prompt for EACH agent. Each prompt should:
 Output a JSON array of objects: [{"id": 0, "prompt": "..."}, {"id": 1, "prompt": "..."}, ...]
 Output ONLY the JSON array, no other text.`;
 
-  const cfg = getProviderCfg(orchCfg.provider, orchCfg.model);
+  const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin');
   const raw = await provider.call(cfg, GAME_CONTEXT, orchPrompt);
 
   // Parse JSON from response (handle markdown code fences)
@@ -236,8 +244,8 @@ Output ONLY the JSON array, no other text.`;
 async function dispatchToAgent(agent, prompt) {
   const provider = PROVIDERS[agent.aiProvider];
   if (!provider) throw new Error(`Unknown provider: ${agent.aiProvider}`);
-  const cfg = getProviderCfg(agent.aiProvider, agent.aiModel);
-  if (!cfg.apiKey) throw new Error(`No API key for ${agent.aiProvider}`);
+  const cfg = getProviderCfg(agent.aiProvider, agent.aiModel, agent.aiSection);
+  if (!cfg.apiKey) throw new Error(`No API key for ${agent.aiProvider} (${agent.aiSection})`);
 
   const system = GAME_CONTEXT + '\n\nYou must output ONLY a single number between 0.0 and 1.0 representing your truth-telling probability. No explanation, no text — just the number.';
   const raw = await provider.call(cfg, system, prompt);
@@ -370,12 +378,13 @@ async function runMultiTrialAIExperiment(progressCb) {
   }
   const riskToGroup = { risk_loving: 'rl', risk_neutral: 'rn', risk_averse: 'ra' };
 
-  // Assign providers by risk type (not by index)
+  // Assign providers and section keys by risk type (not by index)
   agents.forEach(a => {
     const g = riskToGroup[a.riskType];
     const cfg = groupModel[g] || groupModel.ra;
     a.aiProvider = cfg.provider;
     a.aiModel = cfg.model;
+    a.aiSection = g;
     a.modelKey = `${cfg.provider}/${cfg.model}`;
   });
 
@@ -597,7 +606,9 @@ function updateGroupModels(group) {
 }
 
 function initGroupModels() {
-  ['rl', 'rn', 'ra'].forEach(g => updateGroupModels(g));
+  ['rl', 'rn', 'ra'].forEach(g => { updateGroupModels(g); updateSectionKey(g); });
+  updateOrchModels();
+  updateSectionKey('admin');
   updateGroupCounts();
 }
 

@@ -157,74 +157,27 @@
     </div>
     <div class="panel-body">
 
-      <!-- Provider API Keys -->
-      <div class="form-group form-section">
-        <div class="form-section-title" data-i18n="ai.provkeys">Provider API Keys</div>
-        <div class="form-hint" data-i18n="ai.provhint">Session-only &mdash; never stored to disk</div>
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>Claude</span></div>
-        <input type="password" id="pk-claude" placeholder="sk-ant-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-claude" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>GPT</span></div>
-        <input type="password" id="pk-gpt" placeholder="sk-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-gpt" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>Gemini</span></div>
-        <input type="password" id="pk-gemini" placeholder="AIza..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-gemini" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>DeepSeek</span></div>
-        <input type="password" id="pk-deepseek" placeholder="sk-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-deepseek" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>Qwen</span></div>
-        <input type="password" id="pk-qwen" placeholder="sk-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-qwen" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>MiniMax</span></div>
-        <input type="password" id="pk-minimax" placeholder="..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-minimax" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>Kimi</span></div>
-        <input type="password" id="pk-kimi" placeholder="sk-..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-kimi" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-      <div class="form-group provider-key-group">
-        <div class="form-label"><span>GLM</span></div>
-        <input type="password" id="pk-glm" placeholder="..." class="input-text" autocomplete="off">
-        <input type="text" id="pe-glm" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
-      </div>
-
       <!-- Administrator -->
       <div class="form-group form-section">
         <div class="form-section-title" data-i18n="ai.orch">Administrator Model</div>
         <div class="form-hint" data-i18n="ai.orchhint">Generates tailored prompts for each agent</div>
       </div>
-      <div class="form-group form-row">
-        <select id="orch-provider" onchange="updateOrchModels()">
-          <option value="claude">Claude</option>
-          <option value="gpt">GPT</option>
-          <option value="gemini">Gemini</option>
-          <option value="deepseek">DeepSeek</option>
-          <option value="qwen">Qwen</option>
-          <option value="minimax">MiniMax</option>
-          <option value="kimi">Kimi</option>
-          <option value="glm">GLM</option>
-        </select>
-        <select id="orch-model">
-          <option value="claude-opus-4-6">Opus 4.6</option>
-          <option value="claude-sonnet-4-6">Sonnet 4.6</option>
-          <option value="claude-sonnet-4-5">Sonnet 4.5</option>
-          <option value="claude-haiku-4-5" selected>Haiku 4.5</option>
-        </select>
+      <div class="section-card" data-section="admin">
+        <div class="form-group form-row">
+          <select id="orch-provider" onchange="updateOrchModels();updateSectionKey('admin')">
+            <option value="claude">Claude</option>
+            <option value="gpt">GPT</option>
+            <option value="gemini">Gemini</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="qwen">Qwen</option>
+            <option value="minimax">MiniMax</option>
+            <option value="kimi">Kimi</option>
+            <option value="glm">GLM</option>
+          </select>
+          <select id="orch-model"></select>
+        </div>
+        <input type="password" id="pk-admin" placeholder="API Key" class="input-text input-key" autocomplete="off">
+        <input type="text" id="pe-admin" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
       </div>
 
       <!-- Agent Groups (by risk attitude) -->
@@ -235,30 +188,36 @@
       <div id="agent-roster">
         <div class="roster-row" data-group="rl">
           <div class="roster-group-label"><span class="dot" style="background:var(--red)"></span> <span data-i18n="ai.grp.rl">Risk-loving</span> <span class="roster-auto-count" id="rc-rl"></span></div>
-          <select class="roster-provider" id="grp-rl-prov" onchange="updateGroupModels('rl')">
+          <select class="roster-provider" id="grp-rl-prov" onchange="updateGroupModels('rl');updateSectionKey('rl')">
             <option value="claude">Claude</option><option value="gpt">GPT</option><option value="gemini">Gemini</option>
             <option value="deepseek">DeepSeek</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>
             <option value="kimi">Kimi</option><option value="glm">GLM</option>
           </select>
           <select class="roster-model" id="grp-rl-model"></select>
+          <input type="password" id="pk-rl" placeholder="API Key" class="input-text input-key" autocomplete="off">
+          <input type="text" id="pe-rl" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
         </div>
         <div class="roster-row" data-group="rn">
           <div class="roster-group-label"><span class="dot" style="background:var(--amber)"></span> <span data-i18n="ai.grp.rn">Risk-neutral</span> <span class="roster-auto-count" id="rc-rn"></span></div>
-          <select class="roster-provider" id="grp-rn-prov" onchange="updateGroupModels('rn')">
+          <select class="roster-provider" id="grp-rn-prov" onchange="updateGroupModels('rn');updateSectionKey('rn')">
             <option value="gpt" selected>GPT</option><option value="claude">Claude</option><option value="gemini">Gemini</option>
             <option value="deepseek">DeepSeek</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>
             <option value="kimi">Kimi</option><option value="glm">GLM</option>
           </select>
           <select class="roster-model" id="grp-rn-model"></select>
+          <input type="password" id="pk-rn" placeholder="API Key" class="input-text input-key" autocomplete="off">
+          <input type="text" id="pe-rn" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
         </div>
         <div class="roster-row" data-group="ra">
           <div class="roster-group-label"><span class="dot" style="background:var(--blue)"></span> <span data-i18n="ai.grp.ra">Risk-averse</span> <span class="roster-auto-count" id="rc-ra"></span></div>
-          <select class="roster-provider" id="grp-ra-prov" onchange="updateGroupModels('ra')">
+          <select class="roster-provider" id="grp-ra-prov" onchange="updateGroupModels('ra');updateSectionKey('ra')">
             <option value="deepseek" selected>DeepSeek</option><option value="claude">Claude</option><option value="gpt">GPT</option>
             <option value="gemini">Gemini</option><option value="qwen">Qwen</option><option value="minimax">MiniMax</option>
             <option value="kimi">Kimi</option><option value="glm">GLM</option>
           </select>
           <select class="roster-model" id="grp-ra-model"></select>
+          <input type="password" id="pk-ra" placeholder="API Key" class="input-text input-key" autocomplete="off">
+          <input type="text" id="pe-ra" placeholder="Endpoint (optional)" class="input-text input-endpoint" autocomplete="off">
         </div>
       </div>
 

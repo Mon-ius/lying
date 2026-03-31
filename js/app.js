@@ -450,8 +450,8 @@ let LS = null;
 async function runAI() {
   const roster = buildAgentRoster();
   if (roster.length < 2) { alert('Need at least 2 agents — increase agent count or adjust composition.'); return; }
-  const anyKey = ['claude','gpt','gemini','deepseek','qwen','minimax','kimi','glm'].some(p => document.getElementById('pk-'+p)?.value.trim());
-  if (!anyKey) { alert('Enter at least one provider API key.'); return; }
+  const anyKey = ['admin','rl','rn','ra'].some(s => document.getElementById('pk-'+s)?.value.trim());
+  if (!anyKey) { alert('Enter at least one API key (in Administrator or Agent Groups).'); return; }
 
   const btn = document.getElementById('btn-ai-run');
   const prog = document.getElementById('ai-progress');
