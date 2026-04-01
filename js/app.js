@@ -383,7 +383,7 @@ function switchVersion(v) {
   currentVersion = v;
   document.querySelectorAll('.paradigm-btn').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
-  document.getElementById('p-ai').classList.toggle('collapsed', v === 'v1');
+  document.getElementById('p-ai').style.display = v === 'v2' ? '' : 'none';
   document.body.classList.toggle('mode-ai', v === 'v2');
   // Show/hide V2-only elements
   document.querySelectorAll('.v2-chart').forEach(el => el.style.display = v === 'v2' ? '' : 'none');
