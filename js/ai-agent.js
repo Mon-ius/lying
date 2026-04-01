@@ -11,7 +11,8 @@ function _openaiCall(label, defaultEP) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
       body: JSON.stringify({
-        model: cfg.model, max_tokens: 1024, temperature: 0.4,
+        model: cfg.model, temperature: 0.4,
+        ...(/^(gpt-5|o[3-9]|o[1-9]\d)/.test(cfg.model) ? { max_completion_tokens: 1024 } : { max_tokens: 1024 }),
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
       }),
     });
