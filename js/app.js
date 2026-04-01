@@ -293,7 +293,6 @@ document.getElementById('s-n').addEventListener('input', () => {
   if (typeof updateGroupCounts === 'function') updateGroupCounts();
 });
 updateCompBar();
-initGroupModels();
 
 /* ---- Export data ---- */
 function exportJSON() {
@@ -583,7 +582,6 @@ window.addEventListener('load', () => {
   const ls = document.getElementById('lang-select');
   ls.value = currentLang;
   applyI18n(currentLang);
-  initGroupModels();
   setTimeout(runExperiment, 200);
 });
 
