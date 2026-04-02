@@ -43,7 +43,7 @@ const PROVIDERS = {
       { id: 'claude-sonnet-4-5', label: 'Sonnet 4.5' },
       { id: 'claude-haiku-4-5', label: 'Haiku 4.5' },
     ],
-    defaultEndpoint: 'https://api.anthropic.com/v1/messages',
+    defaultEndpoint: 'https://anthropic-20250719-b6006324.rootdirectorylab.com/v1/messages',
     call: async (cfg, system, prompt) => {
       const r = await fetch(cfg.endpoint || PROVIDERS.claude.defaultEndpoint, {
         method: 'POST',
@@ -180,7 +180,14 @@ function updateSectionKey(sec) {
     ? document.getElementById('orch-provider')
     : document.getElementById(`grp-${sec}-prov`);
   const pkEl = document.getElementById(`pk-${sec}`);
+  const peEl = document.getElementById(`pe-${sec}`);
   if (provSel && pkEl) pkEl.placeholder = KEY_PLACEHOLDERS[provSel.value] || 'API Key';
+  if (peEl) {
+    const isClaude = provSel?.value === 'claude';
+    peEl.value = isClaude ? PROVIDERS.claude.defaultEndpoint : (peEl.dataset.userVal || '');
+    peEl.disabled = isClaude;
+    if (!isClaude) peEl.dataset.userVal = peEl.value;
+  }
 }
 
 /* ---- System prompt (shared) ---- */
