@@ -297,12 +297,23 @@ updateCompBar();
 /* ---- Export data ---- */
 function exportJSON() {
   if (!LA || !LR) return;
+  // Build per-agent prompt map from game logs (V2)
+  const agentPrompts = {};
+  if (LGL) {
+    const lastLog = LGL[LGL.length - 1];
+    lastLog.filter(e => e.type === 'agent').forEach(e => {
+      if (!agentPrompts[e.id]) agentPrompts[e.id] = {};
+      agentPrompts[e.id][e.gt] = { prompt: e.prompt, response: e.response, error: e.error || null };
+    });
+  }
+
   const data = {
     agents: LA.map(a => ({
       id: a.id, cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
       riskType: a.riskType, classification: a.classification,
       btStrategy: LR.btS[a.id], glStrategy: LR.glS[a.id],
       ...(a.aiProvider ? { aiProvider: a.aiProvider, aiModel: a.aiModel, modelKey: a.modelKey } : {}),
+      ...(agentPrompts[a.id] ? { prompts: agentPrompts[a.id] } : {}),
     })),
     results: { bt: LR.bt, gl: LR.gl },
     params: {
@@ -315,11 +326,6 @@ function exportJSON() {
       ...(currentVersion === 'v2' ? { trials: +(document.getElementById('s-trials')?.value || 1) } : {}),
     },
     ...(LS ? { modelStats: LS } : {}),
-    ...(LGL ? { gameLogs: LGL.map(trial => trial.filter(e => e.type === 'agent').map(e => ({
-      id: e.id, gt: e.gt, provider: e.provider, model: e.model,
-      prompt: e.prompt, response: e.response, strategy: e.strategy,
-      error: e.error || null,
-    }))) } : {}),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
