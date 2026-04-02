@@ -4,6 +4,17 @@
  * Administrator model generates tailored prompts → dispatched to heterogeneous agents.
  */
 
+/* ---- Retry with backoff for 429 rate-limit errors ---- */
+async function withRetry(fn, retries = 3) {
+  for (let i = 0; i <= retries; i++) {
+    try { return await fn(); } catch (e) {
+      if (i < retries && /429|rate.limit/i.test(e.message)) {
+        await new Promise(r => setTimeout(r, (i + 1) * 15000));
+      } else throw e;
+    }
+  }
+}
+
 /* ---- Shared OpenAI-compatible API call ---- */
 function _openaiCall(label, defaultEP) {
   return async (cfg, system, prompt) => {
@@ -221,18 +232,18 @@ GAME PARAMETERS:
 AGENTS:
 ${agentList}
 
-TASK: Generate a personalised game prompt for EACH agent. Each prompt should:
-1. Explain the specific game they're playing (${gameType})
-2. State their personal parameters and what they imply
-3. Explain the equilibrium strategy and why deviating might be rational given their costs
-4. Ask them to output a single number between 0.0 and 1.0
+TASK: Generate a CONCISE game prompt for EACH agent (3-5 sentences each). Each prompt should:
+1. State the game type (${gameType}) and their key parameters (c_l, c_d, α)
+2. Briefly explain equilibrium and why their costs might cause deviation
+3. Ask for a single number 0.0–1.0
 
-Output a JSON array of objects: [{"id": 0, "prompt": "..."}, {"id": 1, "prompt": "..."}, ...]
+Be brief — keep each prompt under 80 words.
+Output a JSON array: [{"id": 0, "prompt": "..."}, ...]
 Output ONLY the JSON array, no other text.`;
 
-  const adminTokens = Math.min(16384, Math.max(4096, agents.length * 512));
+  const adminTokens = Math.min(4096, Math.max(2048, agents.length * 150));
   const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin', adminTokens);
-  const raw = await provider.call(cfg, GAME_CONTEXT, orchPrompt);
+  const raw = await withRetry(() => provider.call(cfg, GAME_CONTEXT, orchPrompt));
 
   // Parse JSON from response (handle markdown code fences)
   const jsonStr = raw.replace(/```json?\s*/g, '').replace(/```/g, '').trim();
@@ -251,7 +262,7 @@ async function dispatchToAgent(agent, prompt) {
   if (!cfg.apiKey) throw new Error(`No API key for ${agent.aiProvider} (${agent.aiSection})`);
 
   const system = GAME_CONTEXT + '\n\nYou must output ONLY a single number between 0.0 and 1.0 representing your truth-telling probability. No explanation, no text — just the number.';
-  const raw = await provider.call(cfg, system, prompt);
+  const raw = await withRetry(() => provider.call(cfg, system, prompt));
 
   // Extract number from response
   const match = raw.match(/([01](?:\.\d+)?|\.\d+)/);
