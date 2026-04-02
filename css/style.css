@@ -201,13 +201,16 @@ select:focus { border-color: var(--accent); }
 .comp-bar .seg span { font-size: .62rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); white-space: nowrap; overflow: hidden; }
 
 /* Run button */
+.sidebar-footer {
+  position: sticky; bottom: 0; z-index: 2; margin-top: auto;
+  padding: 10px 0 0; background: var(--bg-1); flex-shrink: 0;
+}
 .btn-run {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 12px; background: var(--accent); color: #fff;
   border: none; border-radius: var(--radius);
   font-family: inherit; font-size: .88rem; font-weight: 600;
   cursor: pointer; transition: all .15s var(--ease); box-shadow: var(--shadow-sm);
-  flex-shrink: 0; position: sticky; bottom: 0; z-index: 2; margin-top: auto;
 }
 .btn-run:hover { background: var(--accent-dark); box-shadow: var(--shadow-md); transform: translateY(-1px); }
 .btn-run:active { transform: translateY(0); }

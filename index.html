@@ -235,11 +235,13 @@
     </div>
   </div>
 
-  <button class="btn-run" id="btn-run" onclick="currentVersion==='v2'?runAI():runExperiment()">
-    <span class="spinner"></span>
-    <span class="label" id="btn-run-label" data-i18n="btn.run">Run Experiment</span>
-  </button>
-  <div class="ai-progress" id="ai-progress"></div>
+  <div class="sidebar-footer">
+    <button class="btn-run" id="btn-run" onclick="currentVersion==='v2'?runAI():runExperiment()">
+      <span class="spinner"></span>
+      <span class="label" id="btn-run-label" data-i18n="btn.run">Run Experiment</span>
+    </button>
+    <div class="ai-progress" id="ai-progress"></div>
+  </div>
 </aside>
 
 <!-- Main -->
