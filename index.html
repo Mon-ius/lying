@@ -70,6 +70,7 @@
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.nagents">Number of agents</span> <span class="unit" id="v-n">20</span></div>
         <input type="range" id="s-n" min="20" max="500" step="10" value="20">
+        <div class="form-hint" data-i18n="hint.nagents">Population size for Monte Carlo simulation. Each agent draws c<sub>l</sub>, c<sub>d</sub>, &alpha;, &beta; independently.</div>
       </div>
       <div class="form-group">
         <div class="form-label" style="margin-bottom:8px;font-weight:600;" data-i18n="label.riskcomp">Risk attitude composition</div>
@@ -98,12 +99,12 @@
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.clmean">Lying cost <em>c<sub>l</sub></em> (log-normal &mu;)</span> <span class="unit" id="v-cl">-0.5</span></div>
         <input type="range" id="s-cl" min="-3" max="3" step="0.1" value="-0.5">
-        <div class="form-hint" data-i18n="hint.cl">Higher &rarr; more aversion to literal lies</div>
+        <div class="form-hint" data-i18n="hint.cl">Higher &rarr; more aversion to literal lies (Sobel 2020, Def.&thinsp;3)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.cdmean">Deception cost <em>c<sub>d</sub></em> (log-normal &mu;)</span> <span class="unit" id="v-cd">-0.3</span></div>
         <input type="range" id="s-cd" min="-3" max="3" step="0.1" value="-0.3">
-        <div class="form-hint" data-i18n="hint.cd">Higher &rarr; more aversion to manipulating beliefs</div>
+        <div class="form-hint" data-i18n="hint.cd">Higher &rarr; more aversion to manipulating beliefs (Sobel 2020, Def.&thinsp;4)</div>
       </div>
     </div>
   </div>
@@ -121,11 +122,12 @@
           <option value="BT" data-i18n="env.bt">BT &mdash; Bad-type truth-telling</option>
           <option value="GL" data-i18n="env.gl">GL &mdash; Good-type lying</option>
         </select>
+        <div class="form-hint" data-i18n="hint.env">BT: Prop.&thinsp;1 deceptive truth-telling; GL: Prop.&thinsp;2 non-deceptive lying (Choi et al. &sect;3)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.periods">Periods per game</span> <span class="unit" id="v-periods">2</span></div>
         <input type="range" id="s-periods" min="2" max="10" step="1" value="2">
-        <div class="form-hint" data-i18n="hint.periods">N periods with carried reputation (&lambda;)</div>
+        <div class="form-hint" data-i18n="hint.periods">N periods with carried reputation &lambda; (Choi et al. &sect;2)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.seq">Sequences</span> <span class="unit" id="v-rounds">3</span></div>
@@ -135,7 +137,7 @@
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.ratio"><em>x</em><sub>2</sub>/<em>x</em><sub>1</sub> ratio</span> <span class="unit" id="v-ratio">20</span></div>
         <input type="range" id="s-ratio" min="1" max="50" step="1" value="20">
-        <div class="form-hint" data-i18n="hint.ratio">Reputation-building incentive strength</div>
+        <div class="form-hint" data-i18n="hint.ratio">High ratio &rarr; strong reputation incentive; drives Props.&thinsp;1&ndash;2 equilibria (Choi et al. &sect;3)</div>
       </div>
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.bp">Behavioral-type prior</span> <span class="unit" id="v-bp">0.50</span></div>
@@ -145,7 +147,7 @@
       <div class="form-group">
         <div class="form-label"><span data-i18n="label.miscomm">Miscommunication rate</span> <span class="unit" id="v-miscomm">20%</span></div>
         <input type="range" id="s-miscomm" min="0" max="50" step="1" value="20">
-        <div class="form-hint" data-i18n="hint.miscomm">Prob. received message is flipped</div>
+        <div class="form-hint" data-i18n="hint.miscomm">&epsilon; = Pr(message flipped in transit). Ensures full-support beliefs (Choi et al. &sect;2)</div>
       </div>
     </div>
   </div>
