@@ -232,18 +232,14 @@
         <input type="range" id="s-trials" min="1" max="10" step="1" value="3">
       </div>
 
-      <div class="ai-progress" id="ai-progress"></div>
     </div>
   </div>
 
-  <button class="btn-run" id="btn-run" onclick="runExperiment()">
+  <button class="btn-run" id="btn-run" onclick="currentVersion==='v2'?runAI():runExperiment()">
     <span class="spinner"></span>
-    <span class="label" data-i18n="btn.run">Run Experiment</span>
+    <span class="label" id="btn-run-label" data-i18n="btn.run">Run Experiment</span>
   </button>
-  <button class="btn-run btn-ai" id="btn-ai-run" onclick="runAI()" style="display:none">
-    <span class="spinner"></span>
-    <span class="label" data-i18n="btn.airun">Run AI Experiment</span>
-  </button>
+  <div class="ai-progress" id="ai-progress"></div>
 </aside>
 
 <!-- Main -->

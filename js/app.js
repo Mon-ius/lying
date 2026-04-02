@@ -382,8 +382,11 @@ let currentVersion = 'v1';
 function switchVersion(v) {
   currentVersion = v;
   document.querySelectorAll('.paradigm-btn').forEach(b => b.classList.toggle('active', b.dataset.v === v));
-  document.getElementById('btn-run').style.display = v === 'v1' ? '' : 'none';
-  document.getElementById('btn-ai-run').style.display = v === 'v2' ? '' : 'none';
+  const btn = document.getElementById('btn-run');
+  const label = document.getElementById('btn-run-label');
+  label.setAttribute('data-i18n', v === 'v2' ? 'btn.airun' : 'btn.run');
+  label.textContent = t(v === 'v2' ? 'btn.airun' : 'btn.run');
+  btn.classList.toggle('btn-ai', v === 'v2');
   const aiPanel = document.getElementById('p-ai');
   aiPanel.style.display = v === 'v2' ? '' : 'none';
   if (v === 'v2') aiPanel.classList.remove('collapsed');
@@ -452,7 +455,7 @@ async function runAI() {
   const anyKey = ['admin','rl','rn','ra'].some(s => document.getElementById('pk-'+s)?.value.trim());
   if (!anyKey) { alert('Enter at least one API key (in Administrator or Agent Groups).'); return; }
 
-  const btn = document.getElementById('btn-ai-run');
+  const btn = document.getElementById('btn-run');
   const prog = document.getElementById('ai-progress');
   btn.classList.add('loading'); btn.disabled = true;
   const nTrials = +(document.getElementById('s-trials')?.value || 1);
