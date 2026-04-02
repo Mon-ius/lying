@@ -387,15 +387,11 @@ function switchVersion(v) {
   document.body.classList.toggle('mode-ai', v === 'v2');
   // Show/hide V2-only elements
   document.querySelectorAll('.v2-chart').forEach(el => el.style.display = v === 'v2' ? '' : 'none');
-  // Initialize group model dropdowns and counts
-  if (v === 'v2') initGroupModels();
-}
-
-/* ---- Architecture version toggle ---- */
-function switchArchVersion(v) {
-  document.querySelectorAll('.arch-ver-btn').forEach(b => b.classList.toggle('active', b.dataset.arch === v));
+  // Architecture diagrams follow global version
   document.getElementById('arch-v1').style.display = v === 'v1' ? '' : 'none';
   document.getElementById('arch-v2').style.display = v === 'v2' ? '' : 'none';
+  // Initialize group model dropdowns and counts
+  if (v === 'v2') initGroupModels();
 }
 
 /* ---- Stats table renderer ---- */

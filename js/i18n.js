@@ -72,8 +72,6 @@ const I18N = {
     // V1/V2 labels
     'v1.label':'V1 Math',
     'v2.label':'V2 AI',
-    'v1.arch':'V1 &mdash; Mathematical Model',
-    'v2.arch':'V2 &mdash; AI Agent Pipeline',
     // Game log tags
     'log.truth':'TRUTH',
     'log.lie':'LIE',
@@ -306,8 +304,6 @@ const I18N = {
     // V1/V2 labels
     'v1.label':'V1 数学',
     'v2.label':'V2 AI',
-    'v1.arch':'V1 &mdash; 数学模型',
-    'v2.arch':'V2 &mdash; AI 智能体管线',
     // Game log tags
     'log.truth':'真话',
     'log.lie':'谎言',
@@ -536,8 +532,6 @@ const I18N = {
     // V1/V2 labels
     'v1.label':'V1 수학',
     'v2.label':'V2 AI',
-    'v1.arch':'V1 &mdash; 수학 모델',
-    'v2.arch':'V2 &mdash; AI 에이전트 파이프라인',
     // Game log tags
     'log.truth':'진실',
     'log.lie':'거짓말',

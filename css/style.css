@@ -505,21 +505,6 @@ body.mode-ai .btn-run { display: none; }
 .btn-export svg { width: 14px; height: 14px; }
 
 /* Architecture version toggle */
-.arch-version-switch {
-  display: flex; gap: 4px; margin-bottom: 16px;
-  background: var(--bg-2); border-radius: 8px; padding: 3px; width: fit-content;
-}
-.arch-ver-btn {
-  padding: 7px 16px; border: none; border-radius: 6px;
-  background: transparent; color: var(--fg-3); font-family: inherit;
-  font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .2s var(--ease);
-  white-space: nowrap;
-}
-.arch-ver-btn:hover { color: var(--fg-1); }
-.arch-ver-btn.active { background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm); }
-.arch-ver-btn[data-arch="v2"].active {
-  background: linear-gradient(135deg, var(--purple), var(--accent)); color: #fff;
-}
 
 /* ================================================================ Architecture definitions */
 .arch-defs {
