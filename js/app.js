@@ -315,6 +315,11 @@ function exportJSON() {
       ...(currentVersion === 'v2' ? { trials: +(document.getElementById('s-trials')?.value || 1) } : {}),
     },
     ...(LS ? { modelStats: LS } : {}),
+    ...(LGL ? { gameLogs: LGL.map(trial => trial.filter(e => e.type === 'agent').map(e => ({
+      id: e.id, gt: e.gt, provider: e.provider, model: e.model,
+      prompt: e.prompt, response: e.response, strategy: e.strategy,
+      error: e.error || null,
+    }))) } : {}),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -368,7 +373,24 @@ function exportCSV() {
   addPeriods(LR.bt);
   addPeriods(LR.gl);
 
-  const csv = [header, ...rows, pdHeader, ...pdRows].join('\n');
+  // V2 agent prompts and responses
+  let promptSection = '';
+  if (LGL) {
+    const esc = s => s ? '"' + s.replace(/"/g, '""').replace(/\n/g, '\\n') + '"' : '';
+    const pHeader = '\ntrial,agentId,gameType,provider,model,strategy,error,prompt,response';
+    const pRows = [];
+    LGL.forEach((trial, ti) => {
+      trial.filter(e => e.type === 'agent').forEach(e => {
+        pRows.push([ti + 1, e.id, e.gt, e.provider, e.model,
+          e.strategy?.toFixed(4) ?? '', e.error || '',
+          esc(e.prompt), esc(e.response),
+        ].join(','));
+      });
+    });
+    promptSection = [pHeader, ...pRows].join('\n');
+  }
+
+  const csv = [header, ...rows, pdHeader, ...pdRows, promptSection].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -445,8 +467,9 @@ function renderStatsTable(stats) {
   el.innerHTML = html;
 }
 
-/* ---- Cached V2 stats for redraw ---- */
+/* ---- Cached V2 stats and game logs for redraw/export ---- */
 let LS = null;
+let LGL = null; // V2 game logs (prompts + responses)
 
 /* ---- Run AI experiment (V2 multi-provider, multi-trial) ---- */
 async function runAI() {
@@ -504,7 +527,8 @@ async function runAI() {
     plotModelDeviation(stats);
     renderStatsTable(stats);
 
-    // Game log (last trial)
+    // Game log (last trial) — cache for export
+    LGL = allGameLogs;
     const lastLog = allGameLogs[allGameLogs.length - 1];
     renderGameLog(lastLog, agents);
     plotPointCloud(LR, LA);
