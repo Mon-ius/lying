@@ -206,8 +206,8 @@ select:focus { border-color: var(--accent); }
   width: 100%; padding: 12px; background: var(--accent); color: #fff;
   border: none; border-radius: var(--radius);
   font-family: inherit; font-size: .88rem; font-weight: 600;
-  cursor: pointer; transition: all .15s var(--ease); box-shadow: var(--shadow-sm); margin: 8px 0;
-  flex-shrink: 0;
+  cursor: pointer; transition: all .15s var(--ease); box-shadow: var(--shadow-sm);
+  flex-shrink: 0; position: sticky; bottom: 0; z-index: 2; margin-top: auto;
 }
 .btn-run:hover { background: var(--accent-dark); box-shadow: var(--shadow-md); transform: translateY(-1px); }
 .btn-run:active { transform: translateY(0); }
@@ -341,7 +341,6 @@ select:focus { border-color: var(--accent); }
 .paradigm-icon { font-size: .82rem; }
 .paradigm-label { white-space: nowrap; }
 body.mode-ai .navbar { border-bottom-color: var(--purple); }
-body.mode-ai .btn-run { display: none; }
 
 /* ================================================================ Main area */
 .main-area { padding: 22px 26px 40px; overflow-y: auto; }
