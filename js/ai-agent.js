@@ -206,52 +206,47 @@ KEY PROPOSITIONS:
 - Prop. 3: BT deviations from equilibrium are driven by c_d.
 - Prop. 4: GL deviations from equilibrium are driven by c_l.`;
 
-/* ---- Administrator: generate tailored prompts via main model ---- */
+/* ---- Administrator: generate tailored prompts via main model (batched) ---- */
 async function orchestratePrompts(agents, gameType, gameParams, orchCfg) {
   const provider = PROVIDERS[orchCfg.provider];
   if (!provider) throw new Error('Invalid administrator provider');
-
-  const agentList = agents.map(a =>
-    `  Agent ${a.id}: c_l=${a.cl.toFixed(3)}, c_d=${a.cd.toFixed(3)}, α=${a.alpha.toFixed(3)} (${a.riskType.replace('_','-')}), β=${a.beta.toFixed(3)}, model=${a.aiProvider}/${a.aiModel}`
-  ).join('\n');
 
   const gtDesc = gameType === 'BT'
     ? 'BT (Bad-type Truth-telling): bad type sends m=θ with probability v=P(m=1|θ=0). Equilibrium: v*=1.'
     : 'GL (Good-type Lying): good type sends m=0 with probability w=P(m=0|θ=1). Equilibrium: w*=0.';
 
-  const orchPrompt = `You are the administrator for a multi-agent reputation game experiment.
+  const gameBlock = `GAME: ${gtDesc}
+PARAMS: N=${gameParams.nPeriods||2}, x₂/x₁=${gameParams.x2}, p_b=${gameParams.pb}, ε=${(gameParams.miscomm*100).toFixed(0)}%`;
 
-GAME TYPE: ${gtDesc}
+  // Batch agents into groups of 5 to avoid token truncation
+  const BATCH = 5;
+  const allResults = [];
+  for (let i = 0; i < agents.length; i += BATCH) {
+    const batch = agents.slice(i, i + BATCH);
+    const agentList = batch.map(a =>
+      `  ${a.id}: c_l=${a.cl.toFixed(3)}, c_d=${a.cd.toFixed(3)}, α=${a.alpha.toFixed(3)} (${a.riskType.replace('_','-')})`
+    ).join('\n');
 
-GAME PARAMETERS:
-- N periods = ${gameParams.nPeriods || 2} (reputation weight escalates from x₁=1 to x_N)
-- x₂/x₁ ratio = ${gameParams.x2} (reputation incentive)
-- Behavioral-type prior p_b = ${gameParams.pb}
-- Miscommunication rate ε = ${(gameParams.miscomm * 100).toFixed(0)}%
-
+    const orchPrompt = `Administrator for reputation game experiment.
+${gameBlock}
 AGENTS:
 ${agentList}
 
-TASK: Generate a CONCISE game prompt for EACH agent (3-5 sentences each). Each prompt should:
-1. State the game type (${gameType}) and their key parameters (c_l, c_d, α)
-2. Briefly explain equilibrium and why their costs might cause deviation
-3. Ask for a single number 0.0–1.0
+For EACH agent, write a 2-sentence prompt: state their game+params, ask for a number 0.0–1.0.
+Output ONLY: [{"id":N,"prompt":"..."},...]`;
 
-Be brief — keep each prompt under 80 words.
-Output a JSON array: [{"id": 0, "prompt": "..."}, ...]
-Output ONLY the JSON array, no other text.`;
+    const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin', 2048);
+    const raw = await withRetry(() => provider.call(cfg, GAME_CONTEXT, orchPrompt));
 
-  const adminTokens = Math.min(4096, Math.max(2048, agents.length * 150));
-  const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin', adminTokens);
-  const raw = await withRetry(() => provider.call(cfg, GAME_CONTEXT, orchPrompt));
-
-  // Parse JSON from response (handle markdown code fences)
-  const jsonStr = raw.replace(/```json?\s*/g, '').replace(/```/g, '').trim();
-  try {
-    return JSON.parse(jsonStr);
-  } catch {
-    throw new Error('Administrator returned invalid JSON: ' + raw.substring(0, 200));
+    const jsonStr = raw.replace(/```json?\s*/g, '').replace(/```/g, '').trim();
+    try {
+      const parsed = JSON.parse(jsonStr);
+      allResults.push(...parsed);
+    } catch {
+      throw new Error('Administrator returned invalid JSON: ' + raw.substring(0, 200));
+    }
   }
+  return allResults;
 }
 
 /* ---- Dispatch prompt to individual agent ---- */
