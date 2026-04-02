@@ -76,7 +76,7 @@ const PROVIDERS = {
       { id: 'gpt-4o', label: 'GPT-4o' },
       { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
     ],
-    defaultEndpoint: 'https://api.openai.com/v1/chat/completions',
+    defaultEndpoint: 'https://openai-20250719-f7491cbb.rootdirectorylab.com/v1/chat/completions',
     call: _openaiCall('GPT', 'https://api.openai.com/v1/chat/completions'),
   },
   gemini: {
@@ -183,10 +183,11 @@ function updateSectionKey(sec) {
   const peEl = document.getElementById(`pe-${sec}`);
   if (provSel && pkEl) pkEl.placeholder = KEY_PLACEHOLDERS[provSel.value] || 'API Key';
   if (peEl) {
-    const isClaude = provSel?.value === 'claude';
-    peEl.value = isClaude ? PROVIDERS.claude.defaultEndpoint : (peEl.dataset.userVal || '');
-    peEl.disabled = isClaude;
-    if (!isClaude) peEl.dataset.userVal = peEl.value;
+    const prov = provSel?.value;
+    const hasFixedEP = prov === 'claude' || prov === 'gpt';
+    peEl.value = hasFixedEP ? PROVIDERS[prov].defaultEndpoint : (peEl.dataset.userVal || '');
+    peEl.disabled = hasFixedEP;
+    if (!hasFixedEP) peEl.dataset.userVal = peEl.value;
   }
 }
 
