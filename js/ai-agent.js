@@ -12,7 +12,7 @@ function _openaiCall(label, defaultEP) {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apiKey}` },
       body: JSON.stringify({
         model: cfg.model, temperature: 0.4,
-        ...(/^(gpt-5|o[3-9]|o[1-9]\d)/.test(cfg.model) ? { max_completion_tokens: 1024 } : { max_tokens: 1024 }),
+        ...(/^(gpt-5|o[3-9]|o[1-9]\d)/.test(cfg.model) ? { max_completion_tokens: cfg.maxTokens || 1024 } : { max_tokens: cfg.maxTokens || 1024 }),
         messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
       }),
     });
@@ -43,7 +43,7 @@ const PROVIDERS = {
           'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: JSON.stringify({
-          model: cfg.model, max_tokens: 1024, temperature: 0.4,
+          model: cfg.model, max_tokens: cfg.maxTokens || 1024, temperature: 0.4,
           system, messages: [{ role: 'user', content: prompt }],
         }),
       });
@@ -86,7 +86,7 @@ const PROVIDERS = {
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: system }] },
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 1024 },
+          generationConfig: { temperature: 0.4, maxOutputTokens: cfg.maxTokens || 1024 },
         }),
       });
       if (!r.ok) throw new Error(`Gemini ${r.status}: ${await r.text()}`);
@@ -148,13 +148,14 @@ const PROVIDERS = {
 };
 
 /* ---- Provider config — reads API key/endpoint per section ---- */
-function getProviderCfg(provider, modelOverride, section) {
+function getProviderCfg(provider, modelOverride, section, maxTokens) {
   const el = id => document.getElementById(id);
   const sec = section || 'admin';
   return {
     apiKey: el(`pk-${sec}`)?.value.trim() || '',
     endpoint: el(`pe-${sec}`)?.value.trim() || '',
     model: modelOverride || '',
+    maxTokens: maxTokens || 1024,
   };
 }
 
@@ -229,7 +230,8 @@ TASK: Generate a personalised game prompt for EACH agent. Each prompt should:
 Output a JSON array of objects: [{"id": 0, "prompt": "..."}, {"id": 1, "prompt": "..."}, ...]
 Output ONLY the JSON array, no other text.`;
 
-  const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin');
+  const adminTokens = Math.min(16384, Math.max(4096, agents.length * 512));
+  const cfg = getProviderCfg(orchCfg.provider, orchCfg.model, 'admin', adminTokens);
   const raw = await provider.call(cfg, GAME_CONTEXT, orchPrompt);
 
   // Parse JSON from response (handle markdown code fences)
