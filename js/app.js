@@ -419,8 +419,8 @@ function switchVersion(v) {
   aiPanel.style.display = v === 'v2' ? '' : 'none';
   if (v === 'v2') aiPanel.classList.remove('collapsed');
   document.body.classList.toggle('mode-ai', v === 'v2');
-  // Show/hide V2-only elements
-  document.querySelectorAll('.v2-chart').forEach(el => el.style.display = v === 'v2' ? '' : 'none');
+  // Hide V2 charts when switching away; they only appear after experiment runs
+  if (v === 'v1') document.querySelectorAll('.v2-chart').forEach(el => el.style.display = 'none');
   // Architecture diagrams follow global version
   document.getElementById('arch-v1').style.display = v === 'v1' ? '' : 'none';
   document.getElementById('arch-v2').style.display = v === 'v2' ? '' : 'none';
@@ -527,11 +527,12 @@ async function runAI() {
     plotRegions(agents);
     plotLambda(LR);
 
-    // V2 cross-model charts + stats table
+    // V2 cross-model charts + stats table — show after data is ready
     plotModelStrats(stats);
     plotModelTypes(stats);
     plotModelDeviation(stats);
     renderStatsTable(stats);
+    document.querySelectorAll('.v2-chart').forEach(el => el.style.display = '');
 
     // Game log (last trial) — cache for export
     LGL = allGameLogs;
