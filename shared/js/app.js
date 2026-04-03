@@ -188,7 +188,7 @@ function exportJSON() {
       ratio: +document.getElementById('s-ratio').value,
       bp: +document.getElementById('s-bp').value,
       miscomm: +document.getElementById('s-miscomm').value,
-      ...(currentVersion === 'v2' ? { trials: +(document.getElementById('s-trials')?.value || 1) } : {}),
+      ...(currentVersion === 'ai' ? { trials: +(document.getElementById('s-trials')?.value || 1) } : {}),
     },
     ...(LS ? { modelStats: LS } : {}),
   };

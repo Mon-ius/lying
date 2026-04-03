@@ -460,7 +460,7 @@ function plotPointCloud(R, agents) {
   if (view3d && view3d.style.display === 'none') return;
 
   const dark = _isDark();
-  const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'v2';
+  const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'ai';
   const rounds = +(document.getElementById('s-rounds')?.value) || 1;
   const _rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; };
 

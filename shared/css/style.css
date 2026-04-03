@@ -277,6 +277,20 @@ select:focus { border-color: var(--accent); }
 .paradigm-icon { font-size: .82rem; }
 .paradigm-label { white-space: nowrap; }
 
+/* ---- View toggle (Chart / Game) ---- */
+.view-toggle {
+  display: flex; gap: 2px; background: var(--bg-2); border-radius: 8px;
+  padding: 2px; margin: 12px 0;
+}
+.view-toggle-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border: none; border-radius: 6px;
+  background: transparent; color: var(--fg-3); font-family: inherit;
+  font-size: .74rem; font-weight: 600; cursor: pointer; transition: all .2s var(--ease);
+}
+.view-toggle-btn:hover { color: var(--fg-1); }
+.view-toggle-btn.active { background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm); }
+
 /* ================================================================ Main area */
 .main-area { padding: 22px 26px 40px; overflow-y: auto; }
 

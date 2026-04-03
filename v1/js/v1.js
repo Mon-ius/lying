@@ -193,12 +193,13 @@ function runExperiment() {
     renderLog();
     plotPointCloud(R, agents);
 
+    afterRun();
     btn.classList.remove('loading'); btn.disabled = false;
   }, 60); });
 }
 
-/* ---- Register V1 ---- */
-registerVersion('v1', {
+/* ---- Register Math mode ---- */
+registerVersion('math', {
   runLabel: 'btn.run',
   btnClass: '',
   bodyClass: '',

@@ -1,10 +1,12 @@
 /**
- * Version registration system — enables V1/V2/V3+ paradigm switching.
- * Each version registers: { run, onActivate, onDeactivate, redraw, runLabel, btnClass, bodyClass }
+ * Mode registration system — enables Math/AI paradigm switching
+ * and Chart/Game view toggling within each mode.
+ * Each mode registers: { run, onActivate, onDeactivate, redraw, runLabel, btnClass, bodyClass }
  */
 
 const VERSIONS = {};
-let currentVersion = 'v1';
+let currentVersion = 'math';
+let currentView = 'chart';
 
 function registerVersion(id, config) {
   VERSIONS[id] = config;
@@ -23,7 +25,7 @@ function switchVersion(v) {
   label.textContent = t(cfg.runLabel || 'btn.run');
   btn.className = 'btn-run' + (cfg.btnClass ? ' ' + cfg.btnClass : '');
   // Architecture diagrams — show matching, hide others
-  document.querySelectorAll('[id^="arch-v"]').forEach(el => {
+  document.querySelectorAll('.arch-diagram').forEach(el => {
     el.style.display = el.id === 'arch-' + v ? '' : 'none';
   });
   // Body mode class
@@ -33,6 +35,44 @@ function switchVersion(v) {
   if (cfg.onActivate) cfg.onActivate();
 }
 
+function switchView(view) {
+  currentView = view;
+  // Update toggle buttons
+  document.querySelectorAll('.view-toggle-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === view)
+  );
+  if (view === 'chart') {
+    // Show chart elements, hide game
+    const v3c = document.getElementById('v3-container');
+    if (v3c) v3c.style.display = 'none';
+    document.querySelectorAll('.chart-game-toggle').forEach(el => el.style.display = '');
+    // Stop game animation
+    if (typeof _v3world !== 'undefined' && _v3world) _v3world.reset();
+  } else {
+    // Show game, hide chart elements
+    const v3c = document.getElementById('v3-container');
+    if (v3c) v3c.style.display = '';
+    document.querySelectorAll('.chart-game-toggle').forEach(el => el.style.display = 'none');
+    // Resize canvas + init game if data exists
+    setTimeout(() => {
+      if (typeof _getWorld === 'function') {
+        const w = _getWorld();
+        if (w) { w.resize(); w.draw(); }
+      }
+      if (LA && LR && typeof initGameFromResults === 'function') {
+        initGameFromResults();
+      }
+    }, 100);
+  }
+}
+
+/** Called by mode run functions after setting LA/LR to auto-init game if in game view */
+function afterRun() {
+  if (currentView === 'game' && typeof initGameFromResults === 'function') {
+    initGameFromResults();
+  }
+}
+
 function runCurrentVersion() {
   const cfg = VERSIONS[currentVersion];
   if (cfg?.run) cfg.run();
@@ -40,7 +80,12 @@ function runCurrentVersion() {
 
 /** Redraw shared charts + version-specific charts */
 function fullRedraw() {
-  redrawAll(LA, LR);
-  const cfg = VERSIONS[currentVersion];
-  if (cfg?.redraw) cfg.redraw();
+  if (currentView === 'chart') {
+    redrawAll(LA, LR);
+    const cfg = VERSIONS[currentVersion];
+    if (cfg?.redraw) cfg.redraw();
+  } else if (typeof _v3world !== 'undefined' && _v3world && _v3world.state !== 'idle') {
+    _v3world.resize();
+    _v3world.draw();
+  }
 }

@@ -2,13 +2,6 @@
    V2 AI Agent Mode — Styles
    ================================================================ */
 
-/* V2 badge */
-.badge-v2 {
-  display: inline-block; font-size: .58rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--purple), var(--accent));
-  padding: 1px 6px; border-radius: 4px; margin-left: auto; margin-right: 4px; letter-spacing: .04em;
-}
-
 /* API key / endpoint inputs */
 .input-text {
   font-family: 'JetBrains Mono', monospace; font-size: .78rem;
@@ -78,7 +71,7 @@
 }
 
 /* Paradigm button V2 active state */
-.paradigm-btn[data-v="v2"].active {
+.paradigm-btn[data-v="ai"].active {
   background: linear-gradient(135deg, var(--purple), var(--accent));
   color: #fff;
 }

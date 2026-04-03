@@ -2,19 +2,6 @@
    V3 Game Mode — Commercial-grade Stanford Town visualization
    ================================================================ */
 
-/* Paradigm button */
-.paradigm-btn[data-v="v3"].active {
-  background: linear-gradient(135deg, #16a34a, #0d9488);
-  color: #fff;
-}
-body.mode-game .navbar { border-bottom-color: #16a34a; }
-
-/* Run button */
-.btn-game {
-  background: linear-gradient(135deg, #16a34a, #0d9488);
-}
-.btn-game:hover { filter: brightness(1.1); }
-
 /* ================================================================
    Game Container
    ================================================================ */

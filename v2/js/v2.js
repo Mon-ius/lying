@@ -112,14 +112,16 @@ async function runAI() {
     const totalAI = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && !e.error).length, 0);
     const totalFB = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && e.error).length, 0);
     prog.textContent = `Done — ${nTrials} trial${nTrials > 1 ? 's' : ''}, ${totalAI} AI calls, ${totalFB} fallbacks, ${n} agents`;
+
+    afterRun();
   } catch (e) {
     prog.textContent = 'Error: ' + e.message;
   }
   btn.classList.remove('loading'); btn.disabled = false;
 }
 
-/* ---- Register V2 ---- */
-registerVersion('v2', {
+/* ---- Register AI mode ---- */
+registerVersion('ai', {
   runLabel: 'btn.airun',
   btnClass: 'btn-ai',
   bodyClass: 'mode-ai',

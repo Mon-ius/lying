@@ -72,9 +72,12 @@ const I18N = {
     'note.stratgl':'<b>Note.</b> <strong>Good-type lying game</strong> (GL).<br>The good type (θ&thinsp;=&thinsp;1) sends m&thinsp;=&thinsp;0 with probability <strong>w&thinsp;=&thinsp;P(m=0|θ=1)</strong>.<br>Unique equilibrium: <strong>w*&thinsp;=&thinsp;0</strong> (dashed line) — the good type lies to reveal its type.<br>This is <em>non-deceptive</em>: it does not distort the receiver\'s type belief (Prop.&thinsp;2, Choi+ 2025).<br>Deviations above w*&thinsp;=&thinsp;0 are driven by <strong>c<sub>l</sub></strong> (Prop.&thinsp;4).',
     'note.types':'<b>Note.</b> Behavioural classification per the Fig.&thinsp;5 taxonomy in Choi+ 2025.<br><strong>Top section</strong> — configured risk-attitude composition (α&thinsp;<&thinsp;0 risk-loving, α&thinsp;≈&thinsp;0 risk-neutral, α&thinsp;>&thinsp;0 risk-averse).<br><strong>Bottom section</strong> — observed behavioural classification:<br><span class="note-label" style="--c:#2563eb">Equilibrium</span> — follows both BT and GL equilibria.<br><span class="note-label" style="--c:#16a34a">Lying-averse</span> — follows BT, deviates in GL due to c<sub>l</sub>.<br><span class="note-label" style="--c:#dc2626">Deception-averse</span> — follows GL, deviates in BT due to c<sub>d</sub>.<br><span class="note-label" style="--c:#d97706">Inference error</span> — deviates in both environments.',
     'note.regions':'<b>Note.</b> Equilibrium-region map in (c<sub>d</sub>,&thinsp;c<sub>l</sub>) space following Props.&thinsp;3–4 (Choi+ 2025).<br><strong>Regions:</strong><br><span class="note-label" style="--c:rgb(37,99,235)">Full reputation</span> — above solid boundary.<br><span class="note-label" style="--c:rgb(217,119,6)">Partial</span> — between the two boundaries.<br><span class="note-label" style="--c:rgb(220,38,38)">No reputation</span> — below dashed boundary.<br><strong>Boundaries:</strong><br>Solid line: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.8&thinsp;c<sub>d</sub>&thinsp;+&thinsp;0.2</strong> (full / partial).<br>Dashed line: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.3&thinsp;c<sub>d</sub></strong> (partial / none).<br><strong>Agent classification:</strong><br><span class="note-label" style="--c:#2563eb">Equilibrium</span> <span class="note-label" style="--c:#16a34a">Lying-averse</span> <span class="note-label" style="--c:#dc2626">Deception-averse</span> <span class="note-label" style="--c:#d97706">Inference error</span><br>Position reveals which cost dimension drives deviation from equilibrium.',
-    // V1/V2 labels
-    'v1.label':'V1 Math',
-    'v2.label':'V2 AI',
+    // Mode labels
+    'math.label':'Math',
+    'ai.label':'AI Agent',
+    // View toggle
+    'view.chart':'Chart View',
+    'view.game':'Game View',
     // Game log tags
     'log.truth':'TRUTH',
     'log.lie':'LIE',
@@ -307,9 +310,12 @@ const I18N = {
     'note.stratgl':'<b>注.</b> <strong>好类型说谎博弈</strong> (GL).<br>好类型 (θ&thinsp;=&thinsp;1) 以概率 <strong>w&thinsp;=&thinsp;P(m=0|θ=1)</strong> 发送 m&thinsp;=&thinsp;0.<br>唯一均衡: <strong>w*&thinsp;=&thinsp;0</strong> (虚线) — 好类型说谎以揭示其类型.<br>这是<em>非欺骗性的</em>: 它不扭曲接收者的类型信念 (命题&thinsp;2, Choi+ 2025).<br>高于 w*&thinsp;=&thinsp;0 的偏差由 <strong>c<sub>l</sub></strong> 驱动 (命题&thinsp;4).',
     'note.types':'<b>注.</b> 按 Choi+ 2025 图&thinsp;5 分类法的行为分类.<br><strong>上部</strong> — 配置的风险态度组成 (α&thinsp;<&thinsp;0 风险偏好, α&thinsp;≈&thinsp;0 风险中性, α&thinsp;>&thinsp;0 风险厌恶).<br><strong>下部</strong> — 观察到的行为分类:<br><span class="note-label" style="--c:#2563eb">均衡</span> — 遵循 BT 和 GL 均衡.<br><span class="note-label" style="--c:#16a34a">说谎厌恶</span> — 遵循 BT, 因 c<sub>l</sub> 偏离 GL.<br><span class="note-label" style="--c:#dc2626">欺骗厌恶</span> — 遵循 GL, 因 c<sub>d</sub> 偏离 BT.<br><span class="note-label" style="--c:#d97706">推断误差</span> — 在两种环境中均偏离.',
     'note.regions':'<b>注.</b> (c<sub>d</sub>,&thinsp;c<sub>l</sub>) 空间中的均衡区域图, 依据命题&thinsp;3–4 (Choi+ 2025).<br><strong>区域:</strong><br><span class="note-label" style="--c:rgb(37,99,235)">完全平判</span> — 实线边界以上.<br><span class="note-label" style="--c:rgb(217,119,6)">部分</span> — 两条边界之间.<br><span class="note-label" style="--c:rgb(220,38,38)">无平判</span> — 虚线边界以下.<br><strong>边界:</strong><br>实线: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.8&thinsp;c<sub>d</sub>&thinsp;+&thinsp;0.2</strong> (完全 / 部分).<br>虚线: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.3&thinsp;c<sub>d</sub></strong> (部分 / 无).<br><strong>智能体分类:</strong><br><span class="note-label" style="--c:#2563eb">均衡</span> <span class="note-label" style="--c:#16a34a">说谎厌恶</span> <span class="note-label" style="--c:#dc2626">欺骗厌恶</span> <span class="note-label" style="--c:#d97706">推断误差</span><br>位置揭示了哪个成本维度驱动了对均衡的偏离.',
-    // V1/V2 labels
-    'v1.label':'V1 数学',
-    'v2.label':'V2 AI',
+    // Mode labels
+    'math.label':'数学',
+    'ai.label':'AI 代理',
+    // View toggle
+    'view.chart':'图表视图',
+    'view.game':'游戏视图',
     // Game log tags
     'log.truth':'真话',
     'log.lie':'谎言',
@@ -538,9 +544,12 @@ const I18N = {
     'note.stratgl':'<b>주.</b> <strong>좋은 유형의 거짓말 게임</strong> (GL).<br>좋은 유형 (θ&thinsp;=&thinsp;1)은 확률 <strong>w&thinsp;=&thinsp;P(m=0|θ=1)</strong>으로 m&thinsp;=&thinsp;0을 전송.<br>유일한 균형: <strong>w*&thinsp;=&thinsp;0</strong> (점선) — 좋은 유형은 유형을 드러내기 위해 거짓말.<br>이는 <em>비기만적</em>: 수신자의 유형 믿음을 왜곡하지 않음 (명제&thinsp;2, Choi+ 2025).<br>w*&thinsp;=&thinsp;0 초과의 이탈은 <strong>c<sub>l</sub></strong>에 의해 주도 (명제&thinsp;4).',
     'note.types':'<b>주.</b> Choi+ 2025 그림&thinsp;5 분류법에 따른 행동 분류.<br><strong>상단</strong> — 설정된 위험 태도 구성 (α&thinsp;<&thinsp;0 위험 선호, α&thinsp;≈&thinsp;0 위험 중립, α&thinsp;>&thinsp;0 위험 회피).<br><strong>하단</strong> — 관찰된 행동 분류:<br><span class="note-label" style="--c:#2563eb">균형</span> — BT와 GL 균형을 모두 따름.<br><span class="note-label" style="--c:#16a34a">거짓말 혐오</span> — BT를 따르나 c<sub>l</sub>로 인해 GL에서 이탈.<br><span class="note-label" style="--c:#dc2626">기만 혐오</span> — GL을 따르나 c<sub>d</sub>로 인해 BT에서 이탈.<br><span class="note-label" style="--c:#d97706">추론 오류</span> — 양쪽 환경에서 모두 이탈.',
     'note.regions':'<b>주.</b> 명제&thinsp;3–4 (Choi+ 2025)에 따른 (c<sub>d</sub>,&thinsp;c<sub>l</sub>) 공간의 균형 영역 지도.<br><strong>영역:</strong><br><span class="note-label" style="--c:rgb(37,99,235)">완전 평판</span> — 실선 경계 위.<br><span class="note-label" style="--c:rgb(217,119,6)">부분</span> — 두 경계 사이.<br><span class="note-label" style="--c:rgb(220,38,38)">무 평판</span> — 점선 경계 아래.<br><strong>경계:</strong><br>실선: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.8&thinsp;c<sub>d</sub>&thinsp;+&thinsp;0.2</strong> (완전 / 부분).<br>점선: <strong>c<sub>l</sub>&thinsp;=&thinsp;0.3&thinsp;c<sub>d</sub></strong> (부분 / 무).<br><strong>에이전트 분류:</strong><br><span class="note-label" style="--c:#2563eb">균형</span> <span class="note-label" style="--c:#16a34a">거짓말 혐오</span> <span class="note-label" style="--c:#dc2626">기만 혐오</span> <span class="note-label" style="--c:#d97706">추론 오류</span><br>위치는 어떤 비용 차원이 균형 이탈을 주도하는지를 보여줌.',
-    // V1/V2 labels
-    'v1.label':'V1 수학',
-    'v2.label':'V2 AI',
+    // Mode labels
+    'math.label':'수학',
+    'ai.label':'AI 에이전트',
+    // View toggle
+    'view.chart':'차트 뷰',
+    'view.game':'게임 뷰',
     // Game log tags
     'log.truth':'진실',
     'log.lie':'거짓말',
