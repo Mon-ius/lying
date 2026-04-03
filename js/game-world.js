@@ -42,6 +42,9 @@ function _assignNames(agents) {
   agents.forEach((a, i) => { a._name = i < pool.length ? pool[i] : `Agent-${i}`; });
 }
 
+/** Numbered display name: "1.Alice", "2.Bob" (1-indexed) */
+function _dname(agent) { return `${agent.id + 1}.${agent._name || 'Agent' + agent.id}`; }
+
 /* ---- Virtual Map ---- */
 let MAP_W = 1000, MAP_H = 720;
 
@@ -75,6 +78,7 @@ class Sprite {
     this.agent = agent;
     this.id = agent.id;
     this.name = agent._name || `Agent${agent.id}`;
+    this.displayName = _dname(agent);
     this.x = x; this.y = y;
     this.tx = x; this.ty = y;
     this.alpha = 0;
@@ -160,7 +164,7 @@ class Sprite {
     ctx.font = `600 ${nameFs}px ${_SF}`;
     ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText(`#${this.id} ${this.name}`, cx, baseY + 5 * s * sc);
+    ctx.fillText(this.displayName, cx, baseY + 5 * s * sc);
 
     if (this.classification) {
       ctx.font = `600 ${subFs}px ${_SFT}`;
@@ -262,11 +266,14 @@ class GameWorld {
     this._autosizeBuildings(n);
 
     const v = this._buildingMap.village;
-    const gap = 30 * this.spriteScale;
-    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.8)));
+    const sc = this.spriteScale;
+    const gapX = 38 * sc, gapY = 55 * sc;
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.5)));
     agents.forEach((a, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      const sp = new Sprite(a, v.x - (cols - 1) * gap / 2 + col * gap, v.y - 5 + row * (26 * this.spriteScale));
+      const rows = Math.ceil(n / cols);
+      const gridW = (cols - 1) * gapX, gridH = (rows - 1) * gapY;
+      const sp = new Sprite(a, v.x - gridW / 2 + col * gapX, v.y + 15 * sc - gridH / 2 + row * gapY);
       sp.alpha = 0;
       this.sprites.push(sp);
     });
@@ -277,11 +284,14 @@ class GameWorld {
     this._buildingMap = {};
 
     const sc = this.spriteScale;
-    const gapX = 30 * sc, gapY = 26 * sc;
-    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.8)));
+    // Sprite footprint: character ~35*sc tall, name+sub label ~20*sc below
+    const spriteFootW = 38 * sc;   // width per agent slot
+    const spriteFootH = 55 * sc;   // height per agent slot (character + labels)
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.5)));
     const rows = Math.ceil(n / cols);
-    const neededW = cols * gapX + 60;
-    const neededH = rows * gapY + 40;
+    // Building needs: grid + padding for icon/label at top + borders
+    const neededW = cols * spriteFootW + 80;
+    const neededH = rows * spriteFootH + 70;  // 70 for building label/icon/desc at top
 
     for (const b of BUILDINGS) {
       b.w = Math.max(b.w, neededW);
@@ -289,7 +299,7 @@ class GameWorld {
     }
 
     // Reflow vertical layout: stack buildings with proper spacing
-    const margin = 20;
+    const margin = 25;
     const village = BUILDINGS.find(b => b.id === 'village');
     const oracle  = BUILDINGS.find(b => b.id === 'oracle');
     const bt      = BUILDINGS.find(b => b.id === 'bt');
@@ -300,13 +310,13 @@ class GameWorld {
     oracle.y  = village.y + village.h / 2 + margin + oracle.h / 2;
     const arenaY = oracle.y + oracle.h / 2 + margin + Math.max(bt.h, gl.h) / 2;
     bt.y = arenaY; gl.y = arenaY;
-    // Protocol panel needs ~130px below arena, then hall
-    hall.y = arenaY + Math.max(bt.h, gl.h) / 2 + 155 + hall.h / 2;
+    // Protocol panel needs ~140px below arena, then hall
+    hall.y = arenaY + Math.max(bt.h, gl.h) / 2 + 150 + hall.h / 2;
 
     // Expand map to fit
-    const totalH = hall.y + hall.h / 2 + 30;
+    const totalH = hall.y + hall.h / 2 + 40;
     MAP_H = Math.max(720, totalH);
-    MAP_W = Math.max(1000, Math.max(neededW + 60, bt.w + gl.w + 200));
+    MAP_W = Math.max(1000, Math.max(neededW + 80, bt.w + gl.w + 200));
 
     // Keep arenas apart
     bt.x = Math.min(bt.x, MAP_W / 2 - bt.w / 2 - 30);
@@ -648,13 +658,14 @@ class GameWorld {
   _arrangeIn(buildingId, list) {
     const b = this._buildingMap[buildingId];
     const sc = this.spriteScale;
-    const gapX = 30 * sc, gapY = 26 * sc;
-    const cols = Math.max(1, Math.ceil(Math.sqrt(list.length * 1.8)));
+    const gapX = 38 * sc, gapY = 55 * sc;
+    const cols = Math.max(1, Math.ceil(Math.sqrt(list.length * 1.5)));
     const rows = Math.ceil(list.length / cols);
     const gridW = (cols - 1) * gapX;
     const gridH = (rows - 1) * gapY;
+    // Offset down by 15 to avoid overlapping building icon/label at top
     const startX = b.x - gridW / 2;
-    const startY = b.y - gridH / 2;
+    const startY = b.y + 15 * sc - gridH / 2;
     list.forEach((sp, i) => {
       const row = Math.floor(i / cols), col = i % cols;
       sp.moveTo(startX + col * gapX, startY + row * gapY);
@@ -668,7 +679,7 @@ class GameWorld {
     this._log(`<div class="v3-le-phase"><span class="v3-le-icon">${icon}</span><strong>${title}</strong>${desc ? `<span class="v3-le-desc"> \u2014 ${desc}</span>` : ''}</div>`);
   }
   _logAgent(sp, text) {
-    this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>#${sp.id} ${sp.name}</strong> <span class="v3-le-text">${text}</span></div>`);
+    this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>${sp.displayName}</strong> <span class="v3-le-text">${text}</span></div>`);
   }
   _logDecision(sp, result) {
     const lieTag = result.isLie ? `<span class="v3-tag v3-tag-lie">${t('log.lie').toUpperCase()}</span>` : `<span class="v3-tag v3-tag-truth">${t('log.truth').toUpperCase()}</span>`;
@@ -677,7 +688,7 @@ class GameWorld {
     this._log(
       `<div class="v3-le-decision"><div class="v3-le-pair">` +
       `<span class="v3-le-dot" style="background:${sp.color}"></span>` +
-      `<strong>#${sp.id} ${sp.name}</strong> \u2192 ${t('gw.receiver')} ${lieTag}${decTag}${mcTag}</div>` +
+      `<strong>${sp.displayName}</strong> \u2192 ${t('gw.receiver')} ${lieTag}${decTag}${mcTag}</div>` +
       `<div class="v3-le-detail">` +
       `\u2460 \u03B8=${result.s1}` +
       ` \u2461 m=${result.sent}` +
@@ -713,7 +724,7 @@ class GameWorld {
 
     // Card state — values array accumulates results per step, step increments
     const card = {
-      arenaId, name: `#${sp.id} ${sp.name}`, color: sp.color,
+      arenaId, name: sp.displayName, color: sp.color,
       step: 0, tag: '', isLie: false,
       values: ['', '', '', '', ''],
       detail: '',
