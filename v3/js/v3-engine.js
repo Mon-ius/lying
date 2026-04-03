@@ -313,20 +313,82 @@ class GameWorld {
     this.onPhase = null;
     this.onLog = null;
     this._scale = 1;
+    this._offsetX = 0;
+    this._offsetY = 0;
     this._interactions = 0;
+    // Pan state
+    this._dragging = false;
+    this._dragStartX = 0;
+    this._dragStartY = 0;
+    this._dragOffX = 0;
+    this._dragOffY = 0;
+    this._setupInput();
     this.resize();
   }
 
+  _setupInput() {
+    const c = this.canvas;
+    c.style.cursor = 'grab';
+
+    c.addEventListener('mousedown', (e) => {
+      this._dragging = true;
+      this._dragStartX = e.clientX;
+      this._dragStartY = e.clientY;
+      this._dragOffX = this._offsetX;
+      this._dragOffY = this._offsetY;
+      c.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!this._dragging) return;
+      const dpr = devicePixelRatio;
+      this._offsetX = this._dragOffX + (e.clientX - this._dragStartX) * dpr;
+      this._offsetY = this._dragOffY + (e.clientY - this._dragStartY) * dpr;
+      if (!this._running) this.draw();
+    });
+    window.addEventListener('mouseup', () => {
+      if (this._dragging) { this._dragging = false; c.style.cursor = 'grab'; }
+    });
+
+    // Touch support
+    c.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      this._dragging = true;
+      this._dragStartX = t.clientX;
+      this._dragStartY = t.clientY;
+      this._dragOffX = this._offsetX;
+      this._dragOffY = this._offsetY;
+    }, { passive: true });
+    c.addEventListener('touchmove', (e) => {
+      if (!this._dragging || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dpr = devicePixelRatio;
+      this._offsetX = this._dragOffX + (t.clientX - this._dragStartX) * dpr;
+      this._offsetY = this._dragOffY + (t.clientY - this._dragStartY) * dpr;
+      if (!this._running) this.draw();
+    }, { passive: true });
+    c.addEventListener('touchend', () => { this._dragging = false; }, { passive: true });
+
+    // Double-click to reset view
+    c.addEventListener('dblclick', () => {
+      this._offsetX = 0;
+      this._offsetY = 0;
+      if (!this._running) this.draw();
+    });
+  }
+
   resize() {
-    const parent = this.canvas.parentElement;
-    if (!parent) return;
-    const w = parent.clientWidth;
-    const h = Math.max(500, Math.min(750, w * 0.65));
-    this.canvas.width = w * devicePixelRatio;
-    this.canvas.height = h * devicePixelRatio;
-    this.canvas.style.width = w + 'px';
-    this.canvas.style.height = h + 'px';
-    this._scale = this.canvas.width / MAP_W;
+    const c = this.canvas;
+    // Use the canvas element's own layout width (flex-computed), not the parent's
+    const cssW = c.clientWidth || c.parentElement?.clientWidth || 600;
+    const aspect = MAP_H / MAP_W;
+    const cssH = Math.max(420, Math.round(cssW * aspect));
+    c.width = cssW * devicePixelRatio;
+    c.height = cssH * devicePixelRatio;
+    c.style.width = cssW + 'px';
+    c.style.height = cssH + 'px';
+    // Uniform scale — fit the map into the canvas preserving aspect ratio
+    this._scale = Math.min(c.width / MAP_W, c.height / MAP_H);
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
@@ -360,22 +422,31 @@ class GameWorld {
     const dark = typeof _isDark === 'function' && _isDark();
     const W = this.canvas.width, H = this.canvas.height;
     const time = this._time;
-    ctx.clearRect(0, 0, W, H);
 
-    // Background
+    // Clear & draw background (full canvas, before transform)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
     const grad = ctx.createLinearGradient(0, 0, 0, H);
     if (dark) { grad.addColorStop(0, '#0f1a0f'); grad.addColorStop(0.5, '#0d170d'); grad.addColorStop(1, '#0a120a'); }
     else { grad.addColorStop(0, '#c8e6c0'); grad.addColorStop(0.5, '#b8dbb0'); grad.addColorStop(1, '#a3d197'); }
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
+    // Apply pan offset + center the map in the canvas
+    const cx = (W - MAP_W * s) / 2 + this._offsetX;
+    const cy = (H - MAP_H * s) / 2 + this._offsetY;
+    ctx.setTransform(1, 0, 0, 1, cx, cy);
+
     this._drawPaths(ctx, s, dark);
     this._drawBuildings(ctx, s, dark);
-    for (const c of this.connectors) c.draw(ctx, s);
+    for (const cn of this.connectors) cn.draw(ctx, s);
     for (const p of this.particles) p.draw(ctx, s);
     // Depth-sort sprites by y
     const sorted = [...this.sprites].sort((a, b) => a.y - b.y);
     for (const sp of sorted) sp.draw(ctx, s, dark, time);
     for (const b of this.bubbles) b.draw(ctx, s, dark);
+
+    // Banner draws in screen space (reset transform)
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     this._drawBanner(ctx, s, dark, W, H);
   }
 
@@ -782,5 +853,6 @@ class GameWorld {
     this.state = 'idle'; this.stopLoop();
     this.sprites = []; this.bubbles = []; this.particles = []; this.connectors = [];
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
+    this._offsetX = 0; this._offsetY = 0;
   }
 }

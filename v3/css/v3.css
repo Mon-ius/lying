@@ -96,6 +96,7 @@
   display: block;
   min-width: 0;
   min-height: 420px;
+  touch-action: none;
 }
 
 /* ================================================================
