@@ -52,6 +52,14 @@ function v3Pause() {
   else if (w.state === 'paused') { w.resume(); _updateV3Buttons(); }
 }
 
+function v3ToggleLog() {
+  const log = document.getElementById('v3-log');
+  if (!log) return;
+  log.classList.toggle('collapsed');
+  // Resize canvas to fill the freed space
+  setTimeout(() => { const w = _getWorld(); if (w) { w.resize(); w.draw(); } }, 300);
+}
+
 function v3SetSpeed(val) {
   const w = _getWorld();
   if (w) w.speed = parseFloat(val);
