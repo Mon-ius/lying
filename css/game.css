@@ -94,6 +94,35 @@
 /* ================================================================
    Game Log Entries — rendered inside shared #log
    ================================================================ */
+
+/* Foldable phase/period group */
+.v3-log-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.v3-log-group > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.v3-log-group > summary::-webkit-details-marker { display: none; }
+.v3-log-group > summary::before {
+  content: '\25B6';
+  font-size: .55rem;
+  color: var(--fg-3);
+  margin-right: 6px;
+  display: inline-block;
+  transition: transform .15s ease;
+}
+.v3-log-group[open] > summary::before { transform: rotate(90deg); }
+.v3-log-group[open] > summary { border-bottom: 1px solid var(--border); }
+/* Nested groups */
+.v3-log-group .v3-log-group {
+  margin: 4px 8px;
+  border-color: var(--border);
+}
+
 .v3-log-entry {
   padding: 5px 8px;
   border-bottom: 1px solid var(--border);

@@ -52,8 +52,9 @@ function switchView(view) {
     const v3c = document.getElementById('v3-container');
     if (v3c) v3c.style.display = 'none';
     document.querySelectorAll('.chart-game-toggle').forEach(el => el.style.display = '');
-    // Stop game animation
+    // Stop game animation and restore chart log
     if (typeof _v3world !== 'undefined' && _v3world) _v3world.reset();
+    if (window._logSample) renderLog();
   } else {
     // Show game, hide chart elements
     const v3c = document.getElementById('v3-container');
@@ -104,133 +105,126 @@ function renderLog() {
   const log = document.getElementById('log');
   const sample = window._logSample;
   if (!log || !sample || !sample.length) return;
-  const rtMap = { risk_loving: t('rt.rl'), risk_neutral: t('rt.rn'), risk_averse: t('rt.ra') };
 
   const N = Math.max(...sample.map(r => (r.periods || []).length), 1);
+  const agents = LA || [];
+  const n = agents.length;
+  const env = document.getElementById('s-env')?.value || 'both';
 
-  function agentAnalysis(r) {
-    let sobelNote = '';
-    if (!r.isLie && r.isDec) sobelNote = t('log.prop1');
-    else if (r.isLie && !r.isDec) sobelNote = t('log.prop2');
-    const truthWins = r.augT >= r.augL;
-    const diff = Math.abs(r.augT - r.augL).toFixed(3);
-    const winner = truthWins ? t('log.truth') : t('log.lie');
-    return `<div class="log-section"><strong>${t('log.decision')}</strong>
-      <div class="log-grid">
-        <span>EU\u1d43(${t('log.truth')}) = ${r.augT.toFixed(3)}</span>
-        <span>EU\u1d43(${t('log.lie')}) = ${r.augL.toFixed(3)}</span>
-        <span>\u2192 ${winner} ${t('log.better')} ${diff}</span>
-        <span>${t('log.strategy')} = ${r.strat.toFixed(2)}</span>
-      </div>
-    </div>
-    <div class="log-section"><strong>${t('log.sobel')}</strong>
-      <div class="log-grid">
-        <span>${r.isLie ? t('log.islie') : t('log.nolie')}</span>
-        <span>D = ${r.dec.toFixed(3)} \u2192 ${r.isDec ? t('log.isdec') : t('log.nodec')}</span>
-        ${sobelNote ? `<span class="tag tag-sobel">${sobelNote}</span>` : ''}
-      </div>
-    </div>
-    <div class="log-section"><strong>${t('log.profile')}</strong>
-      <div class="log-grid">
-        <span>c<sub>l</sub> = ${r.cl.toFixed(3)}</span>
-        <span>c<sub>d</sub> = ${r.cd.toFixed(3)}</span>
-        <span>\u03b1 = ${r.alpha.toFixed(3)} (${rtMap[r.riskType] || r.riskType})</span>
-      </div>
-    </div>`;
+  // --- Helpers ---
+  function lieTag(isLie) {
+    return isLie
+      ? `<span class="v3-tag v3-tag-lie">${t('log.lie').toUpperCase()}</span>`
+      : `<span class="v3-tag v3-tag-truth">${t('log.truth').toUpperCase()}</span>`;
   }
-
-  if (N < 2) {
-    log.innerHTML = sample.map((r, i) => {
-      const lieTag = r.isLie
-        ? `<span class="tag tag-lie">${t('log.lie')}</span>`
-        : `<span class="tag tag-truth">${t('log.truth')}</span>`;
-      const decTag = r.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
-      const mcTag = r.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
-      return `<details class="log-entry"${i === 0 ? ' open' : ''}>
-  <summary>
-    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${agentName(r.id)}
-    \u2003\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
-    \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
-    \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
-  </summary>
-  <div class="log-detail">
-    <div class="log-section"><strong>${t('log.p1')}</strong>
-      <div class="log-grid">
-        <span>\u03b8\u2081 = ${r.s1}</span>
-        <span>m = ${r.sent} (${r.isLie ? t('log.lie') : t('log.truth')})</span>
-        <span>${t('log.rcv')} = ${r.rcv}${r.mc ? ' \u26a0' : ''}</span>
-        <span>a\u2081 = ${r.a1.toFixed(3)}</span>
-      </div>
-    </div>
-    ${agentAnalysis(r)}
-  </div>
-</details>`;
-    }).join('');
-    return;
+  function decTag(isDec) {
+    return isDec ? ` <span class="v3-tag v3-tag-dec">${t('log.deceptive').toUpperCase()}</span>` : '';
+  }
+  function mcTag(mc) {
+    return mc ? ` <span class="v3-tag" style="background:rgba(255,149,0,0.1);color:#FF9500;border:1px solid rgba(255,149,0,0.2)">${t('log.miscomm').toUpperCase()}</span>` : '';
+  }
+  function decisionEntry(r, p, pi) {
+    const theta = p ? p.st : r.s1;
+    const sent = p ? p.sent : r.sent;
+    const rcv = p ? p.rcv : r.rcv;
+    const action = p ? p.at : r.a1;
+    const lambda = p ? p.lambda : (r.lambda || 0);
+    const pay = p ? p.payoff : r.sp;
+    const isLie = p ? p.isLie : r.isLie;
+    const isDec = p ? p.isDec : r.isDec;
+    const isMc = p ? p.mc : r.mc;
+    const dec = p ? p.dec : r.dec;
+    return `<div class="v3-le-decision"><div class="v3-le-pair">` +
+      `<strong>${agentName(r.id)}</strong> \u2192 ${t('gw.receiver')} ${lieTag(isLie)}${decTag(isDec)}${mcTag(isMc)}</div>` +
+      `<div class="v3-le-detail">` +
+      `\u2460 \u03B8=${theta}` +
+      ` \u2461 m=${sent}` +
+      ` \u2462 rcv=${rcv}${isMc ? '\u26A0' : ''}` +
+      ` \u2463 a=${action.toFixed(2)} \u03BB=${lambda.toFixed(2)}` +
+      ` \u2464 ${t('gw.payoff').toLowerCase()}=${pay.toFixed(2)}` +
+      (dec > 0 ? ` D=${dec.toFixed(2)}` : '') +
+      `</div></div>`;
   }
 
   let html = '';
 
-  for (let pi = 0; pi < N; pi++) {
-    const isLast = pi === N - 1;
-    const sfx = t('log.periodSuffix');
-    const label = isLast && N > 1
-      ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
-      : `${t('log.period')} ${pi + 1}${sfx}`;
+  // --- Phase 1: Population ---
+  html += `<details class="v3-log-group" open>`;
+  html += `<summary class="v3-le-phase"><span class="v3-le-icon">\uD83C\uDFD8\uFE0F</span><strong>${t('gw.ph1')}</strong><span class="v3-le-desc"> \u2014 ${n} ${t('gw.agents')}</span></summary>`;
+  const showPop = Math.min(n, 8);
+  for (let i = 0; i < showPop; i++) {
+    const a = agents[i];
+    const rt = { risk_loving: t('gw.rt.rl'), risk_neutral: t('gw.rt.rn'), risk_averse: t('gw.rt.ra') }[a.riskType] || a.riskType;
+    html += `<div class="v3-log-entry"><div class="v3-le-agent"><strong>${agentName(a.id)}</strong> <span class="v3-le-text"><em>${rt}</em> \u00b7 c\u2097=${a.cl.toFixed(2)} c\u2091=${a.cd.toFixed(2)} \u03B1=${a.alpha.toFixed(2)}</span></div></div>`;
+  }
+  if (n > showPop) html += `<div class="v3-log-entry"><div class="v3-le-summary">+${n - showPop} ${t('gw.morestrat')}</div></div>`;
+  html += `</details>`;
 
-    const pds = sample.map(r => (r.periods || [])[pi]).filter(Boolean);
-    const nBT = sample.filter(r => r.gt === 'BT' && (r.periods || [])[pi]).length;
-    const nGL = sample.filter(r => r.gt === 'GL' && (r.periods || [])[pi]).length;
-    const countLabel = nBT && nGL ? `${nBT} BT + ${nGL} GL` : `${pds.length} ${t('log.agents')}`;
-    const nLie = pds.filter(p => p.isLie).length;
-    const nDec = pds.filter(p => p.isDec).length;
-    const stats = `${countLabel} \u00b7 ${pds.length - nLie} ${t('log.truth').toLowerCase()} \u00b7 ${nLie} ${t('log.lie').toLowerCase()}${nDec ? ' \u00b7 ' + nDec + ' ' + t('log.deceptive').toLowerCase() : ''}`;
+  // --- Arena phases ---
+  const envs = env === 'BT' ? ['BT'] : env === 'GL' ? ['GL'] : ['BT', 'GL'];
+  for (const gt of envs) {
+    const isBT = gt === 'BT';
+    const icon = isBT ? '\uD83D\uDEE1\uFE0F' : '\u2694\uFE0F';
+    const arenaName = isBT ? t('gw.btarena') : t('gw.glarena');
+    const arenaDesc = isBT ? t('gw.btarena.d') : t('gw.glarena.d');
+    const gtSample = sample.filter(r => r.gt === gt);
+    if (!gtSample.length) continue;
 
-    const rows = sample.map(r => {
-      const p = (r.periods || [])[pi];
-      if (!p) return '';
-      const lieTag = p.isLie
-        ? `<span class="tag tag-lie">${t('log.lie')}</span>`
-        : `<span class="tag tag-truth">${t('log.truth')}</span>`;
-      const decTag = p.isDec ? `<span class="tag tag-dec">${t('log.deceptive')}</span>` : '';
-      const mcTag = p.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
-      return `<div class="log-period-row">
-  <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700;font-size:.65rem">${r.gt}</span>
-  ${t('log.agent')}\u2009${agentName(r.id)}
-  \u2003\u03b8<sub>${pi+1}</sub>=${p.st} \u2192 m=${p.sent} \u2192 a<sub>${pi+1}</sub>=${p.at.toFixed(2)}
-  \u2003\u03bb<sub>${pi+1}</sub>=${p.lambda.toFixed(3)}
-  \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
-</div>`;
-    }).filter(Boolean).join('');
+    html += `<details class="v3-log-group" open>`;
+    html += `<summary class="v3-le-phase"><span class="v3-le-icon">${icon}</span><strong>${arenaName}</strong><span class="v3-le-desc"> \u2014 ${gtSample.length} ${t('gw.agents')} \u2014 ${arenaDesc}</span></summary>`;
 
-    html += `<details class="log-period"${pi === 0 ? ' open' : ''}>
-  <summary><strong>${label}</strong><span class="log-period-stats">${stats}</span></summary>
-  <div class="log-period-body">${rows}</div>
-</details>`;
+    if (N < 2) {
+      // Single period — flat list
+      for (const r of gtSample) {
+        html += `<div class="v3-log-entry">${decisionEntry(r, null, 0)}</div>`;
+      }
+    } else {
+      // Multi-period — one sub-group per period
+      for (let pi = 0; pi < N; pi++) {
+        const isLast = pi === N - 1;
+        const sfx = t('log.periodSuffix');
+        const label = isLast && N > 1
+          ? `${t('log.period')} ${pi + 1}${sfx} (${t('log.myopic')})`
+          : `${t('log.period')} ${pi + 1}${sfx}`;
+        const pds = gtSample.map(r => ({ r, p: (r.periods || [])[pi] })).filter(x => x.p);
+        const nLie = pds.filter(x => x.p.isLie).length;
+        const nDec = pds.filter(x => x.p.isDec).length;
+        const stats = `${pds.length} ${t('gw.agents')} \u00b7 ${pds.length - nLie} ${t('gw.truths')} \u00b7 ${nLie} ${t('gw.lies')}${nDec ? ' \u00b7 ' + nDec + ' ' + t('gw.deceptive') : ''}`;
+
+        html += `<details class="v3-log-group"${pi === 0 ? ' open' : ''}>`;
+        html += `<summary class="v3-le-phase"><strong>${label}</strong><span class="v3-le-desc"> \u2014 ${stats}</span></summary>`;
+        for (const { r, p } of pds) {
+          html += `<div class="v3-log-entry">${decisionEntry(r, p, pi)}</div>`;
+        }
+        html += `</details>`;
+      }
+    }
+
+    // Arena summary
+    const lies = gtSample.filter(r => r.isLie).length;
+    const decs = gtSample.filter(r => r.isDec).length;
+    html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDCCA ${arenaName}: <strong>${gtSample.length - lies}</strong> ${t('gw.truths')}, <strong>${lies}</strong> ${t('gw.lies')}, <strong>${decs}</strong> ${t('gw.deceptive')}</div></div>`;
+    html += `</details>`;
   }
 
-  const aBT = sample.filter(r => r.gt === 'BT').length;
-  const aGL = sample.filter(r => r.gt === 'GL').length;
-  html += `<details class="log-period">
-  <summary><strong>${t('log.analysis')}</strong><span class="log-period-stats">${aBT && aGL ? aBT + ' BT + ' + aGL + ' GL' : sample.length + ' ' + t('log.agents')}</span></summary>
-  <div class="log-period-body">`;
+  // --- Phase 5: Classification ---
+  html += `<details class="v3-log-group">`;
+  html += `<summary class="v3-le-phase"><span class="v3-le-icon">\uD83C\uDFDB\uFE0F</span><strong>${t('gw.ph5')}</strong><span class="v3-le-desc"> \u2014 ${t('gw.profiles')}</span></summary>`;
+  const C = { equilibrium: 0, lying_averse: 0, deception_averse: 0, inference_error: 0 };
+  for (const a of agents) {
+    if (a.classification) C[a.classification]++;
+    const cls = { equilibrium: t('gw.cls.eq'), lying_averse: t('gw.cls.la'), deception_averse: t('gw.cls.da'), inference_error: t('gw.cls.ie') }[a.classification] || a.classification;
+    html += `<div class="v3-log-entry"><div class="v3-le-agent"><strong>${agentName(a.id)}</strong> <span class="v3-le-text">\u2192 <strong>${cls}</strong> \u00b7 c\u2097=${a.cl.toFixed(2)} c\u2091=${a.cd.toFixed(2)}</span></div></div>`;
+  }
+  const pct = k => n > 0 ? (C[k] / n * 100).toFixed(0) + '%' : '0%';
+  html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDD35 ${t('gw.cls.eq')}: ${C.equilibrium} (${pct('equilibrium')})</div></div>`;
+  html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDFE2 ${t('gw.cls.la')}: ${C.lying_averse} (${pct('lying_averse')})</div></div>`;
+  html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDD34 ${t('gw.cls.da')}: ${C.deception_averse} (${pct('deception_averse')})</div></div>`;
+  html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDFE0 ${t('gw.cls.ie')}: ${C.inference_error} (${pct('inference_error')})</div></div>`;
+  const allP = [...(LR?.bt || []), ...(LR?.gl || [])].map(r => r.sp + r.rp);
+  if (allP.length) html += `<div class="v3-log-entry"><div class="v3-le-summary">\uD83D\uDCB0 ${t('gw.avgwelf')}: ${(allP.reduce((a,b)=>a+b,0)/allP.length).toFixed(3)}</div></div>`;
+  html += `</details>`;
 
-  html += sample.map((r, i) => {
-    const lieTag = r.isLie
-      ? `<span class="tag tag-lie">${t('log.lie')}</span>`
-      : `<span class="tag tag-truth">${t('log.truth')}</span>`;
-    return `<details class="log-entry"${i === 0 ? ' open' : ''}>
-  <summary>
-    <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${agentName(r.id)}
-    \u2003${t('log.payoff')}=${r.sp.toFixed(2)} \u2003${lieTag}
-  </summary>
-  <div class="log-detail">${agentAnalysis(r)}</div>
-</details>`;
-  }).join('');
-
-  html += '</div></details>';
   log.innerHTML = html;
 }
 

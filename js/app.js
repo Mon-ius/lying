@@ -180,7 +180,7 @@ function exportJSON() {
 
   const data = {
     agents: LA.map(a => ({
-      id: a.id, name: `${a.id + 1}.${a._name || 'Agent' + a.id}`,
+      id: a.id, name: a._name || 'Agent' + a.id,
       cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
       riskType: a.riskType, classification: a.classification,
       btStrategy: LR.btS[a.id], glStrategy: LR.glS[a.id],
@@ -219,7 +219,7 @@ function exportCSV() {
   const rows = LA.map(a => {
     const btLam = btFirst[a.id]?.lambda;
     const glLam = glFirst[a.id]?.lambda;
-    return [a.id, `${a.id + 1}.${a._name || 'Agent' + a.id}`, a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
+    return [a.id, a._name || '', a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
      a.riskType, a.classification,
      (LR.btS[a.id] ?? '').toString(), (LR.glS[a.id] ?? '').toString(),
      nP,

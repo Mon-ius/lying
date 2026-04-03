@@ -205,6 +205,7 @@ class GameWorld {
     this.spriteScale = 1;
     this._decisionCard = null;
     this._showLegend = false;
+    this._logGroup = null;
     this._dragging = false; this._dragSX = 0; this._dragSY = 0; this._dragOX = 0; this._dragOY = 0;
     this._setupInput();
     this.resize();
@@ -652,7 +653,14 @@ class GameWorld {
   }
 
   _setPhase(label, sub) { this.phaseLabel = label; this.phaseSub = sub || ''; if (this.onPhase) this.onPhase(label); }
-  _log(html) { if (this.onLog) this.onLog(html); }
+  _log(html) {
+    if (!this.onLog) return;
+    const div = document.createElement('div');
+    div.className = 'v3-log-entry';
+    div.innerHTML = html;
+    const target = this._logGroup || document.getElementById('log');
+    if (target) { target.appendChild(div); target.scrollTop = target.scrollHeight; }
+  }
   _spriteOf(id) { return this.sprites.find(sp => sp.agent.id === id); }
 
   _arrangeIn(buildingId, list) {
@@ -676,7 +684,18 @@ class GameWorld {
      LOG HELPERS
      ================================================================ */
   _logPhase(icon, title, desc) {
-    this._log(`<div class="v3-le-phase"><span class="v3-le-icon">${icon}</span><strong>${title}</strong>${desc ? `<span class="v3-le-desc"> \u2014 ${desc}</span>` : ''}</div>`);
+    const log = document.getElementById('log');
+    if (!log) return;
+    const details = document.createElement('details');
+    details.className = 'v3-log-group';
+    details.open = true;
+    const summary = document.createElement('summary');
+    summary.className = 'v3-le-phase';
+    summary.innerHTML = `<span class="v3-le-icon">${icon}</span><strong>${title}</strong>${desc ? `<span class="v3-le-desc"> \u2014 ${desc}</span>` : ''}`;
+    details.appendChild(summary);
+    log.appendChild(details);
+    this._logGroup = details;
+    log.scrollTop = log.scrollHeight;
   }
   _logAgent(sp, text) {
     this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>${sp.displayName}</strong> <span class="v3-le-text">${text}</span></div>`);
@@ -926,6 +945,7 @@ class GameWorld {
     this.sprites = []; this.spriteScale = 1;
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
     this._offsetX = 0; this._offsetY = 0; this._decisionCard = null; this._showLegend = false;
+    this._logGroup = null;
     MAP_W = 1000; MAP_H = 720;
     BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
     this._buildingMap = {};
@@ -944,16 +964,7 @@ function _getWorld() {
   const canvas = document.getElementById('v3-canvas');
   if (!canvas) return null;
   _v3world = new GameWorld(canvas);
-  _v3world.onLog = (html) => {
-    const log = document.getElementById('log');
-    if (!log) return;
-    const div = document.createElement('div');
-    div.className = 'v3-log-entry';
-    div.innerHTML = html;
-    log.appendChild(div);
-    while (log.children.length > 300) log.removeChild(log.firstChild);
-    log.scrollTop = log.scrollHeight;
-  };
+  _v3world.onLog = true;  // signal that logging is enabled
   _v3world.onPhase = () => {};
   return _v3world;
 }
