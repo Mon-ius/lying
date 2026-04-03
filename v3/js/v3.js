@@ -26,13 +26,15 @@ function _getWorld() {
   if (!canvas) return null;
   _v3world = new GameWorld(canvas);
   // Wire callbacks
-  _v3world.onLog = (text) => {
+  _v3world.onLog = (html) => {
     const log = document.getElementById('v3-log');
     if (!log) return;
     const div = document.createElement('div');
     div.className = 'v3-log-entry';
-    div.textContent = text;
+    div.innerHTML = html;
     log.appendChild(div);
+    // Cap entries for performance
+    while (log.children.length > 300) log.removeChild(log.firstChild);
     log.scrollTop = log.scrollHeight;
   };
   _v3world.onPhase = (label) => {
