@@ -525,6 +525,8 @@ select:focus { border-color: var(--accent); }
   .navbar { padding: 0 10px; gap: 8px; }
   .nav-tab { padding: 14px 8px; font-size: .72rem; }
   .main-area { padding: 16px 14px 30px; }
+  .view-toggle { margin: 8px 0; }
+  .view-toggle-btn { padding: 5px 10px; font-size: .68rem; }
   .arch-wrap { padding: 16px 10px 30px; }
   .glossary-wrap { padding: 16px 10px 30px; }
   .arch-defs { grid-template-columns: 1fr; }
@@ -537,4 +539,7 @@ select:focus { border-color: var(--accent); }
   .arch-def-card p { font-size: .72rem; }
   .arch-def-card .formula { font-size: .7rem; padding: 4px 8px; }
   .btn-drawio { padding: 6px 12px; font-size: .74rem; }
+  .paradigm-switch { gap: 1px; }
+  .paradigm-btn { padding: 5px 10px; font-size: .7rem; }
+  .paradigm-icon { font-size: .72rem; }
 }

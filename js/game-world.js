@@ -46,11 +46,11 @@ function _assignNames(agents) {
 let MAP_W = 1000, MAP_H = 720;
 
 const BUILDINGS_BASE = [
-  { id:'village', x:500, y:75,  w:340, h:60,  label:'Population Hub',   icon:'\uD83C\uDFD8\uFE0F', tint:'#34C759', desc:'Agent village' },
-  { id:'oracle',  x:500, y:220, w:240, h:50,  label:'Strategy Oracle',  icon:'\uD83D\uDD2E',       tint:'#AF52DE', desc:'Strategy dispatch' },
-  { id:'bt',      x:220, y:370, w:240, h:80,  label:'BT Arena',         icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', desc:'Bad-type Truth-telling' },
-  { id:'gl',      x:780, y:370, w:240, h:80,  label:'GL Arena',         icon:'\u2694\uFE0F',        tint:'#FF9500', desc:'Good-type Lying' },
-  { id:'hall',    x:500, y:630, w:300, h:55,  label:'Hall of Records',  icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', desc:'Classification' },
+  { id:'village', x:500, y:75,  w:340, h:60,  labelKey:'gw.hub',      icon:'\uD83C\uDFD8\uFE0F', tint:'#34C759', descKey:'gw.hub.d' },
+  { id:'oracle',  x:500, y:220, w:240, h:50,  labelKey:'gw.oracle',   icon:'\uD83D\uDD2E',       tint:'#AF52DE', descKey:'gw.oracle.d' },
+  { id:'bt',      x:220, y:370, w:240, h:80,  labelKey:'gw.btarena',  icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', descKey:'gw.btarena.d' },
+  { id:'gl',      x:780, y:370, w:240, h:80,  labelKey:'gw.glarena',  icon:'\u2694\uFE0F',        tint:'#FF9500', descKey:'gw.glarena.d' },
+  { id:'hall',    x:500, y:630, w:300, h:55,  labelKey:'gw.hall',     icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', descKey:'gw.hall.d' },
 ];
 let BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
 const PATHS = [['village','oracle'],['oracle','bt'],['oracle','gl'],['bt','hall'],['gl','hall']];
@@ -59,8 +59,8 @@ const PATHS = [['village','oracle'],['oracle','bt'],['oracle','gl'],['bt','hall'
 const RISK_COLORS    = { risk_loving:'#FF3B30', risk_neutral:'#FF9500', risk_averse:'#007AFF' };
 const CLS_COLORS     = { equilibrium:'#007AFF', lying_averse:'#34C759', deception_averse:'#FF3B30', inference_error:'#FF9500' };
 const PROVIDER_COLORS= { claude:'#FF9500', gpt:'#34C759', gemini:'#007AFF', deepseek:'#AF52DE', qwen:'#5AC8FA', minimax:'#FF2D55', kimi:'#FF6B35', glm:'#5856D6' };
-const RISK_LABELS    = { risk_loving:'Risk Lover', risk_neutral:'Risk Neutral', risk_averse:'Risk Averse' };
-const CLS_LABELS     = { equilibrium:'Equilibrium', lying_averse:'Lying-Averse', deception_averse:'Deception-Averse', inference_error:'Inference Error' };
+function _riskLabel(rt) { return { risk_loving: t('gw.rt.rl'), risk_neutral: t('gw.rt.rn'), risk_averse: t('gw.rt.ra') }[rt] || rt; }
+function _clsLabel(cls) { return { equilibrium: t('gw.cls.eq'), lying_averse: t('gw.cls.la'), deception_averse: t('gw.cls.da'), inference_error: t('gw.cls.ie') }[cls] || cls; }
 const SKIN_TONES     = ['#fdbcb4','#f1c27d','#e0ac69','#c68642','#8d5524','#ffdbac','#deb887','#d2a679'];
 
 const _SF   = "-apple-system,'SF Pro Display','Inter','Segoe UI',sans-serif";
@@ -92,7 +92,7 @@ class Sprite {
     if (this.agent.aiProvider) return PROVIDER_COLORS[this.agent.aiProvider] || '#8e8e93';
     return RISK_COLORS[this.agent.riskType] || '#8e8e93';
   }
-  get riskLabel() { return RISK_LABELS[this.agent.riskType] || this.agent.riskType; }
+  get riskLabel() { return _riskLabel(this.agent.riskType); }
   moveTo(x, y) { this.tx = x; this.ty = y; }
 
   update(dt, speed) {
@@ -165,7 +165,7 @@ class Sprite {
     if (this.classification) {
       ctx.font = `600 ${subFs}px ${_SFT}`;
       ctx.fillStyle = this.color;
-      ctx.fillText(CLS_LABELS[this.classification] || this.classification, cx, baseY + (5 + 8 * sc) * s);
+      ctx.fillText(_clsLabel(this.classification), cx, baseY + (5 + 8 * sc) * s);
     } else {
       const sub = this.agent.aiProvider || this.riskLabel;
       ctx.font = `400 ${subFs}px ${_SFT}`;
@@ -400,12 +400,12 @@ class GameWorld {
       // Label
       ctx.font = `600 ${Math.round(8 * s)}px ${_SF}`;
       ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
-      ctx.fillText(b.label, b.x * s, (b.y + 10) * s);
+      ctx.fillText(t(b.labelKey), b.x * s, (b.y + 10) * s);
 
       // Description
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
-      ctx.fillText(b.desc, b.x * s, (b.y + 20) * s);
+      ctx.fillText(t(b.descKey), b.x * s, (b.y + 20) * s);
     }
   }
 
@@ -442,7 +442,7 @@ class GameWorld {
     ctx.fillText(d.name, px + 22 * s, py + 13 * s);
     ctx.font = `500 ${Math.round(6.5 * s)}px ${_MONO}`;
     ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'right';
-    ctx.fillText(`Step ${d.step}/5`, px + panelW - 12 * s, py + 13 * s);
+    ctx.fillText(`${t('gw.step')} ${d.step}/5`, px + panelW - 12 * s, py + 13 * s);
 
     // --- 5-NODE FLOW DIAGRAM ---
     // Layout: 5 nodes evenly spaced horizontally with arrows between them
@@ -579,10 +579,10 @@ class GameWorld {
 
   _drawLegend(ctx, s, dark, W, H) {
     const items = [
-      { label: 'Equilibrium',      color: CLS_COLORS.equilibrium },
-      { label: 'Lying-Averse',     color: CLS_COLORS.lying_averse },
-      { label: 'Deception-Averse', color: CLS_COLORS.deception_averse },
-      { label: 'Inference Error',  color: CLS_COLORS.inference_error },
+      { label: t('gw.cls.eq'), color: CLS_COLORS.equilibrium },
+      { label: t('gw.cls.la'), color: CLS_COLORS.lying_averse },
+      { label: t('gw.cls.da'), color: CLS_COLORS.deception_averse },
+      { label: t('gw.cls.ie'), color: CLS_COLORS.inference_error },
     ];
     const fs = Math.round(8 * s);
     const dotR = 4 * s;
@@ -671,19 +671,19 @@ class GameWorld {
     this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>#${sp.id} ${sp.name}</strong> <span class="v3-le-text">${text}</span></div>`);
   }
   _logDecision(sp, result) {
-    const lieTag = result.isLie ? '<span class="v3-tag v3-tag-lie">LIE</span>' : '<span class="v3-tag v3-tag-truth">TRUTH</span>';
-    const decTag = result.isDec ? ' <span class="v3-tag v3-tag-dec">DECEPTIVE</span>' : '';
-    const mcTag = result.mc ? ' <span class="v3-tag" style="background:rgba(255,149,0,0.1);color:#FF9500;border:1px solid rgba(255,149,0,0.2)">NOISE</span>' : '';
+    const lieTag = result.isLie ? `<span class="v3-tag v3-tag-lie">${t('log.lie').toUpperCase()}</span>` : `<span class="v3-tag v3-tag-truth">${t('log.truth').toUpperCase()}</span>`;
+    const decTag = result.isDec ? ` <span class="v3-tag v3-tag-dec">${t('log.deceptive').toUpperCase()}</span>` : '';
+    const mcTag = result.mc ? ` <span class="v3-tag" style="background:rgba(255,149,0,0.1);color:#FF9500;border:1px solid rgba(255,149,0,0.2)">${t('log.miscomm').toUpperCase()}</span>` : '';
     this._log(
       `<div class="v3-le-decision"><div class="v3-le-pair">` +
       `<span class="v3-le-dot" style="background:${sp.color}"></span>` +
-      `<strong>#${sp.id} ${sp.name}</strong> \u2192 Receiver ${lieTag}${decTag}${mcTag}</div>` +
+      `<strong>#${sp.id} ${sp.name}</strong> \u2192 ${t('gw.receiver')} ${lieTag}${decTag}${mcTag}</div>` +
       `<div class="v3-le-detail">` +
       `\u2460 \u03B8=${result.s1}` +
       ` \u2461 m=${result.sent}` +
       ` \u2462 rcv=${result.rcv}${result.mc ? '\u26A0' : ''}` +
       ` \u2463 a=${result.a1.toFixed(2)} \u03BB=${result.lambda.toFixed(2)}` +
-      ` \u2464 pay=${result.sp.toFixed(2)}` +
+      ` \u2464 ${t('gw.payoff').toLowerCase()}=${result.sp.toFixed(2)}` +
       `</div></div>`
     );
   }
@@ -724,41 +724,41 @@ class GameWorld {
     // Step 1: Nature draws theta
     card.step = 1;
     card.values[0] = `${result.s1}`;
-    card.detail = `Nature draws state \u03B8 = ${result.s1}`;
+    card.detail = `${t('gw.nature')} ${result.s1}`;
     await this._wait(500);
 
     // Step 2: Sender sends message
     card.step = 2;
     card.values[1] = `${result.sent}`;
-    card.tag = result.isLie ? 'LIE' : 'TRUTH';
+    card.tag = result.isLie ? t('gw.lie').toUpperCase() : t('gw.truth').toUpperCase();
     card.isLie = result.isLie;
-    card.detail = `Sender observes \u03B8=${result.s1}, sends m=${result.sent}` +
-      (result.isLie ? ' (m\u2260\u03B8 \u2014 lie)' : ' (m=\u03B8 \u2014 truth)');
+    card.detail = `${t('gw.sender.obs')} \u03B8=${result.s1}, ${t('gw.sender.sends')} m=${result.sent}` +
+      (result.isLie ? ` (m\u2260\u03B8 \u2014 ${t('gw.lie')})` : ` (m=\u03B8 \u2014 ${t('gw.truth')})`);
     await this._wait(500);
 
     // Step 3: Channel / miscommunication
     card.step = 3;
     card.values[2] = result.mc ? `${result.sent}\u2192${result.rcv}` : '\u2713';
     card.detail = result.mc
-      ? `Channel noise! Message flipped: sent ${result.sent} \u2192 received ${result.rcv}`
-      : `Message delivered intact: rcv = ${result.rcv}`;
+      ? `${t('gw.ch.noise')} ${t('gw.ch.sent')} ${result.sent} \u2192 ${t('gw.ch.rcv')} ${result.rcv}`
+      : `${t('gw.ch.ok')} rcv = ${result.rcv}`;
     await this._wait(450);
 
     // Step 4: Receiver belief update + action
     card.step = 4;
     card.values[3] = `${result.a1.toFixed(2)}`;
     const decLabel = result.isDec
-      ? `D=${result.dec.toFixed(2)} (deceptive)`
-      : 'D=0 (honest)';
-    card.detail = `Receiver: \u03BB=${result.lambda.toFixed(3)}, action a=${result.a1.toFixed(3)} \u2502 ${decLabel}`;
+      ? `D=${result.dec.toFixed(2)} (${t('gw.deceptive')})`
+      : `D=0 (${t('gw.honest')})`;
+    card.detail = `${t('gw.receiver')}: \u03BB=${result.lambda.toFixed(3)}, action a=${result.a1.toFixed(3)} \u2502 ${decLabel}`;
     await this._wait(500);
 
     // Step 5: Payoff
     card.step = 5;
     card.values[4] = `${result.sp.toFixed(2)}`;
-    card.detail = `Payoff = ${result.sp.toFixed(3)}` +
-      (result.isLie ? ` (incl. c\u2097=${result.cl.toFixed(2)})` : '') +
-      (result.isDec ? ` (incl. c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)})` : '');
+    card.detail = `${t('gw.payoff')} = ${result.sp.toFixed(3)}` +
+      (result.isLie ? ` (${t('gw.incl')} c\u2097=${result.cl.toFixed(2)})` : '') +
+      (result.isDec ? ` (${t('gw.incl')} c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)})` : '');
     await this._wait(500);
 
     // Fade out
@@ -786,30 +786,30 @@ class GameWorld {
     const env = document.getElementById('s-env')?.value || 'both';
 
     /* Phase 1: Populate */
-    this._setPhase('\u2460 Population', `${n} agents`);
-    this._logPhase('\uD83C\uDFD8\uFE0F', 'Phase 1 \u2014 Population', `${n} agents entering`);
+    this._setPhase(`\u2460 ${t('gw.population')}`, `${n} ${t('gw.agents')}`);
+    this._logPhase('\uD83C\uDFD8\uFE0F', t('gw.ph1'), `${n} ${t('gw.entering')}`);
     for (let i = 0; i < this.sprites.length; i++) {
       this.sprites[i].alpha = 1;
-      this._logAgent(this.sprites[i], `enters <em>(${this.sprites[i].riskLabel})</em>`);
+      this._logAgent(this.sprites[i], `${t('gw.enters')} <em>(${this.sprites[i].riskLabel})</em>`);
       this.phaseProgress = (i + 1) / n;
       if (i < 5 || i % Math.max(1, Math.floor(n / 6)) === 0) await this._wait(60);
     }
-    this._logSummary('\u2713', `All <strong>${n}</strong> agents arrived`);
+    this._logSummary('\u2713', `${t('gw.arrived')} \u2014 <strong>${n}</strong>`);
     await this._wait(400);
 
     /* Phase 2: Oracle */
-    this._setPhase('\u2461 Strategy Oracle', 'Dispatching');
-    this._logPhase('\uD83D\uDD2E', 'Phase 2 \u2014 Oracle', 'Generating strategies');
+    this._setPhase(`\u2461 ${t('gw.oracle')}`, t('gw.dispatching'));
+    this._logPhase('\uD83D\uDD2E', t('gw.ph2'), t('gw.genstrat'));
     this.phaseProgress = 0;
     this._arrangeIn('oracle', this.sprites);
     await this._wait(600);
     const show = Math.min(5, n);
     for (let i = 0; i < show; i++) {
-      this._logAgent(this.sprites[i], 'receives strategy');
+      this._logAgent(this.sprites[i], t('gw.rcvstrat'));
       this.phaseProgress = (i + 1) / show;
       await this._wait(150);
     }
-    if (n > show) this._logSummary('\uD83D\uDCDC', `+${n - show} more receive strategies`);
+    if (n > show) this._logSummary('\uD83D\uDCDC', `+${n - show} ${t('gw.morestrat')}`);
     await this._wait(350);
 
     /* Phase 3: BT Arena */
@@ -818,9 +818,9 @@ class GameWorld {
     if (env === 'both' || env === 'GL') await this._playArena('gl', R, rounds, n);
 
     /* Phase 5: Classification */
-    this._setPhase('\u2464 Classification', 'Analyzing');
+    this._setPhase(`\u2464 ${t('gw.hall.d')}`, t('gw.analyzing'));
     this._showLegend = true;
-    this._logPhase('\uD83C\uDFDB\uFE0F', 'Phase 5 \u2014 Classification', 'Analyzing profiles');
+    this._logPhase('\uD83C\uDFDB\uFE0F', t('gw.ph5'), t('gw.profiles'));
     this.phaseProgress = 0;
     this._arrangeIn('hall', this.sprites);
     await this._wait(600);
@@ -829,24 +829,24 @@ class GameWorld {
       const sp = this.sprites[i];
       sp.classification = sp.agent.classification || '';
       if (sp.classification) C[sp.classification]++;
-      this._logAgent(sp, `\u2192 <strong>${CLS_LABELS[sp.classification] || sp.classification}</strong>`);
+      this._logAgent(sp, `\u2192 <strong>${_clsLabel(sp.classification)}</strong>`);
       this.phaseProgress = (i + 1) / n;
       if (i < 5 || i % Math.max(1, Math.floor(n / 5)) === 0) await this._wait(60);
     }
     await this._wait(300);
-    this._logPhase('\uD83D\uDCCA', 'Results', '');
+    this._logPhase('\uD83D\uDCCA', t('gw.results'), '');
     const pct = k => (C[k] / n * 100).toFixed(0) + '%';
-    this._logSummary('\uD83D\uDD35', `Equilibrium: ${C.equilibrium} (${pct('equilibrium')})`);
-    this._logSummary('\uD83D\uDFE2', `Lying-Averse: ${C.lying_averse} (${pct('lying_averse')})`);
-    this._logSummary('\uD83D\uDD34', `Deception-Averse: ${C.deception_averse} (${pct('deception_averse')})`);
-    this._logSummary('\uD83D\uDFE0', `Inference Error: ${C.inference_error} (${pct('inference_error')})`);
+    this._logSummary('\uD83D\uDD35', `${t('gw.cls.eq')}: ${C.equilibrium} (${pct('equilibrium')})`);
+    this._logSummary('\uD83D\uDFE2', `${t('gw.cls.la')}: ${C.lying_averse} (${pct('lying_averse')})`);
+    this._logSummary('\uD83D\uDD34', `${t('gw.cls.da')}: ${C.deception_averse} (${pct('deception_averse')})`);
+    this._logSummary('\uD83D\uDFE0', `${t('gw.cls.ie')}: ${C.inference_error} (${pct('inference_error')})`);
     const allP = [...R.bt, ...R.gl].map(r => r.sp + r.rp);
-    if (allP.length) this._logSummary('\uD83D\uDCB0', `Avg welfare: ${(allP.reduce((a,b)=>a+b,0)/allP.length).toFixed(3)}`);
-    this._logSummary('\uD83C\uDFAE', `Total decisions: ${this._interactions}`);
+    if (allP.length) this._logSummary('\uD83D\uDCB0', `${t('gw.avgwelf')}: ${(allP.reduce((a,b)=>a+b,0)/allP.length).toFixed(3)}`);
+    this._logSummary('\uD83C\uDFAE', `${t('gw.totaldec')}: ${this._interactions}`);
 
     /* Done */
-    this._setPhase('\u2705 Complete', `${n} agents \u00B7 ${this._interactions} decisions`);
-    this._logPhase('\uD83C\uDF89', 'Game Complete', `${n} agents classified`);
+    this._setPhase(`\u2705 ${t('gw.complete')}`, `${n} ${t('gw.agents')} \u00B7 ${this._interactions} ${t('gw.decisions')}`);
+    this._logPhase('\uD83C\uDF89', t('gw.complete'), `${n} ${t('gw.classified')}`);
     this.phaseProgress = 1;
     this.state = 'done';
   }
@@ -856,8 +856,8 @@ class GameWorld {
     const stratMap = isBT ? R.btS : R.glS;
     const records = isBT ? R.bt : R.gl;
     const phaseNum = isBT ? '\u2462' : '\u2463';
-    const arenaLabel = isBT ? 'BT Arena' : 'GL Arena';
-    const arenaDesc = isBT ? 'Bad-type Truth-telling' : 'Good-type Lying';
+    const arenaLabel = isBT ? t('gw.btarena') : t('gw.glarena');
+    const arenaDesc = isBT ? t('gw.btarena.d') : t('gw.glarena.d');
     const arenaEmoji = isBT ? '\uD83D\uDEE1\uFE0F' : '\u2694\uFE0F';
 
     const agentIds = Object.keys(stratMap).map(Number);
@@ -865,10 +865,10 @@ class GameWorld {
     const totalAgents = arenaSprites.length;
     const detailCount = Math.min(totalAgents, Math.max(3, Math.min(8, Math.ceil(n / 4))));
 
-    this._setPhase(`${phaseNum} ${arenaLabel}`, `${totalAgents} agents`);
-    this._logPhase(arenaEmoji, `${arenaLabel}`, `${totalAgents} agents \u2014 ${arenaDesc}`);
-    this._logSummary('\uD83D\uDCD6', `Each agent plays the 5-step sender\u2013receiver game:`);
-    this._logSummary('', `\u2460 Nature draws \u03B8 \u2192 \u2461 Sender sends m \u2192 \u2462 Channel noise \u2192 \u2463 Receiver acts \u2192 \u2464 Payoff`);
+    this._setPhase(`${phaseNum} ${arenaLabel}`, `${totalAgents} ${t('gw.agents')}`);
+    this._logPhase(arenaEmoji, arenaLabel, `${totalAgents} ${t('gw.agents')} \u2014 ${arenaDesc}`);
+    this._logSummary('\uD83D\uDCD6', t('gw.protocol'));
+    this._logSummary('', t('gw.protosteps'));
     this.phaseProgress = 0;
     this._arrangeIn(type, arenaSprites);
     await this._wait(400);
@@ -889,7 +889,7 @@ class GameWorld {
 
     // Fast-forward remaining agents
     if (totalAgents > detailCount) {
-      this._logSummary('\u26A1', `Fast-forward <strong>${totalAgents - detailCount}</strong> more ${type.toUpperCase()} decisions`);
+      this._logSummary('\u26A1', `${t('gw.fastfwd')} <strong>${totalAgents - detailCount}</strong> ${t('gw.moredec')} ${type.toUpperCase()} ${t('gw.decisions')}`);
       for (const sp of arenaSprites) {
         sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
       }
@@ -898,7 +898,7 @@ class GameWorld {
       const round1 = records.filter((_, idx) => idx % rounds === 0);
       const lies = round1.filter(r => r.isLie).length;
       const decs = round1.filter(r => r.isDec).length;
-      this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> truths, <strong>${lies}</strong> lies, <strong>${decs}</strong> deceptive`);
+      this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> ${t('gw.truths')}, <strong>${lies}</strong> ${t('gw.lies')}, <strong>${decs}</strong> ${t('gw.deceptive')}`);
     } else {
       for (const sp of arenaSprites) {
         sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
@@ -979,7 +979,7 @@ function _updateV3Buttons() {
   const w = _v3world;
   const pauseBtn = document.getElementById('v3-pause');
   if (pauseBtn && w) {
-    pauseBtn.textContent = w.state === 'paused' ? '\u25b6 Resume' : '\u23f8 Pause';
+    pauseBtn.innerHTML = w.state === 'paused' ? `\u25b6 <span data-i18n="gw.resume">${t('gw.resume')}</span>` : `\u23f8 <span data-i18n="gw.pause">${t('gw.pause')}</span>`;
   }
 }
 

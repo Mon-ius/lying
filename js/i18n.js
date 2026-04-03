@@ -193,6 +193,39 @@ const I18N = {
     'rt.rl':'Risk-loving',
     'rt.rn':'Risk-neutral',
     'rt.ra':'Risk-averse',
+    // Game view — buildings
+    'gw.hub':'Population Hub','gw.oracle':'Strategy Oracle','gw.btarena':'BT Arena',
+    'gw.glarena':'GL Arena','gw.hall':'Hall of Records',
+    'gw.hub.d':'Agent village','gw.oracle.d':'Strategy dispatch',
+    'gw.btarena.d':'Bad-type Truth-telling','gw.glarena.d':'Good-type Lying','gw.hall.d':'Classification',
+    // Game view — labels
+    'gw.cls.eq':'Equilibrium','gw.cls.la':'Lying-Averse','gw.cls.da':'Deception-Averse','gw.cls.ie':'Inference Error',
+    'gw.rt.rl':'Risk Lover','gw.rt.rn':'Risk Neutral','gw.rt.ra':'Risk Averse',
+    // Game view — phases
+    'gw.ph1':'Phase 1 \u2014 Population','gw.ph2':'Phase 2 \u2014 Oracle','gw.ph5':'Phase 5 \u2014 Classification',
+    'gw.results':'Results','gw.complete':'Game Complete',
+    'gw.population':'Population','gw.dispatching':'Dispatching','gw.analyzing':'Analyzing',
+    // Game view — 5-step animation
+    'gw.step':'Step','gw.nature':'Nature draws state \u03B8 =',
+    'gw.sender.obs':'Sender observes','gw.sender.sends':'sends',
+    'gw.truth':'truth','gw.lie':'lie',
+    'gw.ch.noise':'Channel noise! Message flipped:','gw.ch.sent':'sent','gw.ch.rcv':'received',
+    'gw.ch.ok':'Message delivered intact:',
+    'gw.receiver':'Receiver','gw.deceptive':'deceptive','gw.honest':'honest',
+    'gw.payoff':'Payoff','gw.incl':'incl.',
+    // Game view — log
+    'gw.entering':'agents entering','gw.enters':'enters','gw.arrived':'All agents arrived',
+    'gw.genstrat':'Generating strategies','gw.rcvstrat':'receives strategy',
+    'gw.morestrat':'more receive strategies','gw.profiles':'Analyzing profiles',
+    'gw.classified':'agents classified','gw.fastfwd':'Fast-forward',
+    'gw.moredec':'more','gw.decisions':'decisions',
+    'gw.totaldec':'Total decisions','gw.avgwelf':'Avg welfare',
+    'gw.truths':'truths','gw.lies':'lies',
+    'gw.protocol':'Each agent plays the 5-step sender\u2013receiver game:',
+    'gw.protosteps':'\u2460 Nature draws \u03B8 \u2192 \u2461 Sender sends m \u2192 \u2462 Channel noise \u2192 \u2463 Receiver acts \u2192 \u2464 Payoff',
+    'gw.agents':'agents',
+    // Game view — buttons
+    'gw.pause':'Pause','gw.resume':'Resume','gw.speed':'Speed',
   },
   zh: {
     'header.title':'\u8bda\u5b9e\u7684\u89e3\u5256\u5b66',
@@ -431,6 +464,39 @@ const I18N = {
     'rt.rl':'风险偏好',
     'rt.rn':'风险中性',
     'rt.ra':'风险厌恶',
+    // 游戏视图 — 建筑
+    'gw.hub':'人口中心','gw.oracle':'策略神谕','gw.btarena':'BT 竞技场',
+    'gw.glarena':'GL 竞技场','gw.hall':'记录大厅',
+    'gw.hub.d':'智能体村庄','gw.oracle.d':'策略分配',
+    'gw.btarena.d':'坏类型说真话','gw.glarena.d':'好类型说谎','gw.hall.d':'行为分类',
+    // 游戏视图 — 标签
+    'gw.cls.eq':'均衡','gw.cls.la':'说谎厌恶','gw.cls.da':'欺骗厌恶','gw.cls.ie':'推断误差',
+    'gw.rt.rl':'风险偏好者','gw.rt.rn':'风险中性者','gw.rt.ra':'风险厌恶者',
+    // 游戏视图 — 阶段
+    'gw.ph1':'阶段 1 \u2014 种群','gw.ph2':'阶段 2 \u2014 策略神谕','gw.ph5':'阶段 5 \u2014 分类',
+    'gw.results':'结果','gw.complete':'游戏完成',
+    'gw.population':'种群','gw.dispatching':'分配中','gw.analyzing':'分析中',
+    // 游戏视图 — 5步动画
+    'gw.step':'步骤','gw.nature':'自然抽取状态 \u03B8 =',
+    'gw.sender.obs':'发送者观察','gw.sender.sends':'发送',
+    'gw.truth':'真话','gw.lie':'谎言',
+    'gw.ch.noise':'信道噪声！消息被翻转：','gw.ch.sent':'发送','gw.ch.rcv':'接收',
+    'gw.ch.ok':'消息完整传递：',
+    'gw.receiver':'接收者','gw.deceptive':'欺骗性','gw.honest':'诚实',
+    'gw.payoff':'收益','gw.incl':'含',
+    // 游戏视图 — 日志
+    'gw.entering':'个智能体进入','gw.enters':'进入','gw.arrived':'所有智能体已到达',
+    'gw.genstrat':'生成策略','gw.rcvstrat':'接收策略',
+    'gw.morestrat':'更多智能体接收策略','gw.profiles':'分析特征',
+    'gw.classified':'个智能体已分类','gw.fastfwd':'快进',
+    'gw.moredec':'更多','gw.decisions':'决策',
+    'gw.totaldec':'总决策数','gw.avgwelf':'平均福利',
+    'gw.truths':'真话','gw.lies':'谎言',
+    'gw.protocol':'每个智能体进行5步发送者-接收者博弈：',
+    'gw.protosteps':'\u2460 自然抽取 \u03B8 \u2192 \u2461 发送者发送 m \u2192 \u2462 信道噪声 \u2192 \u2463 接收者行动 \u2192 \u2464 收益',
+    'gw.agents':'个智能体',
+    // 游戏视图 — 按钮
+    'gw.pause':'暂停','gw.resume':'继续','gw.speed':'速度',
   },
   ko: {
     'header.title':'\uc815\uc9c1\uc758 \ud574\ubd80\ud559',
@@ -665,6 +731,39 @@ const I18N = {
     'rt.rl':'위험 선호',
     'rt.rn':'위험 중립',
     'rt.ra':'위험 회피',
+    // 게임 뷰 — 건물
+    'gw.hub':'인구 허브','gw.oracle':'전략 신탁','gw.btarena':'BT 경기장',
+    'gw.glarena':'GL 경기장','gw.hall':'기록의 전당',
+    'gw.hub.d':'에이전트 마을','gw.oracle.d':'전략 배분',
+    'gw.btarena.d':'나쁜 유형 진실 말하기','gw.glarena.d':'좋은 유형 거짓말','gw.hall.d':'행동 분류',
+    // 게임 뷰 — 레이블
+    'gw.cls.eq':'균형','gw.cls.la':'거짓말 혐오','gw.cls.da':'기만 혐오','gw.cls.ie':'추론 오류',
+    'gw.rt.rl':'위험 선호자','gw.rt.rn':'위험 중립자','gw.rt.ra':'위험 회피자',
+    // 게임 뷰 — 단계
+    'gw.ph1':'단계 1 \u2014 인구','gw.ph2':'단계 2 \u2014 전략 신탁','gw.ph5':'단계 5 \u2014 분류',
+    'gw.results':'결과','gw.complete':'게임 완료',
+    'gw.population':'인구','gw.dispatching':'배분 중','gw.analyzing':'분석 중',
+    // 게임 뷰 — 5단계 애니메이션
+    'gw.step':'단계','gw.nature':'자연이 상태 \u03B8 추출 =',
+    'gw.sender.obs':'송신자 관찰','gw.sender.sends':'전송',
+    'gw.truth':'진실','gw.lie':'거짓말',
+    'gw.ch.noise':'채널 노이즈! 메시지 반전:','gw.ch.sent':'전송','gw.ch.rcv':'수신',
+    'gw.ch.ok':'메시지 정상 전달:',
+    'gw.receiver':'수신자','gw.deceptive':'기만적','gw.honest':'정직',
+    'gw.payoff':'보상','gw.incl':'포함',
+    // 게임 뷰 — 로그
+    'gw.entering':'에이전트 입장','gw.enters':'입장','gw.arrived':'모든 에이전트 도착',
+    'gw.genstrat':'전략 생성','gw.rcvstrat':'전략 수신',
+    'gw.morestrat':'더 많은 에이전트가 전략 수신','gw.profiles':'프로필 분석',
+    'gw.classified':'에이전트 분류 완료','gw.fastfwd':'빨리 감기',
+    'gw.moredec':'더','gw.decisions':'결정',
+    'gw.totaldec':'총 결정 수','gw.avgwelf':'평균 복지',
+    'gw.truths':'진실','gw.lies':'거짓말',
+    'gw.protocol':'각 에이전트가 5단계 송신자-수신자 게임을 수행합니다:',
+    'gw.protosteps':'\u2460 자연이 \u03B8 추출 \u2192 \u2461 송신자가 m 전송 \u2192 \u2462 채널 노이즈 \u2192 \u2463 수신자 행동 \u2192 \u2464 보상',
+    'gw.agents':'에이전트',
+    // 게임 뷰 — 버튼
+    'gw.pause':'일시정지','gw.resume':'재개','gw.speed':'속도',
   },
 };
 
@@ -700,6 +799,7 @@ function applyI18n(lang) {
   }
   /* Re-render game log if results exist */
   if (typeof renderLog === 'function') renderLog();
-  /* Re-render charts so t()-based annotations update */
-  if (typeof redrawAll === 'function' && typeof LA !== 'undefined') redrawAll(LA, LR);
+  /* Re-render charts and game canvas so t()-based labels update */
+  if (typeof fullRedraw === 'function') fullRedraw();
+  else if (typeof redrawAll === 'function' && typeof LA !== 'undefined') redrawAll(LA, LR);
 }

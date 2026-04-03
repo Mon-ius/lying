@@ -226,9 +226,20 @@
    ================================================================ */
 @media (max-width: 900px) {
   .v3-controls { flex-wrap: wrap; gap: 6px; }
+  .v3-world-wrap canvas { min-height: 360px; }
 }
 @media (max-width: 550px) {
+  .v3-container { margin-top: 10px; }
+  .v3-controls { padding: 8px 10px; gap: 4px; }
   .v3-btn { padding: 4px 8px; font-size: .66rem; }
+  .v3-speed-wrap { gap: 4px; font-size: .64rem; }
+  .v3-speed-wrap input[type=range] { width: 56px; }
+  .v3-world-wrap canvas { min-height: 300px; }
+  .v3-le-phase { font-size: .68rem; }
+  .v3-le-agent { font-size: .62rem; }
   .v3-le-decision { padding: 4px 6px; }
+  .v3-le-pair { font-size: .64rem; }
   .v3-le-detail { font-size: .56rem; }
+  .v3-le-summary { font-size: .64rem; }
+  .v3-tag { font-size: .5rem; padding: 1px 4px; }
 }
