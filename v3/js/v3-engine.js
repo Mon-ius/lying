@@ -153,25 +153,23 @@ class Sprite {
     ctx.strokeStyle = this._darken(this.skin, 0.3);
     ctx.lineWidth = 0.7 * s; ctx.stroke();
 
-    // Reputation — thin bar
-    const barW = 16 * s, barH = 2 * s;
-    const barX = cx - barW / 2, barY = headY - headR - 5 * s;
-    ctx.fillStyle = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
-    ctx.beginPath(); ctx.roundRect(barX, barY, barW, barH, 1 * s); ctx.fill();
-    ctx.fillStyle = this.color;
-    ctx.beginPath(); ctx.roundRect(barX, barY, barW * Math.max(0.03, Math.min(1, this.rep)), barH, 1 * s); ctx.fill();
-
     // Name
     ctx.font = `600 ${Math.round(6.5 * s)}px ${_SF}`;
     ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText(this.name, cx, baseY + 5 * s);
 
-    // Subtitle
-    const sub = this.agent.aiProvider || this.riskLabel;
-    ctx.font = `400 ${Math.round(5 * s)}px ${_SFT}`;
-    ctx.fillStyle = '#8e8e93';
-    ctx.fillText(sub, cx, baseY + 13 * s);
+    // Subtitle — classification label (after classified) or risk type
+    if (this.classification) {
+      ctx.font = `600 ${Math.round(5 * s)}px ${_SFT}`;
+      ctx.fillStyle = this.color;
+      ctx.fillText(CLS_LABELS[this.classification] || this.classification, cx, baseY + 13 * s);
+    } else {
+      const sub = this.agent.aiProvider || this.riskLabel;
+      ctx.font = `400 ${Math.round(5 * s)}px ${_SFT}`;
+      ctx.fillStyle = '#8e8e93';
+      ctx.fillText(sub, cx, baseY + 13 * s);
+    }
 
     ctx.globalAlpha = 1;
   }
@@ -198,7 +196,8 @@ class GameWorld {
     this.results = null; this.agents = null;
     this.onPhase = null; this.onLog = null;
     this._scale = 1; this._offsetX = 0; this._offsetY = 0; this._interactions = 0;
-    this._decisionCard = null; // {arenaId, name, color, tag, isLie, info, alpha, _fadeIn, _fadeOut}
+    this._decisionCard = null;
+    this._showLegend = false;
     this._dragging = false; this._dragSX = 0; this._dragSY = 0; this._dragOX = 0; this._dragOY = 0;
     this._setupInput();
     this.resize();
@@ -248,7 +247,7 @@ class GameWorld {
     this.agents = agents; this.results = results;
     this.sprites = [];
     this.phase = 'idle'; this.phaseLabel = ''; this.phaseSub = '';
-    this.phaseProgress = 0; this._interactions = 0; this._decisionCard = null;
+    this.phaseProgress = 0; this._interactions = 0; this._decisionCard = null; this._showLegend = false;
     _assignNames(agents);
     const v = this._buildingMap.village;
     const cols = Math.ceil(Math.sqrt(agents.length * 1.8));
@@ -288,9 +287,10 @@ class GameWorld {
     for (const sp of sorted) sp.draw(ctx, s, dark);
     if (this._decisionCard) this._drawDecisionCard(ctx, s, dark);
 
-    // Banner (screen-space)
+    // Screen-space overlays
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     this._drawBanner(ctx, s, dark, W, H);
+    if (this._showLegend) this._drawLegend(ctx, s, dark, W, H);
   }
 
   _drawPaths(ctx, s, dark) {
@@ -427,6 +427,43 @@ class GameWorld {
     if (this.phaseProgress > 0 && this.phaseProgress < 1) {
       ctx.fillStyle = dark ? '#0A84FF' : '#007AFF';
       ctx.fillRect(0, bH - 2 * s, W * this.phaseProgress, 2 * s);
+    }
+  }
+
+  _drawLegend(ctx, s, dark, W, H) {
+    const items = [
+      { label: 'Equilibrium',      color: CLS_COLORS.equilibrium },
+      { label: 'Lying-Averse',     color: CLS_COLORS.lying_averse },
+      { label: 'Deception-Averse', color: CLS_COLORS.deception_averse },
+      { label: 'Inference Error',  color: CLS_COLORS.inference_error },
+    ];
+    const fs = Math.round(8 * s);
+    const dotR = 4 * s;
+    const rowH = 18 * s;
+    const padX = 14 * s, padY = 10 * s;
+    const panelW = 140 * s, panelH = padY * 2 + items.length * rowH;
+    const px = W - panelW - 14 * s, py = H - panelH - 14 * s;
+
+    // Panel background
+    ctx.save();
+    ctx.shadowColor = dark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.06)';
+    ctx.shadowBlur = 12 * s; ctx.shadowOffsetY = 2 * s;
+    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 10 * s);
+    ctx.fillStyle = dark ? 'rgba(44,44,46,0.88)' : 'rgba(255,255,255,0.9)';
+    ctx.fill(); ctx.restore();
+    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 10 * s);
+    ctx.strokeStyle = dark ? 'rgba(84,84,88,0.25)' : 'rgba(60,60,67,0.08)';
+    ctx.lineWidth = 0.5 * s; ctx.stroke();
+
+    // Items
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.font = `500 ${fs}px ${_SFT}`;
+    for (let i = 0; i < items.length; i++) {
+      const iy = py + padY + i * rowH + rowH / 2;
+      ctx.fillStyle = items[i].color;
+      ctx.beginPath(); ctx.arc(px + padX, iy, dotR, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e';
+      ctx.fillText(items[i].label, px + padX + dotR + 8 * s, iy);
     }
   }
 
@@ -584,6 +621,7 @@ class GameWorld {
 
     /* Phase 5: Classification */
     this._setPhase('\u2464 Classification', 'Analyzing');
+    this._showLegend = true;
     this._logPhase('\uD83C\uDFDB\uFE0F', 'Phase 5 \u2014 Classification', 'Analyzing profiles');
     this.phaseProgress = 0;
     this._arrangeIn('hall', this.sprites);
@@ -676,6 +714,6 @@ class GameWorld {
     this.state = 'idle'; this.stopLoop();
     this.sprites = [];
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
-    this._offsetX = 0; this._offsetY = 0; this._decisionCard = null;
+    this._offsetX = 0; this._offsetY = 0; this._decisionCard = null; this._showLegend = false;
   }
 }
