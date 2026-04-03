@@ -179,7 +179,8 @@ function exportJSON() {
 
   const data = {
     agents: LA.map(a => ({
-      id: a.id, cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
+      id: a.id, name: a._name || 'Agent ' + a.id,
+      cl: a.cl, cd: a.cd, alpha: a.alpha, beta: a.beta,
       riskType: a.riskType, classification: a.classification,
       btStrategy: LR.btS[a.id], glStrategy: LR.glS[a.id],
       ...(a.aiProvider ? { aiProvider: a.aiProvider, aiModel: a.aiModel, modelKey: a.modelKey } : {}),
@@ -210,14 +211,14 @@ function exportCSV() {
   const nP = +document.getElementById('s-periods').value;
   const rounds = +document.getElementById('s-rounds').value;
 
-  const header = 'id,cl,cd,alpha,beta,riskType,classification,btStrategy,glStrategy,nPeriods,btFinalLambda,glFinalLambda';
+  const header = 'id,name,cl,cd,alpha,beta,riskType,classification,btStrategy,glStrategy,nPeriods,btFinalLambda,glFinalLambda';
   const btFirst = {}, glFirst = {};
   LR.bt.forEach((r, i) => { if (i % rounds === 0) btFirst[r.id] = r; });
   LR.gl.forEach((r, i) => { if (i % rounds === 0) glFirst[r.id] = r; });
   const rows = LA.map(a => {
     const btLam = btFirst[a.id]?.lambda;
     const glLam = glFirst[a.id]?.lambda;
-    return [a.id, a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
+    return [a.id, a._name || '', a.cl.toFixed(4), a.cd.toFixed(4), a.alpha.toFixed(4), a.beta.toFixed(4),
      a.riskType, a.classification,
      (LR.btS[a.id] ?? '').toString(), (LR.glS[a.id] ?? '').toString(),
      nP,
