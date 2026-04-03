@@ -204,6 +204,7 @@ class GameWorld {
     this._scale = 1; this._offsetX = 0; this._offsetY = 0; this._zoom = 1; this._interactions = 0;
     this.spriteScale = 1;
     this._decisionCard = null;
+    this._activeSprite = null;
     this._showLegend = false;
     this._logGroup = null;
     // Camera system
@@ -303,10 +304,11 @@ class GameWorld {
     const fitH = H / (b.h * pad * s);
     this._camTarget = { x: b.x, y: b.y, zoom: Math.min(fitW, fitH, maxZoom || 2.5) };
   }
-  /** Focus on a sprite (zoomed in) */
+  /** Focus on a sprite with its decision card (card above, sprite below) */
   _focusSprite(sp) {
     if (!this._camFollow) return;
-    this._camTarget = { x: sp.x, y: sp.y + 30, zoom: Math.min(2.2, this.canvas.width / (200 * this._scale)) };
+    // Card is ~175 units above sprite center; center camera between them
+    this._camTarget = { x: sp.tx, y: sp.ty - 60, zoom: Math.min(1.8, this.canvas.width / (280 * this._scale)) };
   }
   /** Zoom out to see the full map */
   _focusAll() {
@@ -530,13 +532,15 @@ class GameWorld {
   _drawDecisionCard(ctx, s, dark) {
     const d = this._decisionCard;
     if (!d || d.alpha <= 0) return;
-    const arena = this._buildingMap[d.arenaId];
+    const sp = this._activeSprite;
+    if (!sp) return;
 
-    const panelW = Math.min(380 * s, MAP_W * s - 20 * s);
-    const panelH = 110 * s;
-    const rawPx = arena.x * s - panelW / 2;
+    const panelW = Math.min(340 * s, MAP_W * s - 20 * s);
+    const panelH = 105 * s;
+    // Position above the sprite's head
+    const rawPx = sp.x * s - panelW / 2;
     const px = Math.max(10 * s, Math.min(rawPx, MAP_W * s - panelW - 10 * s));
-    const py = (arena.y + arena.h / 2 + 25) * s;
+    const py = (sp.y - 70) * s - panelH;
 
     ctx.globalAlpha = d.alpha;
 
@@ -648,7 +652,7 @@ class GameWorld {
       ctx.font = `400 ${Math.round(6.5 * s)}px ${_SFT}`;
       ctx.fillStyle = dark ? '#8e8e93' : '#6b7080';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(d.detail, arena.x * s, py + panelH - 12 * s);
+      ctx.fillText(d.detail, px + panelW / 2, py + panelH - 12 * s);
     }
 
     // Truth/Lie badge (if available, top-right area)
@@ -849,6 +853,7 @@ class GameWorld {
     // Dim all others, highlight this agent
     for (const s of this.sprites) s.dimmed = (s !== sp);
     sp.active = true;
+    this._activeSprite = sp;
     sp.moveTo(arena.x, arena.y - 12);
     this._focusSprite(sp);
     await this._wait(250);
@@ -913,6 +918,7 @@ class GameWorld {
     this._logDecision(sp, result);
     this._interactions++;
     sp.active = false;
+    this._activeSprite = null;
     for (const s of this.sprites) s.dimmed = false;
     // Zoom back out to arena view
     this._focusBuilding(arenaId);
