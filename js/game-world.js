@@ -43,15 +43,16 @@ function _assignNames(agents) {
 }
 
 /* ---- Virtual Map ---- */
-const MAP_W = 1000, MAP_H = 720;
+let MAP_W = 1000, MAP_H = 720;
 
-const BUILDINGS = [
+const BUILDINGS_BASE = [
   { id:'village', x:500, y:75,  w:340, h:60,  label:'Population Hub',   icon:'\uD83C\uDFD8\uFE0F', tint:'#34C759', desc:'Agent village' },
   { id:'oracle',  x:500, y:220, w:240, h:50,  label:'Strategy Oracle',  icon:'\uD83D\uDD2E',       tint:'#AF52DE', desc:'Strategy dispatch' },
   { id:'bt',      x:220, y:370, w:240, h:80,  label:'BT Arena',         icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', desc:'Bad-type Truth-telling' },
   { id:'gl',      x:780, y:370, w:240, h:80,  label:'GL Arena',         icon:'\u2694\uFE0F',        tint:'#FF9500', desc:'Good-type Lying' },
   { id:'hall',    x:500, y:630, w:300, h:55,  label:'Hall of Records',  icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', desc:'Classification' },
 ];
+let BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
 const PATHS = [['village','oracle'],['oracle','bt'],['oracle','gl'],['bt','hall'],['gl','hall']];
 
 /* ---- Apple-inspired color palette ---- */
@@ -72,6 +73,7 @@ const _MONO = "'SF Mono','JetBrains Mono','Fira Code',monospace";
 class Sprite {
   constructor(agent, x, y) {
     this.agent = agent;
+    this.id = agent.id;
     this.name = agent._name || `Agent${agent.id}`;
     this.x = x; this.y = y;
     this.tx = x; this.ty = y;
@@ -101,81 +103,74 @@ class Sprite {
     if (this._moving) this._walkCycle += dt * speed * 8;
   }
 
-  draw(ctx, s, dark) {
+  draw(ctx, s, dark, sc) {
     if (this.alpha <= 0) return;
+    sc = sc || 1;
     const cx = this.x * s, cy = this.y * s;
-    const bodyW = 12 * s, bodyH = 13 * s;
-    const headR = 6.5 * s;
-    const legH = 5 * s;
+    const bodyW = 12 * s * sc, bodyH = 13 * s * sc;
+    const headR = 6.5 * s * sc;
+    const legH = 5 * s * sc;
     const baseY = cy;
 
     ctx.globalAlpha = this.alpha * (this.dimmed ? 0.18 : 1);
 
-    // Shadow
     ctx.beginPath();
-    ctx.ellipse(cx, baseY + 2 * s, bodyW * 0.6, 2.5 * s, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, baseY + 2 * s * sc, bodyW * 0.6, 2.5 * s * sc, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fill();
 
-    // Active indicator
     if (this.active) {
       ctx.save();
       ctx.globalAlpha = this.alpha * 0.35;
       ctx.beginPath();
-      ctx.ellipse(cx, baseY + 2 * s, 20 * s, 7 * s, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = this.color; ctx.lineWidth = 1.5 * s; ctx.stroke();
+      ctx.ellipse(cx, baseY + 2 * s * sc, 20 * s * sc, 7 * s * sc, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = this.color; ctx.lineWidth = 1.5 * s * sc; ctx.stroke();
       ctx.restore();
       ctx.globalAlpha = this.alpha;
     }
 
-    // Legs
-    const legSpread = this._moving ? Math.sin(this._walkCycle) * 2.5 * s : 0;
+    const legSpread = this._moving ? Math.sin(this._walkCycle) * 2.5 * s * sc : 0;
     ctx.fillStyle = dark ? '#48484a' : '#3a3a3c';
-    ctx.beginPath(); ctx.roundRect(cx - 3.5 * s + legSpread, baseY - legH, 3 * s, legH + 1 * s, 1.5 * s); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(cx + 0.5 * s - legSpread, baseY - legH, 3 * s, legH + 1 * s, 1.5 * s); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(cx - 3.5 * s * sc + legSpread, baseY - legH, 3 * s * sc, legH + 1 * s * sc, 1.5 * s * sc); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(cx + 0.5 * s * sc - legSpread, baseY - legH, 3 * s * sc, legH + 1 * s * sc, 1.5 * s * sc); ctx.fill();
 
-    // Body
     const bodyTop = baseY - legH - bodyH;
     ctx.beginPath();
-    ctx.roundRect(cx - bodyW / 2, bodyTop, bodyW, bodyH, [3.5 * s, 3.5 * s, 2 * s, 2 * s]);
+    ctx.roundRect(cx - bodyW / 2, bodyTop, bodyW, bodyH, [3.5 * s * sc, 3.5 * s * sc, 2 * s * sc, 2 * s * sc]);
     ctx.fillStyle = this.color; ctx.fill();
 
-    // Arms
     ctx.fillStyle = this.skin;
-    ctx.beginPath(); ctx.roundRect(cx - bodyW / 2 - 3 * s, bodyTop + 2.5 * s, 3 * s, 7 * s, 1.5 * s); ctx.fill();
-    ctx.beginPath(); ctx.roundRect(cx + bodyW / 2, bodyTop + 2.5 * s, 3 * s, 7 * s, 1.5 * s); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(cx - bodyW / 2 - 3 * s * sc, bodyTop + 2.5 * s * sc, 3 * s * sc, 7 * s * sc, 1.5 * s * sc); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(cx + bodyW / 2, bodyTop + 2.5 * s * sc, 3 * s * sc, 7 * s * sc, 1.5 * s * sc); ctx.fill();
 
-    // Head
     const headY = bodyTop - headR * 0.5;
     ctx.beginPath(); ctx.arc(cx, headY, headR, 0, Math.PI * 2);
     ctx.fillStyle = this.skin; ctx.fill();
 
-    // Eyes
     ctx.fillStyle = '#1c1c1e';
-    ctx.beginPath(); ctx.arc(cx - 2.5 * s, headY - 0.5 * s, 1 * s, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + 2.5 * s, headY - 0.5 * s, 1 * s, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx - 2.5 * s * sc, headY - 0.5 * s * sc, 1 * s * sc, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 2.5 * s * sc, headY - 0.5 * s * sc, 1 * s * sc, 0, Math.PI * 2); ctx.fill();
 
-    // Mouth
     ctx.beginPath();
-    ctx.arc(cx, headY + 2 * s, 1.8 * s, 0.1 * Math.PI, 0.9 * Math.PI);
+    ctx.arc(cx, headY + 2 * s * sc, 1.8 * s * sc, 0.1 * Math.PI, 0.9 * Math.PI);
     ctx.strokeStyle = this._darken(this.skin, 0.3);
-    ctx.lineWidth = 0.7 * s; ctx.stroke();
+    ctx.lineWidth = 0.7 * s * sc; ctx.stroke();
 
-    // Name
-    ctx.font = `600 ${Math.round(6.5 * s)}px ${_SF}`;
+    const nameFs = Math.max(4, Math.round(6.5 * s * sc));
+    const subFs = Math.max(3, Math.round(5 * s * sc));
+    ctx.font = `600 ${nameFs}px ${_SF}`;
     ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText(this.name, cx, baseY + 5 * s);
+    ctx.fillText(`#${this.id} ${this.name}`, cx, baseY + 5 * s * sc);
 
-    // Subtitle
     if (this.classification) {
-      ctx.font = `600 ${Math.round(5 * s)}px ${_SFT}`;
+      ctx.font = `600 ${subFs}px ${_SFT}`;
       ctx.fillStyle = this.color;
-      ctx.fillText(CLS_LABELS[this.classification] || this.classification, cx, baseY + 13 * s);
+      ctx.fillText(CLS_LABELS[this.classification] || this.classification, cx, baseY + (5 + 8 * sc) * s);
     } else {
       const sub = this.agent.aiProvider || this.riskLabel;
-      ctx.font = `400 ${Math.round(5 * s)}px ${_SFT}`;
+      ctx.font = `400 ${subFs}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
-      ctx.fillText(sub, cx, baseY + 13 * s);
+      ctx.fillText(sub, cx, baseY + (5 + 8 * sc) * s);
     }
 
     ctx.globalAlpha = 1;
@@ -203,6 +198,7 @@ class GameWorld {
     this.results = null; this.agents = null;
     this.onPhase = null; this.onLog = null;
     this._scale = 1; this._offsetX = 0; this._offsetY = 0; this._interactions = 0;
+    this.spriteScale = 1;
     this._decisionCard = null;
     this._showLegend = false;
     this._dragging = false; this._dragSX = 0; this._dragSY = 0; this._dragOX = 0; this._dragOY = 0;
@@ -256,14 +252,69 @@ class GameWorld {
     this.phase = 'idle'; this.phaseLabel = ''; this.phaseSub = '';
     this.phaseProgress = 0; this._interactions = 0; this._decisionCard = null; this._showLegend = false;
     _assignNames(agents);
+
+    const n = agents.length;
+    if (n <= 20) this.spriteScale = 1.0;
+    else if (n <= 50) this.spriteScale = 0.75;
+    else if (n <= 100) this.spriteScale = 0.6;
+    else this.spriteScale = 0.45;
+
+    this._autosizeBuildings(n);
+
     const v = this._buildingMap.village;
-    const cols = Math.ceil(Math.sqrt(agents.length * 1.8));
+    const gap = 30 * this.spriteScale;
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.8)));
     agents.forEach((a, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      const sp = new Sprite(a, v.x - (cols - 1) * 16 + col * 32, v.y - 5 + row * 28);
+      const sp = new Sprite(a, v.x - (cols - 1) * gap / 2 + col * gap, v.y - 5 + row * (26 * this.spriteScale));
       sp.alpha = 0;
       this.sprites.push(sp);
     });
+  }
+
+  _autosizeBuildings(n) {
+    BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
+    this._buildingMap = {};
+
+    const sc = this.spriteScale;
+    const gapX = 30 * sc, gapY = 26 * sc;
+    const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.8)));
+    const rows = Math.ceil(n / cols);
+    const neededW = cols * gapX + 60;
+    const neededH = rows * gapY + 40;
+
+    for (const b of BUILDINGS) {
+      b.w = Math.max(b.w, neededW);
+      b.h = Math.max(b.h, neededH);
+    }
+
+    // Reflow vertical layout: stack buildings with proper spacing
+    const margin = 20;
+    const village = BUILDINGS.find(b => b.id === 'village');
+    const oracle  = BUILDINGS.find(b => b.id === 'oracle');
+    const bt      = BUILDINGS.find(b => b.id === 'bt');
+    const gl      = BUILDINGS.find(b => b.id === 'gl');
+    const hall    = BUILDINGS.find(b => b.id === 'hall');
+
+    village.y = village.h / 2 + 30;
+    oracle.y  = village.y + village.h / 2 + margin + oracle.h / 2;
+    const arenaY = oracle.y + oracle.h / 2 + margin + Math.max(bt.h, gl.h) / 2;
+    bt.y = arenaY; gl.y = arenaY;
+    // Protocol panel needs ~130px below arena, then hall
+    hall.y = arenaY + Math.max(bt.h, gl.h) / 2 + 155 + hall.h / 2;
+
+    // Expand map to fit
+    const totalH = hall.y + hall.h / 2 + 30;
+    MAP_H = Math.max(720, totalH);
+    MAP_W = Math.max(1000, Math.max(neededW + 60, bt.w + gl.w + 200));
+
+    // Keep arenas apart
+    bt.x = Math.min(bt.x, MAP_W / 2 - bt.w / 2 - 30);
+    gl.x = Math.max(gl.x, MAP_W / 2 + gl.w / 2 + 30);
+    // Center village, oracle, hall
+    village.x = MAP_W / 2; oracle.x = MAP_W / 2; hall.x = MAP_W / 2;
+
+    BUILDINGS.forEach(b => this._buildingMap[b.id] = b);
   }
 
   /* ================================================================
@@ -291,7 +342,7 @@ class GameWorld {
     this._drawPaths(ctx, s, dark);
     this._drawBuildings(ctx, s, dark);
     const sorted = [...this.sprites].sort((a, b) => a.y - b.y);
-    for (const sp of sorted) sp.draw(ctx, s, dark);
+    for (const sp of sorted) sp.draw(ctx, s, dark, this.spriteScale);
     if (this._decisionCard) this._drawDecisionCard(ctx, s, dark);
 
     // Screen-space overlays
@@ -363,9 +414,11 @@ class GameWorld {
     if (!d || d.alpha <= 0) return;
     const arena = this._buildingMap[d.arenaId];
 
-    // Protocol flow panel — wide, below the arena building
-    const panelW = 380 * s, panelH = 110 * s;
-    const px = arena.x * s - panelW / 2, py = (arena.y + 62) * s;
+    const panelW = Math.min(380 * s, MAP_W * s - 20 * s);
+    const panelH = 110 * s;
+    const rawPx = arena.x * s - panelW / 2;
+    const px = Math.max(10 * s, Math.min(rawPx, MAP_W * s - panelW - 10 * s));
+    const py = (arena.y + arena.h / 2 + 25) * s;
 
     ctx.globalAlpha = d.alpha;
 
@@ -536,7 +589,7 @@ class GameWorld {
     const rowH = 18 * s;
     const padX = 14 * s, padY = 10 * s;
     const panelW = 140 * s, panelH = padY * 2 + items.length * rowH;
-    const px = W - panelW - 14 * s, py = H - panelH - 14 * s;
+    const px = W - panelW - 14 * s, py = 48 * s;
 
     ctx.save();
     ctx.shadowColor = dark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.06)';
@@ -594,10 +647,17 @@ class GameWorld {
 
   _arrangeIn(buildingId, list) {
     const b = this._buildingMap[buildingId];
+    const sc = this.spriteScale;
+    const gapX = 30 * sc, gapY = 26 * sc;
     const cols = Math.max(1, Math.ceil(Math.sqrt(list.length * 1.8)));
+    const rows = Math.ceil(list.length / cols);
+    const gridW = (cols - 1) * gapX;
+    const gridH = (rows - 1) * gapY;
+    const startX = b.x - gridW / 2;
+    const startY = b.y - gridH / 2;
     list.forEach((sp, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      sp.moveTo(b.x - (cols - 1) * 15 + col * 30, b.y - 8 + row * 26);
+      sp.moveTo(startX + col * gapX, startY + row * gapY);
     });
   }
 
@@ -608,7 +668,7 @@ class GameWorld {
     this._log(`<div class="v3-le-phase"><span class="v3-le-icon">${icon}</span><strong>${title}</strong>${desc ? `<span class="v3-le-desc"> \u2014 ${desc}</span>` : ''}</div>`);
   }
   _logAgent(sp, text) {
-    this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>${sp.name}</strong> <span class="v3-le-text">${text}</span></div>`);
+    this._log(`<div class="v3-le-agent"><span class="v3-le-dot" style="background:${sp.color}"></span><strong>#${sp.id} ${sp.name}</strong> <span class="v3-le-text">${text}</span></div>`);
   }
   _logDecision(sp, result) {
     const lieTag = result.isLie ? '<span class="v3-tag v3-tag-lie">LIE</span>' : '<span class="v3-tag v3-tag-truth">TRUTH</span>';
@@ -617,7 +677,7 @@ class GameWorld {
     this._log(
       `<div class="v3-le-decision"><div class="v3-le-pair">` +
       `<span class="v3-le-dot" style="background:${sp.color}"></span>` +
-      `<strong>${sp.name}</strong> \u2192 Receiver ${lieTag}${decTag}${mcTag}</div>` +
+      `<strong>#${sp.id} ${sp.name}</strong> \u2192 Receiver ${lieTag}${decTag}${mcTag}</div>` +
       `<div class="v3-le-detail">` +
       `\u2460 \u03B8=${result.s1}` +
       ` \u2461 m=${result.sent}` +
@@ -653,7 +713,7 @@ class GameWorld {
 
     // Card state — values array accumulates results per step, step increments
     const card = {
-      arenaId, name: sp.name, color: sp.color,
+      arenaId, name: `#${sp.id} ${sp.name}`, color: sp.color,
       step: 0, tag: '', isLie: false,
       values: ['', '', '', '', ''],
       detail: '',
@@ -852,9 +912,13 @@ class GameWorld {
   resume() { if (this.state === 'paused') this.state = 'running'; }
   reset() {
     this.state = 'idle'; this.stopLoop();
-    this.sprites = [];
+    this.sprites = []; this.spriteScale = 1;
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
     this._offsetX = 0; this._offsetY = 0; this._decisionCard = null; this._showLegend = false;
+    MAP_W = 1000; MAP_H = 720;
+    BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
+    this._buildingMap = {};
+    BUILDINGS.forEach(b => this._buildingMap[b.id] = b);
   }
 }
 
