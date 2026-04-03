@@ -52,6 +52,14 @@
 .v3-btn:disabled { opacity: .4; cursor: default; }
 .v3-btn:disabled:hover { background: var(--bg-1); color: var(--fg-1); border-color: var(--border); }
 
+.v3-follow-btn {
+  transition: all .2s ease;
+}
+.v3-follow-btn.active {
+  background: #007AFF;
+  color: #fff;
+  border-color: #007AFF;
+}
 .v3-zoom-wrap {
   display: flex;
   align-items: center;

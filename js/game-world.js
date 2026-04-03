@@ -206,6 +206,10 @@ class GameWorld {
     this._decisionCard = null;
     this._showLegend = false;
     this._logGroup = null;
+    // Camera system
+    this._cam = { x: 500, y: 360, zoom: 1 };
+    this._camTarget = null;
+    this._camFollow = true;
     this._dragging = false; this._dragSX = 0; this._dragSY = 0; this._dragOX = 0; this._dragOY = 0;
     this._setupInput();
     this.resize();
@@ -220,6 +224,7 @@ class GameWorld {
     c.addEventListener('mousedown', e => {
       this._dragging = true; this._dragSX = e.clientX; this._dragSY = e.clientY;
       this._dragOX = this._offsetX; this._dragOY = this._offsetY; c.style.cursor = 'grabbing';
+      this._camFollow = false; this._updateFollowLabel();
     });
     window.addEventListener('mousemove', e => {
       if (!this._dragging) return;
@@ -263,6 +268,7 @@ class GameWorld {
     // --- Scroll wheel zoom ---
     c.addEventListener('wheel', e => {
       e.preventDefault();
+      this._camFollow = false; this._updateFollowLabel();
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
       this._zoom = Math.max(0.3, Math.min(5, this._zoom * delta));
       if (!this._running) this.draw();
@@ -282,9 +288,56 @@ class GameWorld {
     if (el) el.textContent = Math.round(this._zoom * 100) + '%';
   }
 
-  zoomIn()  { this._zoom = Math.min(5, this._zoom * 1.25); this._updateZoomLabel(); if (!this._running) this.draw(); }
-  zoomOut() { this._zoom = Math.max(0.3, this._zoom * 0.8); this._updateZoomLabel(); if (!this._running) this.draw(); }
-  zoomFit() { this._zoom = 1; this._offsetX = 0; this._offsetY = 0; this._updateZoomLabel(); if (!this._running) this.draw(); }
+  zoomIn()  { this._camFollow = false; this._updateFollowLabel(); this._zoom = Math.min(5, this._zoom * 1.25); this._updateZoomLabel(); if (!this._running) this.draw(); }
+  zoomOut() { this._camFollow = false; this._updateFollowLabel(); this._zoom = Math.max(0.3, this._zoom * 0.8); this._updateZoomLabel(); if (!this._running) this.draw(); }
+  zoomFit() { this._camFollow = false; this._updateFollowLabel(); this._zoom = 1; this._offsetX = 0; this._offsetY = 0; this._updateZoomLabel(); if (!this._running) this.draw(); }
+
+  /* ---- Camera system ---- */
+  /** Focus on a building, auto-calculating zoom to fit it nicely */
+  _focusBuilding(id, maxZoom) {
+    const b = this._buildingMap[id];
+    if (!b || !this._camFollow) return;
+    const W = this.canvas.width, H = this.canvas.height, s = this._scale;
+    const pad = 1.4;
+    const fitW = W / (b.w * pad * s);
+    const fitH = H / (b.h * pad * s);
+    this._camTarget = { x: b.x, y: b.y, zoom: Math.min(fitW, fitH, maxZoom || 2.5) };
+  }
+  /** Focus on a sprite (zoomed in) */
+  _focusSprite(sp) {
+    if (!this._camFollow) return;
+    this._camTarget = { x: sp.x, y: sp.y + 30, zoom: Math.min(2.2, this.canvas.width / (200 * this._scale)) };
+  }
+  /** Zoom out to see the full map */
+  _focusAll() {
+    if (!this._camFollow) return;
+    this._camTarget = { x: MAP_W / 2, y: MAP_H / 2, zoom: 1 };
+  }
+  /** Toggle camera follow mode */
+  toggleFollow() {
+    this._camFollow = !this._camFollow;
+    if (this._camFollow && !this._camTarget) this._focusAll();
+    this._updateFollowLabel();
+  }
+  _updateFollowLabel() {
+    const el = document.getElementById('v3-follow-btn');
+    if (el) el.classList.toggle('active', this._camFollow);
+  }
+  /** Apply camera lerp each frame */
+  _updateCamera(dt) {
+    if (!this._camTarget || !this._camFollow) return;
+    const ct = this._camTarget;
+    const spd = 3 * dt;
+    this._cam.x = _lerp(this._cam.x, ct.x, spd);
+    this._cam.y = _lerp(this._cam.y, ct.y, spd);
+    this._cam.zoom = _lerp(this._cam.zoom, ct.zoom, spd);
+    // Convert camera world position → offset/zoom
+    const s = this._scale;
+    this._zoom = this._cam.zoom;
+    this._offsetX = s * this._zoom * (MAP_W / 2 - this._cam.x);
+    this._offsetY = s * this._zoom * (MAP_H / 2 - this._cam.y);
+    this._updateZoomLabel();
+  }
 
   resize() {
     const c = this.canvas;
@@ -311,6 +364,8 @@ class GameWorld {
     else this.spriteScale = 0.45;
 
     this._autosizeBuildings(n);
+    this._cam = { x: MAP_W / 2, y: MAP_H / 2, zoom: 1 };
+    this._camTarget = null; this._camFollow = true; this._updateFollowLabel();
 
     // Place sprites initially at village, using same layout as _arrangeIn
     const v = this._buildingMap.village;
@@ -688,6 +743,7 @@ class GameWorld {
       if (d._fadeIn) { d.alpha = Math.min(1, d.alpha + dt * 5); if (d.alpha >= 1) d._fadeIn = false; }
       if (d._fadeOut) { d.alpha = Math.max(0, d.alpha - dt * 5); }
     }
+    this._updateCamera(dt);
     this.draw();
     if (this._running) this._raf = requestAnimationFrame(ts => this._loop(ts));
   }
@@ -794,6 +850,7 @@ class GameWorld {
     for (const s of this.sprites) s.dimmed = (s !== sp);
     sp.active = true;
     sp.moveTo(arena.x, arena.y - 12);
+    this._focusSprite(sp);
     await this._wait(250);
 
     // Card state — values array accumulates results per step, step increments
@@ -857,6 +914,8 @@ class GameWorld {
     this._interactions++;
     sp.active = false;
     for (const s of this.sprites) s.dimmed = false;
+    // Zoom back out to arena view
+    this._focusBuilding(arenaId);
   }
 
   /* ================================================================
@@ -871,6 +930,8 @@ class GameWorld {
     const env = document.getElementById('s-env')?.value || 'both';
 
     /* Phase 1: Populate */
+    this._camFollow = true; this._updateFollowLabel();
+    this._focusBuilding('village');
     this._setPhase(`\u2460 ${t('gw.population')}`, `${n} ${t('gw.agents')}`);
     this._logPhase('\uD83C\uDFD8\uFE0F', t('gw.ph1'), `${n} ${t('gw.entering')}`);
     for (let i = 0; i < this.sprites.length; i++) {
@@ -883,6 +944,7 @@ class GameWorld {
     await this._wait(400);
 
     /* Phase 2: Oracle */
+    this._focusBuilding('oracle');
     this._setPhase(`\u2461 ${t('gw.oracle')}`, t('gw.dispatching'));
     this._logPhase('\uD83D\uDD2E', t('gw.ph2'), t('gw.genstrat'));
     this.phaseProgress = 0;
@@ -903,6 +965,7 @@ class GameWorld {
     if (env === 'both' || env === 'GL') await this._playArena('gl', R, rounds, n);
 
     /* Phase 5: Classification */
+    this._focusBuilding('hall');
     this._setPhase(`\u2464 ${t('gw.hall.d')}`, t('gw.analyzing'));
     this._showLegend = true;
     this._logPhase('\uD83C\uDFDB\uFE0F', t('gw.ph5'), t('gw.profiles'));
@@ -930,6 +993,7 @@ class GameWorld {
     this._logSummary('\uD83C\uDFAE', `${t('gw.totaldec')}: ${this._interactions}`);
 
     /* Done */
+    this._focusAll();
     this._setPhase(`\u2705 ${t('gw.complete')}`, `${n} ${t('gw.agents')} \u00B7 ${this._interactions} ${t('gw.decisions')}`);
     this._logPhase('\uD83C\uDF89', t('gw.complete'), `${n} ${t('gw.classified')}`);
     this.phaseProgress = 1;
@@ -950,6 +1014,7 @@ class GameWorld {
     const totalAgents = arenaSprites.length;
     const detailCount = Math.min(totalAgents, Math.max(3, Math.min(8, Math.ceil(n / 4))));
 
+    this._focusBuilding(type);
     this._setPhase(`${phaseNum} ${arenaLabel}`, `${totalAgents} ${t('gw.agents')}`);
     this._logPhase(arenaEmoji, arenaLabel, `${totalAgents} ${t('gw.agents')} \u2014 ${arenaDesc}`);
     this._logSummary('\uD83D\uDCD6', t('gw.protocol'));
@@ -1001,6 +1066,8 @@ class GameWorld {
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
     this._offsetX = 0; this._offsetY = 0; this._zoom = 1; this._decisionCard = null; this._showLegend = false;
     this._logGroup = null;
+    this._cam = { x: MAP_W / 2, y: MAP_H / 2, zoom: 1 };
+    this._camTarget = null; this._camFollow = true;
     MAP_W = 1000; MAP_H = 720;
     BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
     this._buildingMap = {};
