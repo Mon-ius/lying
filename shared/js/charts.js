@@ -483,7 +483,7 @@ function plotPointCloud(R, agents) {
       if (!grp[gk]) grp[gk]={x:[],y:[],z:[],text:[]};
       const g = grp[gk], w = wm[a.id] ? wm[a.id].s/wm[a.id].n : 0;
       g.x.push(R.btS[a.id]??1); g.y.push(R.glS[a.id]??0); g.z.push(w);
-      g.text.push(`<b>Agent ${a.id}</b><br>v=${(R.btS[a.id]??1).toFixed(3)} GL=${(R.glS[a.id]??0).toFixed(3)}<br>Welfare=${w.toFixed(3)}<br>${clsN[a.classification]||a.classification}`);
+      g.text.push(`<b>${agentName(a.id)}</b><br>v=${(R.btS[a.id]??1).toFixed(3)} GL=${(R.glS[a.id]??0).toFixed(3)}<br>Welfare=${w.toFixed(3)}<br>${clsN[a.classification]||a.classification}`);
     }
     const tr=[]; let ci=0;
     for (const [k,g] of Object.entries(grp)) {
@@ -525,7 +525,7 @@ function plotPointCloud(R, agents) {
       g.ms.push(p.isLie ? 'diamond' : 'circle');
       g.msz.push(p.isDec ? 3 : 4.5);
       g.mt.push(
-        `<b>Agent ${r.id}</b>${mk} \u00b7 ${r.gt} P${p.t+1}<br>` +
+        `<b>${agentName(r.id)}</b>${mk} \u00b7 ${r.gt} P${p.t+1}<br>` +
         `\u03b8=${p.st} \u2192 m=${p.sent} \u2192 a=${p.at.toFixed(2)}<br>` +
         `${p.isLie?'Lie':'Truth'}${p.isDec?' (deceptive)':''}${p.mc?' \u26a0mc':''}<br>` +
         `\u03bb=${p.lambda.toFixed(3)} | payoff=${p.payoff.toFixed(3)}`

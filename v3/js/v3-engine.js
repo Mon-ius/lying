@@ -29,6 +29,7 @@ const NAME_POOL = [
   'Nyla','Roan',
 ];
 function _assignNames(agents) {
+  if (agents[0]?._name) return; // already named
   const pool = [...NAME_POOL];
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   agents.forEach((a, i) => { a._name = i < pool.length ? pool[i] : `Agent-${i}`; });

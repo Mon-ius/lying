@@ -53,7 +53,7 @@ function renderLog() {
       return `<details class="log-entry"${i === 0 ? ' open' : ''}>
   <summary>
     <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${r.id}
+    ${t('log.agent')}\u2009${agentName(r.id)}
     \u2003\u03b8\u2081=${r.s1} \u2192 m=${r.sent} \u2192 a\u2081=${r.a1.toFixed(2)}
     \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
     \u2003${t('log.payoff')}=${r.sp.toFixed(2)}
@@ -101,7 +101,7 @@ function renderLog() {
       const mcTag = p.mc ? `<span class="tag tag-mc">${t('log.miscomm')}</span>` : '';
       return `<div class="log-period-row">
   <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700;font-size:.65rem">${r.gt}</span>
-  ${t('log.agent')}\u2009${r.id}
+  ${t('log.agent')}\u2009${agentName(r.id)}
   \u2003\u03b8<sub>${pi+1}</sub>=${p.st} \u2192 m=${p.sent} \u2192 a<sub>${pi+1}</sub>=${p.at.toFixed(2)}
   \u2003\u03bb<sub>${pi+1}</sub>=${p.lambda.toFixed(3)}
   \u2003${lieTag}${decTag ? '\u2002' + decTag : ''}${mcTag ? '\u2002' + mcTag : ''}
@@ -127,7 +127,7 @@ function renderLog() {
     return `<details class="log-entry"${i === 0 ? ' open' : ''}>
   <summary>
     <span class="tag" style="background:var(--bg-2);color:var(--fg-1);font-weight:700">${r.gt}</span>
-    ${t('log.agent')}\u2009${r.id}
+    ${t('log.agent')}\u2009${agentName(r.id)}
     \u2003${t('log.payoff')}=${r.sp.toFixed(2)} \u2003${lieTag}
   </summary>
   <div class="log-detail">${agentAnalysis(r)}</div>
@@ -152,6 +152,7 @@ function runExperiment() {
       clMean: +document.getElementById('s-cl').value,
       cdMean: +document.getElementById('s-cd').value,
     });
+    _assignNames(agents);
     const env = document.getElementById('s-env').value;
     const rounds = +document.getElementById('s-rounds').value;
     const nPeriods = +document.getElementById('s-periods').value;

@@ -160,6 +160,11 @@ let LA = null, LR = null;
 let LS = null;   // V2 cross-model stats (set by v2.js)
 let LGL = null;  // V2 game logs (set by v2.js)
 
+/** Get agent display name by id (uses names assigned by _assignNames) */
+function agentName(id) {
+  return LA?.[id]?._name || 'Agent ' + id;
+}
+
 /* ---- Export data ---- */
 function exportJSON() {
   if (!LA || !LR) return;

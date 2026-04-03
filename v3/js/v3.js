@@ -14,13 +14,12 @@ function _getWorld() {
   _v3world = new GameWorld(canvas);
   // Wire callbacks
   _v3world.onLog = (html) => {
-    const log = document.getElementById('v3-log');
+    const log = document.getElementById('log');
     if (!log) return;
     const div = document.createElement('div');
     div.className = 'v3-log-entry';
     div.innerHTML = html;
     log.appendChild(div);
-    // Cap entries for performance
     while (log.children.length > 300) log.removeChild(log.firstChild);
     log.scrollTop = log.scrollHeight;
   };
@@ -33,8 +32,10 @@ async function initGameFromResults() {
   if (!LA || !LR) return;
   const world = _getWorld();
   if (!world) return;
-  const log = document.getElementById('v3-log');
+  const log = document.getElementById('log');
   if (log) log.innerHTML = '';
+  const logCard = document.getElementById('log-card');
+  if (logCard) logCard.classList.remove('collapsed');
   world.reset();
   world.resize();
   world.init(LA, LR);
@@ -47,14 +48,6 @@ function v3Pause() {
   if (!w) return;
   if (w.state === 'running') { w.pause(); _updateV3Buttons(); }
   else if (w.state === 'paused') { w.resume(); _updateV3Buttons(); }
-}
-
-function v3ToggleLog() {
-  const log = document.getElementById('v3-log');
-  if (!log) return;
-  log.classList.toggle('collapsed');
-  // Resize canvas to fill the freed space
-  setTimeout(() => { const w = _getWorld(); if (w) { w.resize(); w.draw(); } }, 300);
 }
 
 function v3SetSpeed(val) {

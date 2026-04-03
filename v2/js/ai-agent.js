@@ -349,7 +349,7 @@ async function _dispatchGameType(agents, gt, params, orchCfg, progressCb, stepRe
         entry.response = `[fallback: math strategy = ${entry.strategy.toFixed(3)}]`;
       }
       gameLog.push(entry);
-      if (progressCb) progressCb(++stepRef.v, totalSteps, `${gt} Agent ${a.id} (${a.aiProvider})...`);
+      if (progressCb) progressCb(++stepRef.v, totalSteps, `${gt} ${a._name || 'Agent '+a.id} (${a.aiProvider})...`);
       return { id: a.id, strat: entry.strategy };
     }));
     for (const r of results) strategies[r.id] = r.strat;
@@ -394,6 +394,8 @@ async function runMultiTrialAIExperiment(progressCb) {
     if (!groupModel[r.riskGroup]) groupModel[r.riskGroup] = { provider: r.provider, model: r.model };
   }
   const riskToGroup = { risk_loving: 'rl', risk_neutral: 'rn', risk_averse: 'ra' };
+
+  _assignNames(agents);
 
   // Assign providers and section keys by risk type (not by index)
   agents.forEach(a => {
@@ -595,7 +597,7 @@ function renderGameLog(gameLog, agents) {
     const modelTag = providerBadge(e.provider);
     html += `<details class="log-entry" open>
       <summary>
-        ${e.gt} Agent ${e.id} ${modelTag} <span class="tag" style="background:var(--bg-3);color:var(--fg-2)">${e.model}</span>
+        ${e.gt} ${agentName(e.id)} ${modelTag} <span class="tag" style="background:var(--bg-3);color:var(--fg-2)">${e.model}</span>
         ${stratTag} strategy=${e.strategy?.toFixed(3) ?? '?'}
         ${a ? `c<sub>l</sub>=${a.cl.toFixed(2)} c<sub>d</sub>=${a.cd.toFixed(2)}` : ''}
       </summary>
