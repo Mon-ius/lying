@@ -52,6 +52,27 @@
 .v3-btn:disabled { opacity: .4; cursor: default; }
 .v3-btn:disabled:hover { background: var(--bg-1); color: var(--fg-1); border-color: var(--border); }
 
+.v3-zoom-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: .7rem;
+  color: var(--fg-2);
+}
+.v3-zoom-val {
+  font-family: 'SF Mono', 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: .66rem;
+  color: var(--fg-1);
+  min-width: 3em;
+  text-align: center;
+}
+.v3-btn-sm {
+  padding: 3px 8px;
+  font-size: .7rem;
+  min-width: 24px;
+  justify-content: center;
+}
 .v3-speed-wrap {
   display: flex;
   align-items: center;

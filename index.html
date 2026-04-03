@@ -309,6 +309,12 @@
   <div id="v3-container" class="v3-container" style="display:none">
     <div class="v3-controls">
       <button class="v3-btn" id="v3-pause" onclick="v3Pause()">&#x23F8; <span data-i18n="gw.pause">Pause</span></button>
+      <div class="v3-zoom-wrap">
+        <button class="v3-btn v3-btn-sm" onclick="_v3world?.zoomOut()" title="Zoom out">&#x2212;</button>
+        <span class="v3-zoom-val" id="v3-zoom-val">100%</span>
+        <button class="v3-btn v3-btn-sm" onclick="_v3world?.zoomIn()" title="Zoom in">&#x2B;</button>
+        <button class="v3-btn v3-btn-sm" onclick="_v3world?.zoomFit()" title="Fit">&#x21BA;</button>
+      </div>
       <div class="v3-speed-wrap">
         <label data-i18n="gw.speed">Speed</label>
         <input type="range" min="0.5" max="4" step="0.5" value="1" oninput="v3SetSpeed(this.value)">

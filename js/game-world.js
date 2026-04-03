@@ -201,7 +201,7 @@ class GameWorld {
     this._buildingMap = {}; BUILDINGS.forEach(b => this._buildingMap[b.id] = b);
     this.results = null; this.agents = null;
     this.onPhase = null; this.onLog = null;
-    this._scale = 1; this._offsetX = 0; this._offsetY = 0; this._interactions = 0;
+    this._scale = 1; this._offsetX = 0; this._offsetY = 0; this._zoom = 1; this._interactions = 0;
     this.spriteScale = 1;
     this._decisionCard = null;
     this._showLegend = false;
@@ -214,6 +214,9 @@ class GameWorld {
   _setupInput() {
     const c = this.canvas;
     c.style.cursor = 'grab';
+    this._zoom = 1;
+
+    // --- Drag (pan) ---
     c.addEventListener('mousedown', e => {
       this._dragging = true; this._dragSX = e.clientX; this._dragSY = e.clientY;
       this._dragOX = this._offsetX; this._dragOY = this._offsetY; c.style.cursor = 'grabbing';
@@ -225,20 +228,63 @@ class GameWorld {
       if (!this._running) this.draw();
     });
     window.addEventListener('mouseup', () => { if (this._dragging) { this._dragging = false; c.style.cursor = 'grab'; } });
+
+    // --- Touch: drag + pinch zoom ---
+    let lastPinchDist = 0;
     c.addEventListener('touchstart', e => {
-      if (e.touches.length !== 1) return; const t = e.touches[0];
-      this._dragging = true; this._dragSX = t.clientX; this._dragSY = t.clientY;
-      this._dragOX = this._offsetX; this._dragOY = this._offsetY;
+      if (e.touches.length === 1) {
+        const tp = e.touches[0];
+        this._dragging = true; this._dragSX = tp.clientX; this._dragSY = tp.clientY;
+        this._dragOX = this._offsetX; this._dragOY = this._offsetY;
+      } else if (e.touches.length === 2) {
+        this._dragging = false;
+        lastPinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      }
     }, { passive: true });
     c.addEventListener('touchmove', e => {
-      if (!this._dragging || e.touches.length !== 1) return; const t = e.touches[0];
-      this._offsetX = this._dragOX + (t.clientX - this._dragSX) * devicePixelRatio;
-      this._offsetY = this._dragOY + (t.clientY - this._dragSY) * devicePixelRatio;
-      if (!this._running) this.draw();
+      if (e.touches.length === 1 && this._dragging) {
+        const tp = e.touches[0];
+        this._offsetX = this._dragOX + (tp.clientX - this._dragSX) * devicePixelRatio;
+        this._offsetY = this._dragOY + (tp.clientY - this._dragSY) * devicePixelRatio;
+        if (!this._running) this.draw();
+      } else if (e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (lastPinchDist > 0) {
+          const factor = dist / lastPinchDist;
+          this._zoom = Math.max(0.3, Math.min(5, this._zoom * factor));
+          if (!this._running) this.draw();
+          this._updateZoomLabel();
+        }
+        lastPinchDist = dist;
+      }
     }, { passive: true });
-    c.addEventListener('touchend', () => { this._dragging = false; }, { passive: true });
-    c.addEventListener('dblclick', () => { this._offsetX = 0; this._offsetY = 0; if (!this._running) this.draw(); });
+    c.addEventListener('touchend', () => { this._dragging = false; lastPinchDist = 0; }, { passive: true });
+
+    // --- Scroll wheel zoom ---
+    c.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      this._zoom = Math.max(0.3, Math.min(5, this._zoom * delta));
+      if (!this._running) this.draw();
+      this._updateZoomLabel();
+    }, { passive: false });
+
+    // --- Double-click: reset view ---
+    c.addEventListener('dblclick', () => {
+      this._offsetX = 0; this._offsetY = 0; this._zoom = 1;
+      this._updateZoomLabel();
+      if (!this._running) this.draw();
+    });
   }
+
+  _updateZoomLabel() {
+    const el = document.getElementById('v3-zoom-val');
+    if (el) el.textContent = Math.round(this._zoom * 100) + '%';
+  }
+
+  zoomIn()  { this._zoom = Math.min(5, this._zoom * 1.25); this._updateZoomLabel(); if (!this._running) this.draw(); }
+  zoomOut() { this._zoom = Math.max(0.3, this._zoom * 0.8); this._updateZoomLabel(); if (!this._running) this.draw(); }
+  zoomFit() { this._zoom = 1; this._offsetX = 0; this._offsetY = 0; this._updateZoomLabel(); if (!this._running) this.draw(); }
 
   resize() {
     const c = this.canvas;
@@ -266,15 +312,21 @@ class GameWorld {
 
     this._autosizeBuildings(n);
 
+    // Place sprites initially at village, using same layout as _arrangeIn
     const v = this._buildingMap.village;
     const sc = this.spriteScale;
     const gapX = 38 * sc, gapY = 55 * sc;
     const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.5)));
+    const rows = Math.ceil(n / cols);
+    const gridW = (cols - 1) * gapX, gridH = (rows - 1) * gapY;
+    const headerH = 28;
+    const areaTop = v.y - v.h / 2 + headerH;
+    const areaH = v.h - headerH;
+    const startX = v.x - gridW / 2;
+    const startY = areaTop + (areaH - gridH) / 2;
     agents.forEach((a, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      const rows = Math.ceil(n / cols);
-      const gridW = (cols - 1) * gapX, gridH = (rows - 1) * gapY;
-      const sp = new Sprite(a, v.x - gridW / 2 + col * gapX, v.y + 15 * sc - gridH / 2 + row * gapY);
+      const sp = new Sprite(a, startX + col * gapX, startY + row * gapY);
       sp.alpha = 0;
       this.sprites.push(sp);
     });
@@ -290,9 +342,9 @@ class GameWorld {
     const spriteFootH = 55 * sc;   // height per agent slot (character + labels)
     const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.5)));
     const rows = Math.ceil(n / cols);
-    // Building needs: grid + padding for icon/label at top + borders
+    // Building needs: header (28) + grid + padding
     const neededW = cols * spriteFootW + 80;
-    const neededH = rows * spriteFootH + 70;  // 70 for building label/icon/desc at top
+    const neededH = rows * spriteFootH + 80;  // 28 header + padding top/bottom
 
     for (const b of BUILDINGS) {
       b.w = Math.max(b.w, neededW);
@@ -345,10 +397,12 @@ class GameWorld {
     else { bg.addColorStop(0, '#f5f5f7'); bg.addColorStop(1, '#e5e5ea'); }
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-    // World transform
-    const cx = (W - MAP_W * s) / 2 + this._offsetX;
-    const cy = (H - MAP_H * s) / 2 + this._offsetY;
-    ctx.setTransform(1, 0, 0, 1, cx, cy);
+    // World transform (with zoom)
+    const z = this._zoom || 1;
+    const sz = s * z;
+    const cx = (W - MAP_W * sz) / 2 + this._offsetX;
+    const cy = (H - MAP_H * sz) / 2 + this._offsetY;
+    ctx.setTransform(z, 0, 0, z, cx, cy);
 
     this._drawPaths(ctx, s, dark);
     this._drawBuildings(ctx, s, dark);
@@ -395,28 +449,26 @@ class GameWorld {
       ctx.strokeStyle = dark ? 'rgba(84,84,88,0.25)' : 'rgba(60,60,67,0.08)';
       ctx.lineWidth = 0.5 * s; ctx.stroke();
 
-      // Top accent line
-      const accentW = Math.min(bw * 0.35, 80 * s);
-      ctx.save(); ctx.globalAlpha = 0.65;
+      // Top accent bar (full width)
+      ctx.save(); ctx.globalAlpha = 0.7;
       ctx.fillStyle = b.tint;
       ctx.beginPath();
-      ctx.roundRect(b.x * s - accentW / 2, by, accentW, 2.5 * s, [1.5 * s, 1.5 * s, 0, 0]);
+      ctx.roundRect(bx, by, bw, 2.5 * s, [rad, rad, 0, 0]);
       ctx.fill(); ctx.restore();
 
-      // Icon
-      ctx.font = `${Math.round(16 * s)}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(b.icon, b.x * s, (b.y - 4) * s);
+      // Header area: icon + label + desc anchored at top of card
+      const hdrY = by + 14 * s;
+      ctx.font = `${Math.round(11 * s)}px sans-serif`;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.icon, bx + 10 * s, hdrY);
 
-      // Label
-      ctx.font = `600 ${Math.round(8 * s)}px ${_SF}`;
+      ctx.font = `600 ${Math.round(7.5 * s)}px ${_SF}`;
       ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
-      ctx.fillText(t(b.labelKey), b.x * s, (b.y + 10) * s);
+      ctx.fillText(t(b.labelKey), bx + 24 * s, hdrY - 1 * s);
 
-      // Description
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
-      ctx.fillText(t(b.descKey), b.x * s, (b.y + 20) * s);
+      ctx.fillText(t(b.descKey), bx + 24 * s, hdrY + 9 * s);
     }
   }
 
@@ -671,9 +723,12 @@ class GameWorld {
     const rows = Math.ceil(list.length / cols);
     const gridW = (cols - 1) * gapX;
     const gridH = (rows - 1) * gapY;
-    // Offset down by 15 to avoid overlapping building icon/label at top
+    // Header takes ~28px at top of building; center grid in remaining area
+    const headerH = 28;
+    const areaTop = b.y - b.h / 2 + headerH;
+    const areaH = b.h - headerH;
     const startX = b.x - gridW / 2;
-    const startY = b.y + 15 * sc - gridH / 2;
+    const startY = areaTop + (areaH - gridH) / 2;
     list.forEach((sp, i) => {
       const row = Math.floor(i / cols), col = i % cols;
       sp.moveTo(startX + col * gapX, startY + row * gapY);
@@ -944,7 +999,7 @@ class GameWorld {
     this.state = 'idle'; this.stopLoop();
     this.sprites = []; this.spriteScale = 1;
     this.phaseLabel = ''; this.phaseSub = ''; this.phaseProgress = 0;
-    this._offsetX = 0; this._offsetY = 0; this._decisionCard = null; this._showLegend = false;
+    this._offsetX = 0; this._offsetY = 0; this._zoom = 1; this._decisionCard = null; this._showLegend = false;
     this._logGroup = null;
     MAP_W = 1000; MAP_H = 720;
     BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
