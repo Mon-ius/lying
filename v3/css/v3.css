@@ -29,17 +29,6 @@
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.v3-controls .v3-phase {
-  font-size: .78rem;
-  font-weight: 700;
-  color: var(--fg-1);
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -.01em;
-}
 .v3-btn {
   display: inline-flex;
   align-items: center;

@@ -24,10 +24,7 @@ function _getWorld() {
     while (log.children.length > 300) log.removeChild(log.firstChild);
     log.scrollTop = log.scrollHeight;
   };
-  _v3world.onPhase = (label) => {
-    const el = document.getElementById('v3-phase');
-    if (el) el.textContent = label;
-  };
+  _v3world.onPhase = () => {};
   return _v3world;
 }
 
