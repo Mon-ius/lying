@@ -1,7 +1,14 @@
 /**
- * V3 Game Engine — Apple-aesthetic 2D game world.
- * Each agent independently plays as sender against an implicit Bayesian receiver.
- * No agent-to-agent communication — faithful to the Choi, Lee & Lim (2025) model.
+ * Game World — Apple-aesthetic 2D canvas visualization of the reputation game.
+ * Shows each step of the sender-receiver game clearly:
+ *   1. Nature draws state theta
+ *   2. Sender computes strategy & sends message m
+ *   3. Miscommunication check (message may be corrupted)
+ *   4. Receiver updates belief lambda & takes action a
+ *   5. Payoff computed, reputation updated
+ *
+ * Merges: v3-engine.js + v3.js
+ * Depends on: engine.js, modes.js (currentView), app.js (LA, LR, agentName)
  */
 
 /* ---- Helpers ---- */
@@ -60,7 +67,7 @@ const _SFT  = "-apple-system,'SF Pro Text','Inter','Segoe UI',sans-serif";
 const _MONO = "'SF Mono','JetBrains Mono','Fira Code',monospace";
 
 /* ==================================================================
-   SPRITE — Refined character with Apple aesthetics
+   SPRITE
    ================================================================== */
 class Sprite {
   constructor(agent, x, y) {
@@ -109,7 +116,7 @@ class Sprite {
     ctx.ellipse(cx, baseY + 2 * s, bodyW * 0.6, 2.5 * s, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fill();
 
-    // Active indicator — subtle ellipse ring on ground
+    // Active indicator
     if (this.active) {
       ctx.save();
       ctx.globalAlpha = this.alpha * 0.35;
@@ -159,7 +166,7 @@ class Sprite {
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText(this.name, cx, baseY + 5 * s);
 
-    // Subtitle — classification label (after classified) or risk type
+    // Subtitle
     if (this.classification) {
       ctx.font = `600 ${Math.round(5 * s)}px ${_SFT}`;
       ctx.fillStyle = this.color;
@@ -182,7 +189,7 @@ class Sprite {
 }
 
 /* ==================================================================
-   GAME WORLD — Apple-aesthetic, individual agent decisions
+   GAME WORLD
    ================================================================== */
 class GameWorld {
   constructor(canvas) {
@@ -260,7 +267,7 @@ class GameWorld {
   }
 
   /* ================================================================
-     DRAWING — Clean, minimal, Apple-like
+     DRAWING
      ================================================================ */
   draw() {
     const ctx = this.ctx, s = this._scale;
@@ -270,7 +277,7 @@ class GameWorld {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
 
-    // Background — clean neutral gradient
+    // Background
     const bg = ctx.createLinearGradient(0, 0, 0, H);
     if (dark) { bg.addColorStop(0, '#1c1c1e'); bg.addColorStop(1, '#000000'); }
     else { bg.addColorStop(0, '#f5f5f7'); bg.addColorStop(1, '#e5e5ea'); }
@@ -355,7 +362,7 @@ class GameWorld {
     const d = this._decisionCard;
     if (!d || d.alpha <= 0) return;
     const arena = this._buildingMap[d.arenaId];
-    const panelW = 270 * s, panelH = 52 * s;
+    const panelW = 310 * s, panelH = 72 * s;
     const px = arena.x * s - panelW / 2, py = (arena.y + 68) * s;
 
     ctx.globalAlpha = d.alpha;
@@ -381,19 +388,33 @@ class GameWorld {
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText(d.name, px + 22 * s, py + 14 * s);
 
-    // Truth/Lie tag (right side)
+    // Step indicator (right side)
+    if (d.stepLabel) {
+      ctx.font = `600 ${Math.round(6 * s)}px ${_SFT}`;
+      ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'right';
+      ctx.fillText(d.stepLabel, px + panelW - 12 * s, py + 14 * s);
+    }
+
+    // Truth/Lie tag (below name, right)
     if (d.tag) {
       const tagColor = d.isLie ? (dark ? '#FF453A' : '#FF3B30') : (dark ? '#30D158' : '#34C759');
       ctx.font = `700 ${Math.round(7 * s)}px ${_SFT}`;
       ctx.fillStyle = tagColor; ctx.textAlign = 'right';
-      ctx.fillText(d.tag, px + panelW - 12 * s, py + 14 * s);
+      ctx.fillText(d.tag, px + panelW - 12 * s, py + 30 * s);
     }
 
-    // Info line (centered below)
+    // Primary info line
     if (d.info) {
       ctx.font = `500 ${Math.round(7 * s)}px ${_MONO}`;
+      ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e'; ctx.textAlign = 'center';
+      ctx.fillText(d.info, arena.x * s, py + 47 * s);
+    }
+
+    // Secondary detail line
+    if (d.detail) {
+      ctx.font = `400 ${Math.round(6 * s)}px ${_MONO}`;
       ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'center';
-      ctx.fillText(d.info, arena.x * s, py + 37 * s);
+      ctx.fillText(d.detail, arena.x * s, py + 62 * s);
     }
 
     ctx.globalAlpha = 1;
@@ -403,27 +424,23 @@ class GameWorld {
     if (!this.phaseLabel) return;
     const bH = 38 * s;
 
-    // Frosted glass background
     ctx.fillStyle = dark ? 'rgba(28,28,30,0.88)' : 'rgba(255,255,255,0.88)';
     ctx.fillRect(0, 0, W, bH);
     ctx.strokeStyle = dark ? 'rgba(84,84,88,0.25)' : 'rgba(60,60,67,0.1)';
     ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(0, bH); ctx.lineTo(W, bH); ctx.stroke();
 
-    // Phase label
     ctx.font = `700 ${Math.round(11 * s)}px ${_SF}`;
     ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText(this.phaseLabel, 16 * s, bH * 0.5);
 
-    // Subtitle
     if (this.phaseSub) {
       ctx.font = `400 ${Math.round(8 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'right';
       ctx.fillText(this.phaseSub, W - 16 * s, bH * 0.5);
     }
 
-    // Progress bar
     if (this.phaseProgress > 0 && this.phaseProgress < 1) {
       ctx.fillStyle = dark ? '#0A84FF' : '#007AFF';
       ctx.fillRect(0, bH - 2 * s, W * this.phaseProgress, 2 * s);
@@ -444,7 +461,6 @@ class GameWorld {
     const panelW = 140 * s, panelH = padY * 2 + items.length * rowH;
     const px = W - panelW - 14 * s, py = H - panelH - 14 * s;
 
-    // Panel background
     ctx.save();
     ctx.shadowColor = dark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.06)';
     ctx.shadowBlur = 12 * s; ctx.shadowOffsetY = 2 * s;
@@ -455,7 +471,6 @@ class GameWorld {
     ctx.strokeStyle = dark ? 'rgba(84,84,88,0.25)' : 'rgba(60,60,67,0.08)';
     ctx.lineWidth = 0.5 * s; ctx.stroke();
 
-    // Items
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.font = `500 ${fs}px ${_SFT}`;
     for (let i = 0; i < items.length; i++) {
@@ -475,7 +490,6 @@ class GameWorld {
     const dt = Math.min(0.1, (ts - this._lastTime) / 1000);
     this._lastTime = ts; this._time = ts;
     for (const sp of this.sprites) sp.update(dt, this.speed);
-    // Decision card fade animation
     if (this._decisionCard) {
       const d = this._decisionCard;
       if (d._fadeIn) { d.alpha = Math.min(1, d.alpha + dt * 5); if (d.alpha >= 1) d._fadeIn = false; }
@@ -511,7 +525,7 @@ class GameWorld {
   }
 
   /* ================================================================
-     LOG HELPERS — Clean entries for shared game log
+     LOG HELPERS
      ================================================================ */
   _logPhase(icon, title, desc) {
     this._log(`<div class="v3-le-phase"><span class="v3-le-icon">${icon}</span><strong>${title}</strong>${desc ? `<span class="v3-le-desc"> \u2014 ${desc}</span>` : ''}</div>`);
@@ -522,11 +536,18 @@ class GameWorld {
   _logDecision(sp, result) {
     const lieTag = result.isLie ? '<span class="v3-tag v3-tag-lie">LIE</span>' : '<span class="v3-tag v3-tag-truth">TRUTH</span>';
     const decTag = result.isDec ? ' <span class="v3-tag v3-tag-dec">DECEPTIVE</span>' : '';
+    const mcTag = result.mc ? ' <span class="v3-tag" style="background:rgba(255,149,0,0.1);color:#FF9500;border:1px solid rgba(255,149,0,0.2)">NOISE</span>' : '';
     this._log(
       `<div class="v3-le-decision"><div class="v3-le-pair">` +
       `<span class="v3-le-dot" style="background:${sp.color}"></span>` +
-      `<strong>${sp.name}</strong> \u2192 Receiver ${lieTag}${decTag}</div>` +
-      `<div class="v3-le-detail">\u03B8=${result.s1} m=${result.sent} a=${result.a1.toFixed(2)} \u03BB=${result.lambda.toFixed(2)} pay=${result.sp.toFixed(2)}</div></div>`
+      `<strong>${sp.name}</strong> \u2192 Receiver ${lieTag}${decTag}${mcTag}</div>` +
+      `<div class="v3-le-detail">` +
+      `\u2460 \u03B8=${result.s1}` +
+      ` \u2461 m=${result.sent}` +
+      ` \u2462 rcv=${result.rcv}${result.mc ? '\u26A0' : ''}` +
+      ` \u2463 a=${result.a1.toFixed(2)} \u03BB=${result.lambda.toFixed(2)}` +
+      ` \u2464 pay=${result.sp.toFixed(2)}` +
+      `</div></div>`
     );
   }
   _logSummary(icon, text) {
@@ -534,33 +555,73 @@ class GameWorld {
   }
 
   /* ================================================================
-     AGENT DECISION ANIMATION — Individual agent vs implicit receiver
+     5-STEP DECISION ANIMATION
+     Each agent's decision is broken into the 5 steps of the
+     sender-receiver game, shown clearly on the decision card:
+       Step 1: Nature draws state theta
+       Step 2: Sender computes strategy & sends message m
+       Step 3: Miscommunication check
+       Step 4: Receiver updates belief lambda & takes action a
+       Step 5: Payoff computed
      ================================================================ */
   async _animateDecision(sp, result, arenaId) {
     const arena = this._buildingMap[arenaId];
+    const isBT = arenaId === 'bt';
 
     // Dim all others, highlight this agent
     for (const s of this.sprites) s.dimmed = (s !== sp);
     sp.active = true;
     sp.moveTo(arena.x, arena.y - 12);
-    await this._wait(350);
+    await this._wait(300);
 
-    // Decision card — step 1: state drawn
+    // Step 1: Nature draws state theta
     this._decisionCard = {
       arenaId, name: sp.name, color: sp.color,
-      tag: '', isLie: false, info: `\u03B8 = ${result.s1}`,
+      stepLabel: 'Step 1/5', tag: '', isLie: false,
+      info: `\uD83C\uDFB2  Nature draws \u03B8 = ${result.s1}`,
+      detail: `State of the world: ${result.s1 === 1 ? 'Good (\u03B8=1)' : 'Bad (\u03B8=0)'}`,
       alpha: 0, _fadeIn: true, _fadeOut: false,
     };
     await this._wait(450);
 
-    // Step 2: message sent + truth/lie
+    // Step 2: Sender computes strategy & sends message
+    const stratLabel = isBT
+      ? `v = ${(1 - result.strat).toFixed(2)} (truth-telling prob)`
+      : `w = ${result.strat.toFixed(2)} (lying prob)`;
+    this._decisionCard.stepLabel = 'Step 2/5';
+    this._decisionCard.info = `\uD83D\uDCAD  Sender: \u03B8=${result.s1} \u2192 m=${result.sent}`;
+    this._decisionCard.detail = `${stratLabel}  \u2502  ${result.isLie ? 'Lie (m\u2260\u03B8)' : 'Truth (m=\u03B8)'}`;
     this._decisionCard.tag = result.isLie ? 'LIE' : 'TRUTH';
     this._decisionCard.isLie = result.isLie;
-    this._decisionCard.info = `\u03B8=${result.s1}  \u2192  m=${result.sent}  \u2192  a=${result.a1.toFixed(2)}`;
     await this._wait(450);
 
-    // Step 3: full result
-    this._decisionCard.info = `\u03B8=${result.s1}  m=${result.sent}  a=${result.a1.toFixed(2)}  \u03BB=${result.lambda.toFixed(2)}  pay=${result.sp.toFixed(2)}`;
+    // Step 3: Miscommunication check
+    this._decisionCard.stepLabel = 'Step 3/5';
+    if (result.mc) {
+      this._decisionCard.info = `\u26A1  Message corrupted! sent=${result.sent} \u2192 rcv=${result.rcv}`;
+      this._decisionCard.detail = `Miscommunication: receiver sees flipped message`;
+    } else {
+      this._decisionCard.info = `\uD83D\uDCE8  Message delivered: m=${result.sent} \u2192 rcv=${result.rcv}`;
+      this._decisionCard.detail = `No corruption \u2014 receiver sees original message`;
+    }
+    await this._wait(400);
+
+    // Step 4: Receiver updates belief & takes action
+    this._decisionCard.stepLabel = 'Step 4/5';
+    this._decisionCard.info = `\uD83E\uDDE0  Receiver: \u03BB=${result.lambda.toFixed(3)}  a=${result.a1.toFixed(3)}`;
+    const decLabel = result.isDec ? `D=${result.dec.toFixed(3)} (deceptive)` : 'D=0 (non-deceptive)';
+    this._decisionCard.detail = `Bayesian update \u2502 ${decLabel}`;
+    await this._wait(450);
+
+    // Step 5: Payoff computed
+    this._decisionCard.stepLabel = 'Step 5/5';
+    this._decisionCard.info = `\uD83D\uDCB0  Payoff = ${result.sp.toFixed(3)}`;
+    const costParts = [];
+    if (result.isLie) costParts.push(`c\u2097=${result.cl.toFixed(2)}`);
+    if (result.isDec) costParts.push(`c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)}`);
+    this._decisionCard.detail = costParts.length
+      ? `Material \u2212 ${costParts.join(' \u2212 ')}  \u2502  \u03BB\u2032=${result.lambda.toFixed(3)}`
+      : `No honesty costs  \u2502  \u03BB\u2032=${result.lambda.toFixed(3)}`;
     await this._wait(450);
 
     // Fade out card
@@ -665,11 +726,12 @@ class GameWorld {
     const agentIds = Object.keys(stratMap).map(Number);
     const arenaSprites = agentIds.map(id => this._spriteOf(id)).filter(Boolean);
     const totalAgents = arenaSprites.length;
-    // Show detailed animation for a subset, fast-forward the rest
     const detailCount = Math.min(totalAgents, Math.max(3, Math.min(8, Math.ceil(n / 4))));
 
     this._setPhase(`${phaseNum} ${arenaLabel}`, `${totalAgents} agents`);
     this._logPhase(arenaEmoji, `${arenaLabel}`, `${totalAgents} agents \u2014 ${arenaDesc}`);
+    this._logSummary('\uD83D\uDCD6', `Each agent plays the 5-step sender\u2013receiver game:`);
+    this._logSummary('', `\u2460 Nature draws \u03B8 \u2192 \u2461 Sender sends m \u2192 \u2462 Channel noise \u2192 \u2463 Receiver acts \u2192 \u2464 Payoff`);
     this.phaseProgress = 0;
     this._arrangeIn(type, arenaSprites);
     await this._wait(400);
@@ -698,7 +760,8 @@ class GameWorld {
       await this._wait(300);
       const round1 = records.filter((_, idx) => idx % rounds === 0);
       const lies = round1.filter(r => r.isLie).length;
-      this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> truths, <strong>${lies}</strong> lies`);
+      const decs = round1.filter(r => r.isDec).length;
+      this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> truths, <strong>${lies}</strong> lies, <strong>${decs}</strong> deceptive`);
     } else {
       for (const sp of arenaSprites) {
         sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
@@ -717,3 +780,71 @@ class GameWorld {
     this._offsetX = 0; this._offsetY = 0; this._decisionCard = null; this._showLegend = false;
   }
 }
+
+/* ==================================================================
+   GAME VIEW INTEGRATION (formerly v3.js)
+   ================================================================== */
+
+let _v3world = null;
+
+function _getWorld() {
+  if (_v3world) return _v3world;
+  const canvas = document.getElementById('v3-canvas');
+  if (!canvas) return null;
+  _v3world = new GameWorld(canvas);
+  _v3world.onLog = (html) => {
+    const log = document.getElementById('log');
+    if (!log) return;
+    const div = document.createElement('div');
+    div.className = 'v3-log-entry';
+    div.innerHTML = html;
+    log.appendChild(div);
+    while (log.children.length > 300) log.removeChild(log.firstChild);
+    log.scrollTop = log.scrollHeight;
+  };
+  _v3world.onPhase = () => {};
+  return _v3world;
+}
+
+async function initGameFromResults() {
+  if (!LA || !LR) return;
+  const world = _getWorld();
+  if (!world) return;
+  const log = document.getElementById('log');
+  if (log) log.innerHTML = '';
+  const logCard = document.getElementById('log-card');
+  if (logCard) logCard.classList.remove('collapsed');
+  world.reset();
+  world.resize();
+  world.init(LA, LR);
+  await world.play();
+}
+
+function v3Pause() {
+  const w = _getWorld();
+  if (!w) return;
+  if (w.state === 'running') { w.pause(); _updateV3Buttons(); }
+  else if (w.state === 'paused') { w.resume(); _updateV3Buttons(); }
+}
+
+function v3SetSpeed(val) {
+  const w = _getWorld();
+  if (w) w.speed = parseFloat(val);
+  const lbl = document.getElementById('v3-speed-val');
+  if (lbl) lbl.textContent = val + 'x';
+}
+
+function _updateV3Buttons() {
+  const w = _v3world;
+  const pauseBtn = document.getElementById('v3-pause');
+  if (pauseBtn && w) {
+    pauseBtn.textContent = w.state === 'paused' ? '\u25b6 Resume' : '\u23f8 Pause';
+  }
+}
+
+window.addEventListener('resize', () => {
+  if (currentView === 'game' && _v3world) {
+    _v3world.resize();
+    _v3world.draw();
+  }
+});

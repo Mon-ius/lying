@@ -1,6 +1,6 @@
 /**
- * V2 Cross-Model Comparison Charts (Figs 8–10).
- * Depends on: shared/js/charts.js (_isDark, _layout, _cfg, CL, t)
+ * AI Cross-Model Comparison Charts (Figs 8-10).
+ * Depends on: charts.js (_isDark, _layout, _cfg, CL, t)
  */
 
 /** 8. Cross-Model Strategy Comparison — grouped bar with error bars */

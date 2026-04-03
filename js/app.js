@@ -157,8 +157,8 @@ updateCompBar();
 
 /* ---- Experiment state (shared across versions) ---- */
 let LA = null, LR = null;
-let LS = null;   // V2 cross-model stats (set by v2.js)
-let LGL = null;  // V2 game logs (set by v2.js)
+let LS = null;   // AI cross-model stats (set by modes.js)
+let LGL = null;  // AI game logs (set by modes.js)
 
 /** Get agent display name by id (uses names assigned by _assignNames) */
 function agentName(id) {
