@@ -43,14 +43,14 @@ function _assignNames(agents) {
 }
 
 /* ---- Virtual Map ---- */
-const MAP_W = 1000, MAP_H = 680;
+const MAP_W = 1000, MAP_H = 720;
 
 const BUILDINGS = [
   { id:'village', x:500, y:75,  w:340, h:60,  label:'Population Hub',   icon:'\uD83C\uDFD8\uFE0F', tint:'#34C759', desc:'Agent village' },
   { id:'oracle',  x:500, y:220, w:240, h:50,  label:'Strategy Oracle',  icon:'\uD83D\uDD2E',       tint:'#AF52DE', desc:'Strategy dispatch' },
-  { id:'bt',      x:220, y:400, w:240, h:100, label:'BT Arena',         icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', desc:'Bad-type Truth-telling' },
-  { id:'gl',      x:780, y:400, w:240, h:100, label:'GL Arena',         icon:'\u2694\uFE0F',        tint:'#FF9500', desc:'Good-type Lying' },
-  { id:'hall',    x:500, y:590, w:300, h:55,  label:'Hall of Records',  icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', desc:'Classification' },
+  { id:'bt',      x:220, y:370, w:240, h:80,  label:'BT Arena',         icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', desc:'Bad-type Truth-telling' },
+  { id:'gl',      x:780, y:370, w:240, h:80,  label:'GL Arena',         icon:'\u2694\uFE0F',        tint:'#FF9500', desc:'Good-type Lying' },
+  { id:'hall',    x:500, y:630, w:300, h:55,  label:'Hall of Records',  icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', desc:'Classification' },
 ];
 const PATHS = [['village','oracle'],['oracle','bt'],['oracle','gl'],['bt','hall'],['gl','hall']];
 
@@ -362,59 +362,136 @@ class GameWorld {
     const d = this._decisionCard;
     if (!d || d.alpha <= 0) return;
     const arena = this._buildingMap[d.arenaId];
-    const panelW = 310 * s, panelH = 72 * s;
-    const px = arena.x * s - panelW / 2, py = (arena.y + 68) * s;
+
+    // Protocol flow panel — wide, below the arena building
+    const panelW = 380 * s, panelH = 110 * s;
+    const px = arena.x * s - panelW / 2, py = (arena.y + 62) * s;
 
     ctx.globalAlpha = d.alpha;
 
-    // Card background
+    // Panel background
     ctx.save();
-    ctx.shadowColor = dark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.06)';
-    ctx.shadowBlur = 16 * s; ctx.shadowOffsetY = 3 * s;
-    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 10 * s);
-    ctx.fillStyle = dark ? 'rgba(44,44,46,0.92)' : 'rgba(255,255,255,0.95)';
+    ctx.shadowColor = dark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.08)';
+    ctx.shadowBlur = 20 * s; ctx.shadowOffsetY = 4 * s;
+    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 12 * s);
+    ctx.fillStyle = dark ? 'rgba(28,28,30,0.95)' : 'rgba(255,255,255,0.97)';
     ctx.fill(); ctx.restore();
-
-    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 10 * s);
-    ctx.strokeStyle = dark ? 'rgba(84,84,88,0.25)' : 'rgba(60,60,67,0.08)';
+    ctx.beginPath(); ctx.roundRect(px, py, panelW, panelH, 12 * s);
+    ctx.strokeStyle = dark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.1)';
     ctx.lineWidth = 0.5 * s; ctx.stroke();
 
-    // Agent color dot + name
+    // Header: agent name + step counter
     ctx.fillStyle = d.color;
-    ctx.beginPath(); ctx.arc(px + 14 * s, py + 14 * s, 3.5 * s, 0, Math.PI * 2); ctx.fill();
-
+    ctx.beginPath(); ctx.arc(px + 14 * s, py + 13 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
     ctx.font = `600 ${Math.round(8 * s)}px ${_SFT}`;
     ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(d.name, px + 22 * s, py + 14 * s);
+    ctx.fillText(d.name, px + 22 * s, py + 13 * s);
+    ctx.font = `500 ${Math.round(6.5 * s)}px ${_MONO}`;
+    ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'right';
+    ctx.fillText(`Step ${d.step}/5`, px + panelW - 12 * s, py + 13 * s);
 
-    // Step indicator (right side)
-    if (d.stepLabel) {
-      ctx.font = `600 ${Math.round(6 * s)}px ${_SFT}`;
-      ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'right';
-      ctx.fillText(d.stepLabel, px + panelW - 12 * s, py + 14 * s);
+    // --- 5-NODE FLOW DIAGRAM ---
+    // Layout: 5 nodes evenly spaced horizontally with arrows between them
+    const flowY = py + 48 * s;
+    const nodeR = 14 * s;
+    const flowL = px + 30 * s, flowR = px + panelW - 30 * s;
+    const gap = (flowR - flowL) / 4;
+    const nodeX = [0, 1, 2, 3, 4].map(i => flowL + i * gap);
+    const icons = ['\uD83C\uDFB2', '\uD83D\uDCAC', '\uD83D\uDD00', '\uD83E\uDDE0', '\uD83D\uDCB0'];
+    const labels = ['\u03B8', 'm', '\u03B5', 'a', '$'];
+
+    // Draw connecting arrows first (behind nodes)
+    for (let i = 0; i < 4; i++) {
+      const active = d.step > i + 1;
+      const current = d.step === i + 2;
+      ctx.beginPath();
+      ctx.moveTo(nodeX[i] + nodeR + 2 * s, flowY);
+      ctx.lineTo(nodeX[i + 1] - nodeR - 2 * s, flowY);
+      ctx.strokeStyle = active || current
+        ? (dark ? '#0A84FF' : '#007AFF')
+        : (dark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.15)');
+      ctx.lineWidth = (active || current) ? 2 * s : 1 * s;
+      ctx.stroke();
+      // Arrowhead
+      if (active || current) {
+        const ax = nodeX[i + 1] - nodeR - 2 * s;
+        ctx.beginPath();
+        ctx.moveTo(ax, flowY - 3 * s);
+        ctx.lineTo(ax + 4 * s, flowY);
+        ctx.lineTo(ax, flowY + 3 * s);
+        ctx.fillStyle = dark ? '#0A84FF' : '#007AFF';
+        ctx.fill();
+      }
     }
 
-    // Truth/Lie tag (below name, right)
-    if (d.tag) {
-      const tagColor = d.isLie ? (dark ? '#FF453A' : '#FF3B30') : (dark ? '#30D158' : '#34C759');
-      ctx.font = `700 ${Math.round(7 * s)}px ${_SFT}`;
-      ctx.fillStyle = tagColor; ctx.textAlign = 'right';
-      ctx.fillText(d.tag, px + panelW - 12 * s, py + 30 * s);
+    // Draw nodes
+    for (let i = 0; i < 5; i++) {
+      const active = d.step > i;
+      const current = d.step === i + 1;
+
+      // Node circle
+      ctx.beginPath(); ctx.arc(nodeX[i], flowY, nodeR, 0, Math.PI * 2);
+      if (current) {
+        ctx.fillStyle = dark ? '#0A84FF' : '#007AFF';
+        ctx.fill();
+        ctx.strokeStyle = dark ? '#4DA6FF' : '#4DA6FF';
+        ctx.lineWidth = 2 * s; ctx.stroke();
+      } else if (active) {
+        ctx.fillStyle = dark ? 'rgba(10,132,255,0.2)' : 'rgba(0,122,255,0.1)';
+        ctx.fill();
+        ctx.strokeStyle = dark ? '#0A84FF' : '#007AFF';
+        ctx.lineWidth = 1 * s; ctx.stroke();
+      } else {
+        ctx.fillStyle = dark ? 'rgba(84,84,88,0.15)' : 'rgba(60,60,67,0.06)';
+        ctx.fill();
+        ctx.strokeStyle = dark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.15)';
+        ctx.lineWidth = 0.5 * s; ctx.stroke();
+      }
+
+      // Node icon
+      ctx.font = `${Math.round(11 * s)}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(icons[i], nodeX[i], flowY - 0.5 * s);
+
+      // Value below node (if step reached)
+      if (active || current) {
+        ctx.font = `700 ${Math.round(7.5 * s)}px ${_MONO}`;
+        ctx.fillStyle = current
+          ? (dark ? '#4DA6FF' : '#007AFF')
+          : (dark ? '#e5e5ea' : '#1c1c1e');
+        ctx.textBaseline = 'top';
+        const val = d.values[i] || '';
+        ctx.fillText(val, nodeX[i], flowY + nodeR + 3 * s);
+      }
+
+      // Label above node
+      ctx.font = `500 ${Math.round(5.5 * s)}px ${_SFT}`;
+      ctx.fillStyle = (active || current) ? (dark ? '#c9d1d9' : '#3d4250') : '#8e8e93';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(labels[i], nodeX[i], flowY - nodeR - 3 * s);
     }
 
-    // Primary info line
-    if (d.info) {
-      ctx.font = `500 ${Math.round(7 * s)}px ${_MONO}`;
-      ctx.fillStyle = dark ? '#e5e5ea' : '#1c1c1e'; ctx.textAlign = 'center';
-      ctx.fillText(d.info, arena.x * s, py + 47 * s);
-    }
-
-    // Secondary detail line
+    // Bottom detail line — current step description
     if (d.detail) {
-      ctx.font = `400 ${Math.round(6 * s)}px ${_MONO}`;
-      ctx.fillStyle = '#8e8e93'; ctx.textAlign = 'center';
-      ctx.fillText(d.detail, arena.x * s, py + 62 * s);
+      ctx.font = `400 ${Math.round(6.5 * s)}px ${_SFT}`;
+      ctx.fillStyle = dark ? '#8e8e93' : '#6b7080';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(d.detail, arena.x * s, py + panelH - 12 * s);
+    }
+
+    // Truth/Lie badge (if available, top-right area)
+    if (d.tag) {
+      const tagColor = d.isLie ? '#FF3B30' : '#34C759';
+      const tagW = 42 * s, tagH = 14 * s;
+      const tx = px + panelW - tagW - 50 * s, ty = py + 5 * s;
+      ctx.beginPath(); ctx.roundRect(tx, ty, tagW, tagH, 4 * s);
+      ctx.fillStyle = tagColor + '1A'; ctx.fill();
+      ctx.strokeStyle = tagColor + '40'; ctx.lineWidth = 0.5 * s; ctx.stroke();
+      ctx.font = `700 ${Math.round(7 * s)}px ${_SFT}`;
+      ctx.fillStyle = tagColor;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(d.tag, tx + tagW / 2, ty + tagH / 2);
     }
 
     ctx.globalAlpha = 1;
@@ -572,61 +649,61 @@ class GameWorld {
     for (const s of this.sprites) s.dimmed = (s !== sp);
     sp.active = true;
     sp.moveTo(arena.x, arena.y - 12);
-    await this._wait(300);
+    await this._wait(250);
 
-    // Step 1: Nature draws state theta
-    this._decisionCard = {
+    // Card state — values array accumulates results per step, step increments
+    const card = {
       arenaId, name: sp.name, color: sp.color,
-      stepLabel: 'Step 1/5', tag: '', isLie: false,
-      info: `\uD83C\uDFB2  Nature draws \u03B8 = ${result.s1}`,
-      detail: `State of the world: ${result.s1 === 1 ? 'Good (\u03B8=1)' : 'Bad (\u03B8=0)'}`,
+      step: 0, tag: '', isLie: false,
+      values: ['', '', '', '', ''],
+      detail: '',
       alpha: 0, _fadeIn: true, _fadeOut: false,
     };
+    this._decisionCard = card;
+
+    // Step 1: Nature draws theta
+    card.step = 1;
+    card.values[0] = `${result.s1}`;
+    card.detail = `Nature draws state \u03B8 = ${result.s1}`;
+    await this._wait(500);
+
+    // Step 2: Sender sends message
+    card.step = 2;
+    card.values[1] = `${result.sent}`;
+    card.tag = result.isLie ? 'LIE' : 'TRUTH';
+    card.isLie = result.isLie;
+    card.detail = `Sender observes \u03B8=${result.s1}, sends m=${result.sent}` +
+      (result.isLie ? ' (m\u2260\u03B8 \u2014 lie)' : ' (m=\u03B8 \u2014 truth)');
+    await this._wait(500);
+
+    // Step 3: Channel / miscommunication
+    card.step = 3;
+    card.values[2] = result.mc ? `${result.sent}\u2192${result.rcv}` : '\u2713';
+    card.detail = result.mc
+      ? `Channel noise! Message flipped: sent ${result.sent} \u2192 received ${result.rcv}`
+      : `Message delivered intact: rcv = ${result.rcv}`;
     await this._wait(450);
 
-    // Step 2: Sender computes strategy & sends message
-    const stratLabel = isBT
-      ? `v = ${(1 - result.strat).toFixed(2)} (truth-telling prob)`
-      : `w = ${result.strat.toFixed(2)} (lying prob)`;
-    this._decisionCard.stepLabel = 'Step 2/5';
-    this._decisionCard.info = `\uD83D\uDCAD  Sender: \u03B8=${result.s1} \u2192 m=${result.sent}`;
-    this._decisionCard.detail = `${stratLabel}  \u2502  ${result.isLie ? 'Lie (m\u2260\u03B8)' : 'Truth (m=\u03B8)'}`;
-    this._decisionCard.tag = result.isLie ? 'LIE' : 'TRUTH';
-    this._decisionCard.isLie = result.isLie;
-    await this._wait(450);
+    // Step 4: Receiver belief update + action
+    card.step = 4;
+    card.values[3] = `${result.a1.toFixed(2)}`;
+    const decLabel = result.isDec
+      ? `D=${result.dec.toFixed(2)} (deceptive)`
+      : 'D=0 (honest)';
+    card.detail = `Receiver: \u03BB=${result.lambda.toFixed(3)}, action a=${result.a1.toFixed(3)} \u2502 ${decLabel}`;
+    await this._wait(500);
 
-    // Step 3: Miscommunication check
-    this._decisionCard.stepLabel = 'Step 3/5';
-    if (result.mc) {
-      this._decisionCard.info = `\u26A1  Message corrupted! sent=${result.sent} \u2192 rcv=${result.rcv}`;
-      this._decisionCard.detail = `Miscommunication: receiver sees flipped message`;
-    } else {
-      this._decisionCard.info = `\uD83D\uDCE8  Message delivered: m=${result.sent} \u2192 rcv=${result.rcv}`;
-      this._decisionCard.detail = `No corruption \u2014 receiver sees original message`;
-    }
-    await this._wait(400);
+    // Step 5: Payoff
+    card.step = 5;
+    card.values[4] = `${result.sp.toFixed(2)}`;
+    card.detail = `Payoff = ${result.sp.toFixed(3)}` +
+      (result.isLie ? ` (incl. c\u2097=${result.cl.toFixed(2)})` : '') +
+      (result.isDec ? ` (incl. c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)})` : '');
+    await this._wait(500);
 
-    // Step 4: Receiver updates belief & takes action
-    this._decisionCard.stepLabel = 'Step 4/5';
-    this._decisionCard.info = `\uD83E\uDDE0  Receiver: \u03BB=${result.lambda.toFixed(3)}  a=${result.a1.toFixed(3)}`;
-    const decLabel = result.isDec ? `D=${result.dec.toFixed(3)} (deceptive)` : 'D=0 (non-deceptive)';
-    this._decisionCard.detail = `Bayesian update \u2502 ${decLabel}`;
-    await this._wait(450);
-
-    // Step 5: Payoff computed
-    this._decisionCard.stepLabel = 'Step 5/5';
-    this._decisionCard.info = `\uD83D\uDCB0  Payoff = ${result.sp.toFixed(3)}`;
-    const costParts = [];
-    if (result.isLie) costParts.push(`c\u2097=${result.cl.toFixed(2)}`);
-    if (result.isDec) costParts.push(`c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)}`);
-    this._decisionCard.detail = costParts.length
-      ? `Material \u2212 ${costParts.join(' \u2212 ')}  \u2502  \u03BB\u2032=${result.lambda.toFixed(3)}`
-      : `No honesty costs  \u2502  \u03BB\u2032=${result.lambda.toFixed(3)}`;
-    await this._wait(450);
-
-    // Fade out card
-    this._decisionCard._fadeOut = true;
-    await this._wait(200);
+    // Fade out
+    card._fadeOut = true;
+    await this._wait(250);
     this._decisionCard = null;
 
     // Update agent state
