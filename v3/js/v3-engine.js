@@ -104,28 +104,16 @@ class Sprite {
     this.x = _lerp(this.x, this.tx, s * dt);
     this.y = _lerp(this.y, this.ty, s * dt);
     if (Math.abs(this.x - this._prevX) > 0.05) this.facing = this.x > this._prevX ? 1 : -1;
-    // Movement trail (throttled)
-    if ((Math.abs(this.x - this.tx) > 2 || Math.abs(this.y - this.ty) > 2) && Math.random() < 0.25) {
-      this._trail.push({ x: this.x, y: this.y, a: 0.3 });
-      if (this._trail.length > 8) this._trail.shift();
-    }
-    this._trail = this._trail.filter(t => { t.a -= dt * 2; return t.a > 0; });
   }
 
   draw(ctx, scale, dark, time) {
     if (this.alpha <= 0) return;
+    // Hidden sprites (during focused interaction) — skip entirely
+    if (this.dimmed) return;
     const sx = this.x * scale, r = this.radius * scale;
     const bob = this.bobActive ? Math.sin(time / 180 + this.bobPhase) * 2.5 * scale : 0;
     const cy = this.y * scale + bob;
-    const a = this.dimmed ? this.alpha * 0.18 : this.alpha;
-    ctx.globalAlpha = a;
-
-    // Trail
-    for (const t of this._trail) {
-      ctx.globalAlpha = t.a * a;
-      ctx.beginPath(); ctx.arc(t.x * scale, t.y * scale, r * 0.25, 0, Math.PI * 2);
-      ctx.fillStyle = this.color; ctx.fill();
-    }
+    const a = this.alpha;
     ctx.globalAlpha = a;
 
     // Glow
@@ -380,13 +368,6 @@ class GameWorld {
     else { grad.addColorStop(0, '#c8e6c0'); grad.addColorStop(0.5, '#b8dbb0'); grad.addColorStop(1, '#a3d197'); }
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
-    // Grid dots
-    ctx.fillStyle = dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)';
-    for (let gx = 20; gx < MAP_W; gx += 35)
-      for (let gy = 20; gy < MAP_H; gy += 35) {
-        ctx.beginPath(); ctx.arc(gx * s, gy * s, 1 * s, 0, Math.PI * 2); ctx.fill();
-      }
-
     this._drawPaths(ctx, s, dark);
     this._drawBuildings(ctx, s, dark);
     for (const c of this.connectors) c.draw(ctx, s);
@@ -427,15 +408,6 @@ class GameWorld {
       ctx.fillStyle = bgGrad; ctx.fill();
       ctx.strokeStyle = dark ? b.darkStroke : b.stroke;
       ctx.lineWidth = 2 * s; ctx.stroke();
-
-      // Decorative windows
-      const wCount = Math.floor(b.w / 55);
-      const wW = 12 * s, wH = 10 * s, gap = (w - wCount * wW) / (wCount + 1);
-      ctx.fillStyle = dark ? 'rgba(255,200,50,0.12)' : 'rgba(255,255,255,0.5)';
-      for (let wi = 0; wi < wCount; wi++) {
-        const wx = x + gap + wi * (wW + gap);
-        ctx.beginPath(); ctx.roundRect(wx, y + h * 0.22, wW, wH, 2 * s); ctx.fill();
-      }
 
       // Emoji
       ctx.font = `${Math.round(22 * s)}px sans-serif`;
@@ -585,48 +557,49 @@ class GameWorld {
      ================================================================ */
   async _animateInteraction(senderSp, receiverSp, result, arenaId) {
     const arena = this._buildingCenter(arenaId);
-    const sX = arena.x - 50, rX = arena.x + 50, aY = arena.y;
+    const sX = arena.x - 70, rX = arena.x + 70, aY = arena.y;
 
-    // Spotlight pair
+    // Clear visual clutter — hide all non-participating sprites
     for (const sp of this.sprites) sp.dimmed = (sp !== senderSp && sp !== receiverSp);
+    this.bubbles = [];
+    this.particles = [];
+    this.connectors = [];
     senderSp.glowing = true; receiverSp.glowing = true;
     senderSp.bobActive = true; receiverSp.bobActive = true;
 
-    // Move to arena center
+    // Move pair to arena center with spacing
     senderSp.moveTo(sX, aY); receiverSp.moveTo(rX, aY);
-    this.connectors.push(new Connector(senderSp, receiverSp, '#d97706', 5));
-    await this._wait(450);
+    this.connectors.push(new Connector(senderSp, receiverSp, '#d97706', 6));
+    await this._wait(500);
 
-    // 1) State revealed to sender
-    this._addBubble(senderSp.x, senderSp.y - 38, `\u03B8 = ${result.s1}`, 'thought', 2.5);
-    await this._wait(350);
+    // 1) State revealed — single bubble, wait for it to clear
+    this._addBubble(senderSp.x, senderSp.y - 40, `\u03B8 = ${result.s1}`, 'thought', 1.8);
+    await this._wait(600);
 
-    // 2) Sender's decision
+    // 2) Sender's decision — clear previous, show new
+    this.bubbles = [];
     if (result.isLie) {
-      this._addBubble(senderSp.x, senderSp.y - 38, `Send m=${result.sent} (lie)`, 'event', 2.5);
-      this._burst(senderSp.x, senderSp.y, '#dc2626', 14);
+      this._addBubble(senderSp.x, senderSp.y - 40, `m=${result.sent} (lie)`, 'event', 1.8);
+      this._burst(senderSp.x, senderSp.y, '#dc2626', 6);
     } else {
-      this._addBubble(senderSp.x, senderSp.y - 38, `Send m=${result.sent} (truth)`, 'success', 2.5);
-      this._burst(senderSp.x, senderSp.y, '#16a34a', 8);
+      this._addBubble(senderSp.x, senderSp.y - 40, `m=${result.sent} (truth)`, 'success', 1.8);
     }
-    await this._wait(400);
+    await this._wait(600);
 
-    // 3) Receiver's action
-    this._addBubble(receiverSp.x, receiverSp.y - 38, `Action a=${result.a1.toFixed(2)}`, 'speech', 2);
-    await this._wait(350);
+    // 3) Receiver's action — clear previous, show new
+    this.bubbles = [];
+    this._addBubble(receiverSp.x, receiverSp.y - 40, `a=${result.a1.toFixed(2)}  \u03BB=${result.lambda.toFixed(2)}`, 'speech', 1.8);
+    await this._wait(600);
 
-    // 4) Belief update
-    this._addBubble((sX + rX) / 2, aY - 55, `\u03BB = ${result.lambda.toFixed(2)}`, 'thought', 2);
-    await this._wait(300);
-
-    // 5) Update reputation
+    // 4) Update reputation + cleanup
+    this.bubbles = [];
     senderSp.rep = result.strat ?? 0.5;
 
     // Log the interaction
     this._logMatch(senderSp, receiverSp, result);
     this._interactions++;
 
-    // Cleanup spotlight
+    // Restore all sprites
     senderSp.glowing = false; receiverSp.glowing = false;
     senderSp.bobActive = false; receiverSp.bobActive = false;
     for (const sp of this.sprites) sp.dimmed = false;
@@ -651,11 +624,10 @@ class GameWorld {
     for (let i = 0; i < this.sprites.length; i++) {
       const sp = this.sprites[i];
       sp.alpha = 1;
-      this._burst(sp.x, sp.y, sp.color, 5);
       this._logAgent(sp, `enters the village <em>(${sp.riskLabel})</em>`);
       this.phaseProgress = (i + 1) / n;
-      // Stagger entrance: show first 8 individually, then batch
-      if (i < 8 || i % Math.max(1, Math.floor(n / 10)) === 0) await this._wait(100);
+      // Stagger entrance: show first 6 individually, then batch
+      if (i < 6 || i % Math.max(1, Math.floor(n / 8)) === 0) await this._wait(80);
     }
     this._logSummary('\u2713', `All <strong>${n}</strong> agents have arrived`);
     await this._wait(500);
@@ -666,8 +638,6 @@ class GameWorld {
     this.phaseProgress = 0;
 
     this._arrangeIn('oracle', this.sprites);
-    const oc = this._buildingCenter('oracle');
-    this._burst(oc.x, oc.y, '#9673a6', 25);
     await this._wait(700);
 
     const oracleShow = Math.min(6, n);
@@ -704,16 +674,14 @@ class GameWorld {
       const sp = this.sprites[i];
       sp.classification = sp.agent.classification || '';
       if (sp.classification) C[sp.classification]++;
-      this._burst(sp.x, sp.y, CLS_COLORS[sp.classification] || '#888', 5);
       const clsLabel = CLS_LABELS[sp.classification] || sp.classification;
       this._logAgent(sp, `classified as <strong>${clsLabel}</strong>`);
       this.phaseProgress = (i + 1) / n;
-      if (i < 8 || i % Math.max(1, Math.floor(n / 8)) === 0) {
-        this._addBubble(sp.x, sp.y - 38, clsLabel, 'speech', 2.5);
-        await this._wait(120);
+      if (i < 6 || i % Math.max(1, Math.floor(n / 6)) === 0) {
+        await this._wait(80);
       }
     }
-    await this._wait(500);
+    await this._wait(400);
 
     // Final stats
     this._logPhase('\uD83D\uDCCA', 'Final Results', '');
@@ -733,11 +701,11 @@ class GameWorld {
     this.phaseProgress = 1;
     this.state = 'done';
 
-    // Celebration
+    // Celebration — minimal
     const hc = this._buildingCenter('hall');
-    for (let i = 0; i < 40; i++) {
-      this._burst(hc.x + _rand(-120, 120), hc.y + _rand(-30, 30),
-        ['#dc2626', '#16a34a', '#2563eb', '#d97706', '#7c3aed'][i % 5], 3);
+    for (let i = 0; i < 12; i++) {
+      this._burst(hc.x + _rand(-80, 80), hc.y + _rand(-20, 20),
+        ['#dc2626', '#16a34a', '#2563eb', '#d97706'][i % 4], 2);
     }
   }
 
