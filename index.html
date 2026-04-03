@@ -8,7 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="shared/css/style.css">
+<link rel="stylesheet" href="v2/css/v2.css">
+<link rel="stylesheet" href="v3/css/v3.css">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
@@ -32,6 +34,10 @@
       <button class="paradigm-btn" data-v="v2" onclick="switchVersion('v2')">
         <span class="paradigm-icon">&#x1F916;</span>
         <span class="paradigm-label" data-i18n="v2.label">V2 AI</span>
+      </button>
+      <button class="paradigm-btn" data-v="v3" onclick="switchVersion('v3')">
+        <span class="paradigm-icon">&#x1F3AE;</span>
+        <span class="paradigm-label" data-i18n="v3.label">V3 Game</span>
       </button>
     </div>
     <div class="nav-tools">
@@ -236,7 +242,7 @@
   </div>
 
   <div class="sidebar-footer">
-    <button class="btn-run" id="btn-run" onclick="currentVersion==='v2'?runAI():runExperiment()">
+    <button class="btn-run" id="btn-run" onclick="runCurrentVersion()">
       <span class="spinner"></span>
       <span class="label" id="btn-run-label" data-i18n="btn.run">Run Experiment</span>
     </button>
@@ -256,7 +262,7 @@
   </div>
 
   <!-- Export -->
-  <div class="export-row">
+  <div class="export-row v3-hide-in-game">
     <button class="btn-export" onclick="exportJSON()" title="Export simulation data as JSON">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span data-i18n="btn.json">Export JSON</span>
@@ -268,7 +274,7 @@
   </div>
 
   <!-- Game Log -->
-  <details class="log-card" id="log-card">
+  <details class="log-card v3-hide-in-game" id="log-card">
     <summary><h4 data-i18n="log.title">Game Log</h4><span class="log-toggle-hint" data-i18n="log.toggle">click to expand</span></summary>
     <div class="log-view-tabs">
       <button class="log-view-btn active" data-view="txt" onclick="switchLogView('txt')">TXT</button>
@@ -293,8 +299,25 @@
     </div>
   </details>
 
+  <!-- V3 Game World (hidden by default) -->
+  <div id="v3-container" class="v3-container" style="display:none">
+    <div class="v3-controls">
+      <span class="v3-phase" id="v3-phase">Ready</span>
+      <button class="v3-btn" id="v3-pause" onclick="v3Pause()">⏸ Pause</button>
+      <div class="v3-speed-wrap">
+        <label>Speed</label>
+        <input type="range" min="0.5" max="4" step="0.5" value="1" oninput="v3SetSpeed(this.value)">
+        <span class="v3-speed-val" id="v3-speed-val">1x</span>
+      </div>
+    </div>
+    <div class="v3-world-wrap">
+      <canvas id="v3-canvas"></canvas>
+      <div class="v3-log" id="v3-log"></div>
+    </div>
+  </div>
+
   <!-- Charts -->
-  <div class="chart-grid">
+  <div class="chart-grid v3-hide-in-game">
     <div class="chart-card">
       <h4><span class="dot" style="background:var(--purple)"></span><span data-i18n="chart.params">Fig. 1 &mdash; Utility Parameter Distributions</span><button class="chart-dl" onclick="downloadChart('c-params','fig1-utility-params')" title="Download PNG"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4 7l4 4 4-4M3 13h10"/></svg></button></h4>
       <div id="c-params"></div>
@@ -636,6 +659,106 @@
     </svg>
   </div>
 
+  <!-- V3 Architecture SVG -->
+  <div class="arch-svg-container" id="arch-v3" style="display:none">
+    <svg viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg" font-family="'Inter','Segoe UI',system-ui,sans-serif">
+      <defs>
+        <marker id="ah3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="var(--fg-3)" stroke-width="1.2"/>
+        </marker>
+        <linearGradient id="gv3-green" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#16a34a"/>
+          <stop offset="100%" stop-color="#0d9488"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Title -->
+      <text x="400" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="var(--fg-1)">V3 Game Mode — Stanford Town Visualization</text>
+      <text x="400" y="48" text-anchor="middle" font-size="10" fill="var(--fg-2)">Animated game world • Dual engine (AI / Math) • Canvas 2D rendering</text>
+
+      <!-- Input layer -->
+      <rect x="260" y="70" width="280" height="46" rx="10" fill="var(--bg-2)" stroke="url(#gv3-green)" stroke-width="2"/>
+      <text x="400" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg-1)">Game Parameters &amp; API Keys</text>
+      <text x="400" y="104" text-anchor="middle" font-size="9" fill="var(--fg-2)">Population • Risk mix • Rounds • Optional AI keys</text>
+
+      <!-- Decision diamond -->
+      <path d="M400,116 L400,140" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <polygon points="400,148 440,172 400,196 360,172" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="400" y="176" text-anchor="middle" font-size="9" font-weight="700" fill="var(--fg-1)">API Keys?</text>
+
+      <!-- Left branch: Math engine -->
+      <path d="M360,172 L220,172 L220,210" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <text x="280" y="166" font-size="8" fill="var(--fg-2)">No</text>
+      <rect x="120" y="216" width="200" height="44" rx="10" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="220" y="236" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1e40af">V1 Math Engine</text>
+      <text x="220" y="250" text-anchor="middle" font-size="8.5" fill="#1e40af" opacity=".8">createPopulation → runSim → classify</text>
+
+      <!-- Right branch: AI engine -->
+      <path d="M440,172 L580,172 L580,210" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <text x="500" y="166" font-size="8" fill="var(--fg-2)">Yes</text>
+      <rect x="480" y="216" width="200" height="44" rx="10" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+      <text x="580" y="236" text-anchor="middle" font-size="10.5" font-weight="700" fill="#9d174d">V2 AI Agents</text>
+      <text x="580" y="250" text-anchor="middle" font-size="8.5" fill="#9d174d" opacity=".8">Multi-trial AI experiment</text>
+
+      <!-- Merge -->
+      <path d="M220,260 L220,290 L400,290" fill="none" stroke="var(--fg-3)" stroke-width="1.5"/>
+      <path d="M580,260 L580,290 L400,290" fill="none" stroke="var(--fg-3)" stroke-width="1.5"/>
+      <path d="M400,290 L400,310" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+      <!-- Game World init -->
+      <rect x="250" y="316" width="300" height="50" rx="12" fill="url(#gv3-green)" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="400" y="338" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">🎮 GameWorld.init(agents, R)</text>
+      <text x="400" y="354" text-anchor="middle" font-size="9" fill="#fff" opacity=".9">Canvas 2D • Virtual 1000×700 coordinates</text>
+
+      <!-- Phase pipeline -->
+      <path d="M400,366 L400,390" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+      <!-- Phase boxes -->
+      <rect x="80" y="396" width="120" height="40" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="140" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#166534">① Populate</text>
+      <text x="140" y="427" text-anchor="middle" font-size="7.5" fill="#166534">Sprites enter town</text>
+
+      <path d="M200,416 L230,416" fill="none" stroke="var(--fg-3)" stroke-width="1.2" marker-end="url(#ah3)"/>
+
+      <rect x="236" y="396" width="120" height="40" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="296" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#166534">② Oracle</text>
+      <text x="296" y="427" text-anchor="middle" font-size="7.5" fill="#166534">θ revealed to sender</text>
+
+      <path d="M356,416 L386,416" fill="none" stroke="var(--fg-3)" stroke-width="1.2" marker-end="url(#ah3)"/>
+
+      <rect x="392" y="396" width="120" height="40" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="452" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#166534">③ BT Game</text>
+      <text x="452" y="427" text-anchor="middle" font-size="7.5" fill="#166534">Burning–Talking pairs</text>
+
+      <path d="M512,416 L542,416" fill="none" stroke="var(--fg-3)" stroke-width="1.2" marker-end="url(#ah3)"/>
+
+      <rect x="548" y="396" width="120" height="40" rx="8" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="608" y="413" text-anchor="middle" font-size="9" font-weight="700" fill="#166534">④ GL Game</text>
+      <text x="608" y="427" text-anchor="middle" font-size="7.5" fill="#166534">Gullible–Liar pairs</text>
+
+      <!-- Down to classify -->
+      <path d="M400,436 L400,460" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+      <rect x="250" y="466" width="300" height="44" rx="10" fill="#ecfdf5" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="400" y="486" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">⑤ Classification &amp; Results</text>
+      <text x="400" y="500" text-anchor="middle" font-size="8.5" fill="#166534" opacity=".8">KPI updates • Hall of Records animation</text>
+
+      <!-- Output layer -->
+      <path d="M400,510 L400,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+
+      <rect x="120" y="546" width="180" height="44" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="210" y="566" text-anchor="middle" font-size="10" font-weight="700" fill="var(--fg-1)">Canvas Rendering</text>
+      <text x="210" y="580" text-anchor="middle" font-size="8" fill="var(--fg-2)">Buildings • Sprites • Bubbles</text>
+
+      <rect x="500" y="546" width="180" height="44" rx="10" fill="var(--bg-2)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="590" y="566" text-anchor="middle" font-size="10" font-weight="700" fill="var(--fg-1)">Game Log</text>
+      <text x="590" y="580" text-anchor="middle" font-size="8" fill="var(--fg-2)">Phase-by-phase event stream</text>
+
+      <path d="M400,510 L210,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <path d="M400,510 L590,540" fill="none" stroke="var(--fg-3)" stroke-width="1.5" marker-end="url(#ah3)"/>
+    </svg>
+  </div>
+
   <!-- Key Definitions -->
   <div class="arch-defs">
     <div class="arch-def-card">
@@ -786,10 +909,20 @@
 </div>
 </div><!-- /tab-glossary -->
 
-<script src="js/engine.js"></script>
-<script src="js/i18n.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/ai-agent.js"></script>
-<script src="js/app.js"></script>
+<!-- Shared -->
+<script src="shared/js/engine.js"></script>
+<script src="shared/js/i18n.js"></script>
+<script src="shared/js/charts.js"></script>
+<script src="shared/js/version-loader.js"></script>
+<script src="shared/js/app.js"></script>
+<!-- V1 -->
+<script src="v1/js/v1.js"></script>
+<!-- V2 -->
+<script src="v2/js/ai-agent.js"></script>
+<script src="v2/js/v2-charts.js"></script>
+<script src="v2/js/v2.js"></script>
+<!-- V3 -->
+<script src="v3/js/v3-engine.js"></script>
+<script src="v3/js/v3.js"></script>
 </body>
 </html>

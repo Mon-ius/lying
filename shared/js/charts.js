@@ -1,5 +1,6 @@
 /**
  * Plotly-based chart rendering — responsive, theme-aware.
+ * Shared charts (Figs 1–7) + infrastructure.
  * Depends on: Plotly.js (CDN), engine.js (CL colors)
  */
 
@@ -78,8 +79,6 @@ function plotParams(agents) {
     layout['yaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, ticklabelstandoff: 4 };
   }
   Plotly.react('c-params', traces, layout, _cfg).then(() => {
-    /* Hide y-axis "0" labels — histogram counts obviously start at 0,
-       and the label overlaps with the x-axis "0" at the corner. */
     const el = document.getElementById('c-params');
     const hideYZero = () => el.querySelectorAll('[class*="ytick"] text').forEach(t => {
       t.style.visibility = t.textContent.trim() === '0' ? 'hidden' : '';
@@ -181,7 +180,6 @@ function plotTypes(agents) {
   };
   const riskTrace = mkTrace(risk, 'Risk', riskNames);
   const clsTrace = mkTrace(cls, 'Classification', clsNames);
-  // Stack vertically using subplots
   riskTrace.xaxis = 'x'; riskTrace.yaxis = 'y';
   clsTrace.xaxis = 'x2'; clsTrace.yaxis = 'y2';
   const dark = _isDark();
@@ -207,7 +205,6 @@ function plotTypes(agents) {
 function plotRegions(agents) {
   const mx = 5, res = 80;
   const dark = _isDark();
-  // Build heatmap z-data
   const z = [];
   for (let j = 0; j < res; j++) {
     const row = [];
@@ -229,7 +226,6 @@ function plotRegions(agents) {
     showscale: false,
     hoverinfo: 'skip',
   };
-  // Boundary lines
   const mkLine = (fn) => {
     const x = [], y = [];
     for (let i = 0; i <= 100; i++) {
@@ -244,7 +240,6 @@ function plotRegions(agents) {
   const dashColor = dark ? 'rgba(200,210,225,0.4)' : 'rgba(50,60,80,0.25)';
   const solidTrace = { x: solidLine.x, y: solidLine.y, mode: 'lines', line: { color: lineColor, width: 2 }, showlegend: false, hoverinfo: 'skip' };
   const dashTrace = { x: dashedLine.x, y: dashedLine.y, mode: 'lines', line: { color: dashColor, width: 2, dash: 'dash' }, showlegend: false, hoverinfo: 'skip' };
-  // Agent dots grouped by classification
   const groups = {};
   const nameMap = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
   for (const a of agents) {
@@ -288,17 +283,16 @@ function _crc32(buf) {
   return (c ^ 0xFFFFFFFF) >>> 0;
 }
 function _setPngDpi(dataUrl, dpi) {
-  const ppm = Math.round(dpi / 0.0254); // pixels per meter
+  const ppm = Math.round(dpi / 0.0254);
   const bin = atob(dataUrl.split(',')[1]);
   const src = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) src[i] = bin.charCodeAt(i);
-  // Insert pHYs chunk after IHDR (8-byte sig + 25-byte IHDR = offset 33)
   const pos = 33;
-  const phys = new Uint8Array(21); // 4 len + 4 type + 9 data + 4 crc
+  const phys = new Uint8Array(21);
   const dv = new DataView(phys.buffer);
   dv.setUint32(0, 9);
-  phys[4]=0x70; phys[5]=0x48; phys[6]=0x59; phys[7]=0x73; // "pHYs"
-  dv.setUint32(8, ppm); dv.setUint32(12, ppm); phys[16] = 1; // unit=meter
+  phys[4]=0x70; phys[5]=0x48; phys[6]=0x59; phys[7]=0x73;
+  dv.setUint32(8, ppm); dv.setUint32(12, ppm); phys[16] = 1;
   dv.setUint32(17, _crc32(phys.subarray(4, 17)));
   const out = new Uint8Array(src.length + 21);
   out.set(src.subarray(0, pos)); out.set(phys, pos); out.set(src.subarray(pos), pos + 21);
@@ -317,7 +311,6 @@ async function downloadChart(id, name) {
   const fg2 = dark ? '#8b949e' : '#6b7080';
   const border = dark ? '#30363d' : '#dfe1e6';
 
-  // 1. Capture Plotly chart with solid background + extra top margin
   const origLayout = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor, 'margin.t': gd.layout.margin?.t };
   await Plotly.relayout(gd, { paper_bgcolor: bg, plot_bgcolor: plotBg, 'margin.t': 36 });
   const dataUrl = await Plotly.toImage(gd, { format: 'png', width: 1600, height: 1000, scale: 2 });
@@ -325,12 +318,10 @@ async function downloadChart(id, name) {
   const chartImg = new Image(); chartImg.src = dataUrl;
   await new Promise(r => { chartImg.onload = r; });
 
-  // 2. Extract text
   const title = (card.querySelector('h4 span[data-i18n]') || card.querySelector('h4 span')).textContent.trim();
   const noteEl = card.querySelector('.chart-note');
   const noteText = noteEl ? noteEl.innerText.trim() : '';
 
-  // 3. Word-wrap notes
   const pad = 50, titleSize = 30, noteSize = 17, lineH = noteSize * 1.65;
   const maxW = chartImg.width;
   const tmp = document.createElement('canvas').getContext('2d');
@@ -348,7 +339,6 @@ async function downloadChart(id, name) {
     if (line) noteLines.push(line);
   }
 
-  // 4. Build canvas
   const titleH = titleSize + pad + 36;
   const noteH = noteLines.length ? noteLines.length * lineH + pad + 10 : 0;
   const W = chartImg.width + pad * 2;
@@ -357,22 +347,14 @@ async function downloadChart(id, name) {
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
 
-  // Background
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-  // Title
   ctx.fillStyle = fg;
   ctx.font = 'bold ' + titleSize + 'px Inter, system-ui, sans-serif';
   ctx.fillText(title, pad, pad + titleSize * 0.8);
-
-  // Separator
   ctx.strokeStyle = border; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad, titleH - 4); ctx.lineTo(W - pad, titleH - 4); ctx.stroke();
-
-  // Chart
   ctx.drawImage(chartImg, pad, titleH);
 
-  // Notes
   if (noteLines.length) {
     const ny = titleH + chartImg.height + 16;
     ctx.beginPath(); ctx.moveTo(pad, ny); ctx.lineTo(W - pad, ny); ctx.stroke();
@@ -381,7 +363,6 @@ async function downloadChart(id, name) {
     noteLines.forEach((l, i) => ctx.fillText(l, pad, ny + 24 + i * lineH));
   }
 
-  // Download
   const a = document.createElement('a');
   a.href = _setPngDpi(canvas.toDataURL('image/png'), 300);
   a.download = (name || id) + '.png'; a.click();
@@ -393,9 +374,7 @@ function plotLambda(R) {
   if (!el) return;
   const dark = _isDark();
   const gc = dark ? '#1e242e' : '#eef0f3';
-  const annColor = dark ? '#c9d1d9' : '#3d4250';
 
-  // Collect per-period lambda for BT and GL
   const collect = (arr) => {
     if (!arr.length || !arr[0].periods) return null;
     const N = arr[0].periods.length;
@@ -430,14 +409,12 @@ function plotLambda(R) {
     if (!d) return;
     const upper = d.means.map((m, i) => m + d.stds[i]);
     const lower = d.means.map((m, i) => m - d.stds[i]);
-    // Band fill
     traces.push({
       x: [...d.xs, ...d.xs.slice().reverse()],
       y: [...upper, ...lower.reverse()],
       fill: 'toself', fillcolor: color.replace('1)', '0.12)'),
       line: { width: 0 }, showlegend: false, hoverinfo: 'skip',
     });
-    // Mean line
     traces.push({
       x: d.xs, y: d.means,
       mode: 'lines+markers', name,
@@ -449,7 +426,6 @@ function plotLambda(R) {
   addBand(bt, 'BT', 'rgba(37,99,235,1)');
   addBand(gl, 'GL', 'rgba(220,38,38,1)');
 
-  // Period weights on secondary y-axis
   const ref = bt || gl;
   const N = ref.xs.length;
   const ratio = parseFloat(document.getElementById('s-ratio')?.value || 20);
@@ -476,184 +452,7 @@ function plotLambda(R) {
   Plotly.react('c-lambda', traces, layout, _cfg);
 }
 
-/* ==================================================================
-   V2 CROSS-MODEL COMPARISON CHARTS
-   ================================================================== */
-
-/** 8. Cross-Model Strategy Comparison — grouped bar with error bars */
-function plotModelStrats(stats) {
-  const el = document.getElementById('c-model-strats');
-  if (!el || !stats?.perModel) return;
-  const dark = _isDark();
-  const models = Object.keys(stats.perModel);
-  if (!models.length) return;
-
-  const labels = models.map(m => {
-    const parts = m.split('/');
-    return parts.length > 1 ? parts[1] : m;
-  });
-
-  const btMeans = models.map(m => stats.perModel[m].bt.mean);
-  const btErr   = models.map(m => stats.perModel[m].bt.ci || stats.perModel[m].bt.std);
-  const glMeans = models.map(m => stats.perModel[m].gl.mean);
-  const glErr   = models.map(m => stats.perModel[m].gl.ci || stats.perModel[m].gl.std);
-
-  const traces = [];
-  if (btMeans.some(v => v > 0 || !isNaN(v))) {
-    traces.push({
-      x: labels, y: btMeans, name: 'BT (v)',
-      type: 'bar',
-      marker: { color: 'rgba(37,99,235,0.65)' },
-      error_y: { type: 'data', array: btErr, visible: true, color: dark ? '#8b949e' : '#666' },
-    });
-  }
-  if (glMeans.some(v => v > 0 || !isNaN(v))) {
-    traces.push({
-      x: labels, y: glMeans, name: 'GL (w)',
-      type: 'bar',
-      marker: { color: 'rgba(220,38,38,0.65)' },
-      error_y: { type: 'data', array: glErr, visible: true, color: dark ? '#8b949e' : '#666' },
-    });
-  }
-
-  const layout = _layout({
-    height: 340,
-    barmode: 'group',
-    xaxis: { ...(_layout().xaxis), title: '', tickangle: -30, tickfont: { size: 9 } },
-    yaxis: { ...(_layout().yaxis), title: t('ax.ttp'), range: [0, 1.15] },
-    legend: { x: 0.02, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 48, r: 16, t: 8, b: 72 },
-    shapes: [
-      // BT equilibrium v*=1
-      { type: 'line', x0: -0.5, x1: labels.length - 0.5, y0: 1, y1: 1,
-        line: { color: 'rgba(37,99,235,0.4)', width: 1.5, dash: 'dash' } },
-      // GL equilibrium w*=0
-      { type: 'line', x0: -0.5, x1: labels.length - 0.5, y0: 0, y1: 0,
-        line: { color: 'rgba(220,38,38,0.4)', width: 1.5, dash: 'dash' } },
-    ],
-    annotations: [
-      { text: 'v*=1', x: labels.length - 0.6, y: 1.04, showarrow: false,
-        font: { size: 9, color: 'rgba(37,99,235,0.7)', family: 'JetBrains Mono, monospace' } },
-    ],
-  });
-  Plotly.react('c-model-strats', traces, layout, _cfg);
-}
-
-/** 9. Cross-Model Classification — stacked horizontal bar per model */
-function plotModelTypes(stats) {
-  const el = document.getElementById('c-model-types');
-  if (!el || !stats?.perModel) return;
-  const dark = _isDark();
-  const models = Object.keys(stats.perModel);
-  if (!models.length) return;
-
-  const labels = models.map(m => {
-    const parts = m.split('/');
-    return parts.length > 1 ? parts[1] : m;
-  });
-
-  const CLS_KEYS = ['equilibrium', 'lying_averse', 'deception_averse', 'inference_error'];
-  const clsNames = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
-
-  const traces = CLS_KEYS.map(k => ({
-    y: labels,
-    x: models.map(m => (stats.perModel[m].cls[k] || 0) * 100),
-    name: clsNames[k] || k.replace(/_/g, ' '),
-    type: 'bar',
-    orientation: 'h',
-    marker: { color: CL[k], opacity: 0.75 },
-    texttemplate: '%{x:.0f}%',
-    textposition: 'inside',
-    textfont: { size: 9, color: '#fff' },
-    insidetextanchor: 'middle',
-    hovertemplate: '%{y}: %{x:.1f}%<extra>' + (clsNames[k] || k) + '</extra>',
-  }));
-
-  const layout = _layout({
-    height: Math.max(220, models.length * 50 + 80),
-    barmode: 'stack',
-    xaxis: { ...(_layout().xaxis), title: '%', range: [0, 105] },
-    yaxis: { ...(_layout().yaxis), automargin: true, tickfont: { size: 9 } },
-    legend: { x: 0.5, y: -0.15, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 120, r: 16, t: 8, b: 48 },
-  });
-  Plotly.react('c-model-types', traces, layout, _cfg);
-}
-
-/** 10. Model vs. Equilibrium Deviation — scatter with error ellipses */
-function plotModelDeviation(stats) {
-  const el = document.getElementById('c-model-deviation');
-  if (!el || !stats?.perModel) return;
-  const dark = _isDark();
-  const models = Object.keys(stats.perModel);
-  if (!models.length) return;
-
-  const palette = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c',
-                    '#4338ca','#65a30d','#0891b2','#e11d48'];
-
-  const traces = [];
-  models.forEach((m, i) => {
-    const d = stats.perModel[m];
-    const label = m.split('/').pop();
-    const col = palette[i % palette.length];
-
-    // Error ellipse (approximate as rectangle outline)
-    const btCi = d.bt.ci || d.bt.std;
-    const glCi = d.gl.ci || d.gl.std;
-    if (btCi > 0 || glCi > 0) {
-      // Draw ellipse points
-      const pts = 40;
-      const ex = [], ey = [];
-      for (let j = 0; j <= pts; j++) {
-        const angle = (j / pts) * 2 * Math.PI;
-        ex.push(d.btDev + btCi * Math.cos(angle));
-        ey.push(d.glDev + glCi * Math.sin(angle));
-      }
-      traces.push({
-        x: ex, y: ey, mode: 'lines',
-        line: { color: col, width: 1, dash: 'dot' },
-        showlegend: false, hoverinfo: 'skip',
-      });
-    }
-
-    // Point
-    traces.push({
-      x: [d.btDev], y: [d.glDev],
-      mode: 'markers+text', name: label,
-      marker: { color: col, size: 10, symbol: 'diamond', opacity: 0.85 },
-      text: [label], textposition: 'top center',
-      textfont: { size: 8, color: dark ? '#c9d1d9' : '#3d4250' },
-      hovertemplate: `<b>${label}</b><br>BT dev: %{x:.3f}<br>GL dev: %{y:.3f}<extra></extra>`,
-    });
-  });
-
-  // Origin marker (perfect equilibrium)
-  traces.push({
-    x: [0], y: [0],
-    mode: 'markers', name: 'Equilibrium',
-    marker: { color: dark ? '#c9d1d9' : '#333', size: 12, symbol: 'star', line: { width: 1, color: dark ? '#fff' : '#000' } },
-    hovertemplate: 'Perfect equilibrium<extra></extra>',
-  });
-
-  const maxDev = Math.max(0.15, ...models.map(m => Math.max(stats.perModel[m].btDev, stats.perModel[m].glDev) * 1.3));
-  const layout = _layout({
-    height: 380,
-    xaxis: { ...(_layout().xaxis), title: 'BT deviation |v − v*|', range: [-0.02, maxDev] },
-    yaxis: { ...(_layout().yaxis), title: 'GL deviation |w − w*|', range: [-0.02, maxDev], scaleanchor: 'x', scaleratio: 1 },
-    legend: { x: 1, y: 1, xanchor: 'right', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 56, r: 16, t: 8, b: 48 },
-  });
-  Plotly.react('c-model-deviation', traces, layout, _cfg);
-}
-
-/** Point Cloud — Communication Trajectory Cloud
- *  X: Period (BT.1..N | GL.1..N) — time progression
- *  Y: λ (belief) — inherited state that evolves across periods
- *  Z: Receiver action — the communication outcome
- *  Lines connect same-agent periods showing λ inheritance.
- *  circle=truth, diamond=lie (Sobel Def.3). Color by classification/model.
- *  Bold mean trajectories (BT blue, GL red) for population trend.
- *  Fallback to aggregate (v, gl, welfare) view when N < 2. */
+/** Point Cloud — Communication Trajectory Cloud */
 function plotPointCloud(R, agents) {
   const el = document.getElementById('c-pointcloud');
   if (!el || !R) return;
@@ -669,14 +468,12 @@ function plotPointCloud(R, agents) {
   const clsN = { equilibrium:t('cls.eq'), lying_averse:t('cls.la'), deception_averse:t('cls.da'), inference_error:t('cls.ie') };
   const v2P = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
 
-  // First-round results per agent
   const bt0 = R.bt.filter((_, i) => i % rounds === 0);
   const gl0 = R.gl.filter((_, i) => i % rounds === 0);
   const hasBT = bt0.length > 0, hasGL = gl0.length > 0;
   if (!hasBT && !hasGL) { Plotly.purge(el); return; }
   const N = Math.max(bt0[0]?.periods?.length || 0, gl0[0]?.periods?.length || 0);
 
-  // ── Fallback: aggregate (v, gl_tp, welfare) when N < 2 ──
   if (N < 2) {
     const wm = {};
     for (const r of [...R.bt, ...R.gl]) { if (!wm[r.id]) wm[r.id]={s:0,n:0}; wm[r.id].s+=r.sp+r.rp; wm[r.id].n++; }
@@ -703,18 +500,15 @@ function plotPointCloud(R, agents) {
     return;
   }
 
-  // ── Multi-period: Communication Trajectory Cloud ──
-  const glOff = hasBT ? N + 1 : 0;   // X-offset for GL periods (gap between BT and GL)
+  const glOff = hasBT ? N + 1 : 0;
   const agentMap = {}; agents.forEach(a => { agentMap[a.id] = a; });
 
-  // Performance: sample ≤50 agents for individual trajectories
   const maxShow = 50;
   const showIds = new Set();
   if (agents.length <= maxShow) { agents.forEach(a => showIds.add(a.id)); }
   else { const step = Math.max(1, Math.floor(agents.length / maxShow));
     for (let i = 0; i < agents.length && showIds.size < maxShow; i += step) showIds.add(agents[i].id); }
 
-  // Grouped data: markers (per-period nodes) + lines (agent trajectories)
   const groups = {};
   const ensure = gk => { if (!groups[gk]) groups[gk] = { mx:[],my:[],mz:[],mt:[],ms:[],msz:[], lx:[],ly:[],lz:[] }; return groups[gk]; };
 
@@ -728,23 +522,21 @@ function plotPointCloud(R, agents) {
     for (const p of r.periods) {
       const x = p.t + 1 + xOff;
       g.mx.push(x); g.my.push(p.lambda); g.mz.push(p.at);
-      g.ms.push(p.isLie ? 'diamond' : 'circle');   // Sobel Def.3: lie vs truth
-      g.msz.push(p.isDec ? 3 : 4.5);               // smaller if deceptive (Sobel Def.4)
+      g.ms.push(p.isLie ? 'diamond' : 'circle');
+      g.msz.push(p.isDec ? 3 : 4.5);
       g.mt.push(
         `<b>Agent ${r.id}</b>${mk} \u00b7 ${r.gt} P${p.t+1}<br>` +
         `\u03b8=${p.st} \u2192 m=${p.sent} \u2192 a=${p.at.toFixed(2)}<br>` +
         `${p.isLie?'Lie':'Truth'}${p.isDec?' (deceptive)':''}${p.mc?' \u26a0mc':''}<br>` +
         `\u03bb=${p.lambda.toFixed(3)} | payoff=${p.payoff.toFixed(3)}`
       );
-      // Trajectory line points
       g.lx.push(x); g.ly.push(p.lambda); g.lz.push(p.at);
     }
-    g.lx.push(null); g.ly.push(null); g.lz.push(null); // disconnect between agents
+    g.lx.push(null); g.ly.push(null); g.lz.push(null);
   };
   bt0.forEach(r => addResult(r, 0));
   gl0.forEach(r => addResult(r, glOff));
 
-  // Assemble traces: lines first (behind), then markers (foreground)
   const traces = []; let ci = 0;
   for (const [k, g] of Object.entries(groups)) {
     const col = isV2 ? v2P[ci % v2P.length] : (clsC[k] || '#888');
@@ -762,7 +554,6 @@ function plotPointCloud(R, agents) {
     ci++;
   }
 
-  // Mean trajectories (always from ALL agents, not just sample)
   const addMean = (results, xOff, label, col, sym) => {
     if (!results.length || !results[0].periods) return;
     const nP = results[0].periods.length;
@@ -783,7 +574,6 @@ function plotPointCloud(R, agents) {
   addMean(bt0, 0, 'BT', '#2563eb', 'circle');
   addMean(gl0, glOff, 'GL', '#dc2626', 'diamond');
 
-  // BT | GL divider plane
   if (hasBT && hasGL) {
     const dx = N + 0.5;
     traces.push({ x:[dx,dx,dx,dx,dx], y:[0,0,1.05,1.05,0], z:[0,1,1,0,0],
@@ -791,19 +581,16 @@ function plotPointCloud(R, agents) {
       line:{color:dark?'rgba(200,210,225,0.12)':'rgba(100,110,130,0.08)',width:1.5,dash:'dash'}, hoverinfo:'skip' });
   }
 
-  // Prior belief λ₀ reference line (dotted floor line)
   const pb = +(document.getElementById('s-bp')?.value) || 0.5;
   const totalX = (hasBT?N:0) + (hasGL?N:0) + (hasBT&&hasGL?1:0);
   traces.push({ x:[0.5,totalX+0.5], y:[pb,pb], z:[0,0],
     mode:'lines', type:'scatter3d', name:'\u03bb\u2080='+pb.toFixed(2),
     line:{color:dark?'rgba(200,210,225,0.25)':'rgba(100,110,130,0.2)',width:1.5,dash:'dot'}, hoverinfo:'skip' });
 
-  // X-axis tick labels: BT.1, BT.2, ... | GL.1, GL.2, ...
   const tv=[], tt=[];
   if (hasBT) for (let i=1;i<=N;i++) { tv.push(i); tt.push('BT.'+i); }
   if (hasGL) for (let i=1;i<=N;i++) { tv.push(i+glOff); tt.push('GL.'+i); }
 
-  // Scene annotations: BT / GL labels
   const anns = [];
   if (hasBT) anns.push({ x:(N+1)/2, y:-0.1, z:0, text:'BT', font:{size:11,color:'#2563eb'}, showarrow:false });
   if (hasGL) anns.push({ x:glOff+(N+1)/2, y:-0.1, z:0, text:'GL', font:{size:11,color:'#dc2626'}, showarrow:false });
@@ -827,13 +614,12 @@ function plotPointCloud(R, agents) {
   Plotly.react('c-pointcloud', traces, layout, {responsive:true, displayModeBar:'hover'});
 }
 
-/** Redraw all charts from cached data */
-function redrawAll(agents, R, stats) {
+/** Redraw shared charts from cached data */
+function redrawAll(agents, R) {
   if (!agents) return;
   plotParams(agents);
   plotJoint(agents);
   if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); plotLambda(R); plotPointCloud(R, agents); }
   plotTypes(agents);
   plotRegions(agents);
-  if (stats) { plotModelStrats(stats); plotModelTypes(stats); plotModelDeviation(stats); }
 }

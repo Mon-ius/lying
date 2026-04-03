@@ -220,65 +220,7 @@ select:focus { border-color: var(--accent); }
 .btn-run.loading .label { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* V2 AI Agent panel */
-.badge-v2 {
-  display: inline-block; font-size: .58rem; font-weight: 700; color: #fff;
-  background: linear-gradient(135deg, var(--purple), var(--accent));
-  padding: 1px 6px; border-radius: 4px; margin-left: auto; margin-right: 4px; letter-spacing: .04em;
-}
-.input-text {
-  font-family: 'JetBrains Mono', monospace; font-size: .78rem;
-  background: var(--bg-2); color: var(--fg-0); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 7px 10px; width: 100%; outline: none; transition: border-color .15s;
-}
-.input-text:focus { border-color: var(--accent); }
-.btn-ai {
-  background: linear-gradient(135deg, var(--purple), var(--accent));
-}
-.btn-ai:hover { filter: brightness(1.1); }
-.ai-progress {
-  font-size: .7rem; color: var(--fg-3); margin-top: 4px; min-height: 1em;
-  font-family: 'JetBrains Mono', monospace;
-}
-/* Section card (admin) */
-.section-card {
-  padding: 8px; background: var(--bg-2); border-radius: var(--radius-sm);
-  border: 1px solid var(--border); margin-bottom: 10px;
-}
-.section-card .form-row { margin-bottom: 4px; }
-/* Inline key/endpoint inputs */
-.input-key { margin-top: 4px; font-size: .72rem !important; padding: 5px 8px !important; }
-.input-endpoint { margin-top: 2px; font-size: .72rem !important; padding: 5px 8px !important; opacity: .5; transition: opacity .15s; }
-.input-endpoint:focus { opacity: 1; }
-
-/* Agent roster — risk-group rows */
-#agent-roster { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-.roster-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-items: center;
-  padding: 8px; background: var(--bg-2); border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-}
-.roster-group-label {
-  grid-column: 1 / -1; display: flex; align-items: center; gap: 6px;
-  font-size: .74rem; font-weight: 600; color: var(--fg-1); margin-bottom: 2px;
-}
-.roster-group-label .dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.roster-auto-count {
-  margin-left: auto; width: 48px; height: 24px; padding: 2px 6px;
-  font-family: 'JetBrains Mono', monospace; font-size: .68rem; font-weight: 500;
-  color: var(--fg-2); background: var(--bg-1); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); text-align: center; cursor: default;
-  opacity: .75;
-}
-.roster-row select {
-  font-size: .74rem; padding: 4px 6px; height: 28px; min-width: 0;
-}
-.roster-row .input-key,
-.roster-row .input-endpoint {
-  grid-column: 1 / -1;
-}
+/* V2-specific styles → v2/css/v2.css */
 
 /* Period-grouped log sections */
 .log-entries .log-period {
@@ -319,11 +261,6 @@ select:focus { border-color: var(--accent); }
   margin-top: 4px; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto;
 }
 .log-entries .log-error { color: var(--red); }
-.log-entries .log-orch {
-  padding: 6px 10px; font-size: .72rem; margin-bottom: 4px;
-  border: 1px solid var(--border); border-radius: var(--radius-sm);
-  background: var(--bg-2);
-}
 /* Paradigm switch (navbar) */
 .paradigm-switch {
   display: flex; gap: 2px; background: var(--bg-2); border-radius: 8px;
@@ -337,13 +274,8 @@ select:focus { border-color: var(--accent); }
 }
 .paradigm-btn:hover { color: var(--fg-1); }
 .paradigm-btn.active { background: var(--bg-1); color: var(--fg-0); box-shadow: var(--shadow-sm); }
-.paradigm-btn[data-v="v2"].active {
-  background: linear-gradient(135deg, var(--purple), var(--accent));
-  color: #fff;
-}
 .paradigm-icon { font-size: .82rem; }
 .paradigm-label { white-space: nowrap; }
-body.mode-ai .navbar { border-bottom-color: var(--purple); }
 
 /* ================================================================ Main area */
 .main-area { padding: 22px 26px 40px; overflow-y: auto; }
@@ -384,14 +316,6 @@ body.mode-ai .navbar { border-bottom-color: var(--purple); }
 .note-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
 
 /* Game log */
-/* Stats panel (V2 cross-model) */
-.stats-panel { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; }
-.stats-panel h4 { font-size: .78rem; font-weight: 600; color: var(--fg-1); margin-bottom: 8px; }
-.stats-table-container { overflow-x: auto; }
-.stats-table { width: 100%; border-collapse: collapse; font-size: .72rem; }
-.stats-table th, .stats-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; }
-.stats-table th { font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; font-size: .62rem; }
-.stats-table td { font-family: 'JetBrains Mono', monospace; }
 
 .log-card { background: var(--bg-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-top: 16px; margin-bottom: 16px; }
 .log-card > summary { display: flex; align-items: center; cursor: pointer; list-style: none; user-select: none; }
@@ -574,7 +498,6 @@ body.mode-ai .navbar { border-bottom-color: var(--purple); }
   .sidebar .form-label { font-size: .74rem; }
   .sidebar .form-hint { font-size: .64rem; }
   .sidebar select { font-size: .74rem; padding: 5px 8px; }
-  .sidebar .input-text { font-size: .74rem; padding: 5px 8px; }
   .sidebar .form-section-title { font-size: .66rem; }
   .sidebar .btn-run { padding: 10px; font-size: .82rem; }
   .arch-defs { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
