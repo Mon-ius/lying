@@ -89,6 +89,9 @@ class Sprite {
     this.skin = SKIN_TONES[Math.floor(Math.random() * SKIN_TONES.length)];
     this._walkCycle = 0;
     this._moving = false;
+    this._moveDelay = 0;     // stagger delay before starting to move (seconds)
+    this._gridX = x;         // assigned grid slot (for returning after spotlight)
+    this._gridY = y;
   }
 
   get color() {
@@ -100,6 +103,7 @@ class Sprite {
   moveTo(x, y) { this.tx = x; this.ty = y; }
 
   update(dt, speed) {
+    if (this._moveDelay > 0) { this._moveDelay -= dt * speed; return; }
     const dx = this.tx - this.x, dy = this.ty - this.y;
     this._moving = Math.abs(dx) > 1 || Math.abs(dy) > 1;
     this.x = _lerp(this.x, this.tx, 5 * speed * dt);
@@ -310,6 +314,17 @@ class GameWorld {
     // Card is ~175 units above sprite center; center camera between them
     this._camTarget = { x: sp.tx, y: sp.ty - 60, zoom: Math.min(1.8, this.canvas.width / (280 * this._scale)) };
   }
+  /** Focus on arena stage zone: shows the action stage + decision card above */
+  _focusStage(arenaId) {
+    if (!this._camFollow) return;
+    const b = this._buildingMap[arenaId];
+    if (!b) return;
+    const headerH = 28;
+    const stageH = b._stageH || 80;
+    // Center on stage area, offset up for card space
+    const stageY = b.y - b.h / 2 + headerH + stageH / 2;
+    this._camTarget = { x: b.x, y: stageY - 40, zoom: Math.min(2.0, this.canvas.width / (350 * this._scale)) };
+  }
   /** Zoom out to see the full map */
   _focusAll() {
     if (!this._camFollow) return;
@@ -383,7 +398,9 @@ class GameWorld {
     const startY = areaTop + (areaH - gridH) / 2;
     agents.forEach((a, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      const sp = new Sprite(a, startX + col * gapX, startY + row * gapY);
+      const gx = startX + col * gapX, gy = startY + row * gapY;
+      const sp = new Sprite(a, gx, gy);
+      sp._gridX = gx; sp._gridY = gy;
       sp.alpha = 0;
       this.sprites.push(sp);
     });
@@ -403,9 +420,18 @@ class GameWorld {
     const neededW = cols * spriteFootW + 80;
     const neededH = rows * spriteFootH + 80;  // 28 header + padding top/bottom
 
+    // Arena buildings get an extra "action stage" zone above the queue grid
+    const STAGE_H = Math.max(80, 65 * sc + 30);
+
     for (const b of BUILDINGS) {
       b.w = Math.max(b.w, neededW);
-      b.h = Math.max(b.h, neededH);
+      if (b.id === 'bt' || b.id === 'gl') {
+        b._stageH = STAGE_H;
+        b.h = Math.max(b.h, neededH + STAGE_H);
+      } else {
+        b._stageH = 0;
+        b.h = Math.max(b.h, neededH);
+      }
     }
 
     // Reflow vertical layout: stack buildings with proper spacing
@@ -435,6 +461,14 @@ class GameWorld {
     village.x = MAP_W / 2; oracle.x = MAP_W / 2; hall.x = MAP_W / 2;
 
     BUILDINGS.forEach(b => this._buildingMap[b.id] = b);
+  }
+
+  /** Center of the action stage within an arena building */
+  _stageCenter(buildingId) {
+    const b = this._buildingMap[buildingId];
+    const headerH = 28;
+    const stageH = b._stageH || 80;
+    return { x: b.x, y: b.y - b.h / 2 + headerH + stageH / 2 + 5 };
   }
 
   /* ================================================================
@@ -526,6 +560,35 @@ class GameWorld {
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
       ctx.fillText(t(b.descKey), bx + 24 * s, hdrY + 9 * s);
+
+      // Arena buildings: draw stage / queue zone divider
+      if (b._stageH) {
+        const headerH = 28;
+        const divY = by + (headerH + b._stageH) * s;
+
+        // Subtle stage background highlight
+        ctx.fillStyle = dark ? 'rgba(10,132,255,0.04)' : 'rgba(0,122,255,0.03)';
+        ctx.fillRect(bx + 4 * s, by + headerH * s, bw - 8 * s, b._stageH * s);
+
+        // Dashed divider between stage and queue
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([4 * s, 4 * s]);
+        ctx.moveTo(bx + 16 * s, divY);
+        ctx.lineTo(bx + bw - 16 * s, divY);
+        ctx.strokeStyle = dark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.12)';
+        ctx.lineWidth = 0.5 * s; ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // Zone labels
+        ctx.font = `500 ${Math.round(5 * s)}px ${_SFT}`;
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = dark ? 'rgba(10,132,255,0.45)' : 'rgba(0,122,255,0.35)';
+        ctx.fillText(`\u26A1 ${t('gw.stage')}`, bx + 12 * s, by + (headerH + 8) * s);
+        ctx.fillStyle = dark ? 'rgba(142,142,147,0.45)' : 'rgba(60,60,67,0.3)';
+        ctx.fillText(`\uD83D\uDCCB ${t('gw.queue')}`, bx + 12 * s, divY + 8 * s);
+      }
     }
   }
 
@@ -775,7 +838,7 @@ class GameWorld {
   }
   _spriteOf(id) { return this.sprites.find(sp => sp.agent.id === id); }
 
-  _arrangeIn(buildingId, list) {
+  _arrangeIn(buildingId, list, stagger) {
     const b = this._buildingMap[buildingId];
     const sc = this.spriteScale;
     const gapX = 38 * sc, gapY = 55 * sc;
@@ -783,15 +846,22 @@ class GameWorld {
     const rows = Math.ceil(list.length / cols);
     const gridW = (cols - 1) * gapX;
     const gridH = (rows - 1) * gapY;
-    // Header takes ~28px at top of building; center grid in remaining area
+    // Header takes ~28px at top; arena buildings also have a stage zone
     const headerH = 28;
-    const areaTop = b.y - b.h / 2 + headerH;
-    const areaH = b.h - headerH;
+    const stageH = b._stageH || 0;
+    const areaTop = b.y - b.h / 2 + headerH + stageH;
+    const areaH = b.h - headerH - stageH;
     const startX = b.x - gridW / 2;
     const startY = areaTop + (areaH - gridH) / 2;
+    // Stagger per-sprite delay so sprites don't all cross paths at once.
+    // Cap total stagger to ~0.5s so the wait after _arrangeIn is enough.
+    const perDelay = stagger !== false ? Math.min(0.035, 0.5 / Math.max(1, list.length)) : 0;
     list.forEach((sp, i) => {
       const row = Math.floor(i / cols), col = i % cols;
-      sp.moveTo(startX + col * gapX, startY + row * gapY);
+      const gx = startX + col * gapX, gy = startY + row * gapY;
+      sp._gridX = gx; sp._gridY = gy;
+      sp.moveTo(gx, gy);
+      sp._moveDelay = perDelay * i;
     });
   }
 
@@ -847,16 +917,15 @@ class GameWorld {
        Step 5: Payoff computed
      ================================================================ */
   async _animateDecision(sp, result, arenaId) {
-    const arena = this._buildingMap[arenaId];
-    const isBT = arenaId === 'bt';
+    const stage = this._stageCenter(arenaId);
 
-    // Dim all others, highlight this agent
-    for (const s of this.sprites) s.dimmed = (s !== sp);
+    // Move agent from queue to action stage — no dimming, others stay visible
     sp.active = true;
     this._activeSprite = sp;
-    sp.moveTo(arena.x, arena.y - 12);
-    this._focusSprite(sp);
-    await this._wait(250);
+    sp._moveDelay = 0;
+    sp.moveTo(stage.x, stage.y);
+    this._focusStage(arenaId);
+    await this._wait(350);
 
     // Card state — values array accumulates results per step, step increments
     const card = {
@@ -908,19 +977,20 @@ class GameWorld {
       (result.isDec ? ` (${t('gw.incl')} c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)})` : '');
     await this._wait(500);
 
-    // Fade out
+    // Fade out card
     card._fadeOut = true;
     await this._wait(250);
     this._decisionCard = null;
 
-    // Update agent state
+    // Update agent state and return sprite to queue
     sp.rep = result.strat ?? 0.5;
     this._logDecision(sp, result);
     this._interactions++;
     sp.active = false;
     this._activeSprite = null;
-    for (const s of this.sprites) s.dimmed = false;
-    // Zoom back out to arena view
+    sp.moveTo(sp._gridX, sp._gridY);
+    sp._moveDelay = 0;
+    // Zoom back out to full arena view
     this._focusBuilding(arenaId);
   }
 
