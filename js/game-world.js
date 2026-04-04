@@ -471,6 +471,17 @@ class GameWorld {
     return { x: b.x, y: b.y - b.h / 2 + headerH + stageH / 2 + 5 };
   }
 
+  /** Point on the edge of a building rectangle closest to the line toward (tx,ty) */
+  _edgePoint(b, tx, ty) {
+    const dx = tx - b.x, dy = ty - b.y;
+    const hw = b.w / 2, hh = b.h / 2;
+    if (dx === 0 && dy === 0) return { x: b.x, y: b.y };
+    const scaleX = dx !== 0 ? hw / Math.abs(dx) : Infinity;
+    const scaleY = dy !== 0 ? hh / Math.abs(dy) : Infinity;
+    const scale = Math.min(scaleX, scaleY);
+    return { x: b.x + dx * scale, y: b.y + dy * scale };
+  }
+
   /* ================================================================
      DRAWING
      ================================================================ */
@@ -509,15 +520,33 @@ class GameWorld {
 
   _drawPaths(ctx, s, dark) {
     ctx.lineWidth = 1.5 * s;
-    ctx.strokeStyle = dark ? 'rgba(84,84,88,0.2)' : 'rgba(60,60,67,0.1)';
     ctx.lineCap = 'round';
+    const color = dark ? 'rgba(84,84,88,0.3)' : 'rgba(60,60,67,0.15)';
     for (const [fromId, toId] of PATHS) {
       const a = this._buildingMap[fromId], b = this._buildingMap[toId];
-      const ax = a.x * s, ay = a.y * s, bx = b.x * s, by = b.y * s;
+      const from = this._edgePoint(a, b.x, b.y);
+      const to   = this._edgePoint(b, a.x, a.y);
+      const ax = from.x * s, ay = from.y * s, bx = to.x * s, by = to.y * s;
+      const mx = (ax + bx) / 2, my = (ay + by) / 2;
+      // subtle perpendicular offset for a gentle curve
+      const perpX = -(by - ay) * 0.06, perpY = (bx - ax) * 0.06;
+      ctx.strokeStyle = color;
       ctx.beginPath();
       ctx.moveTo(ax, ay);
-      ctx.quadraticCurveTo((ax + bx) / 2 + (by - ay) * 0.06, (ay + by) / 2, bx, by);
+      ctx.quadraticCurveTo(mx + perpX, my + perpY, bx, by);
       ctx.stroke();
+      // small arrowhead at destination
+      const arrL = 5 * s;
+      const dx = bx - (mx + perpX), dy = by - (my + perpY);
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
+      const ux = dx / len, uy = dy / len;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx - ux * arrL - uy * arrL * 0.45, by - uy * arrL + ux * arrL * 0.45);
+      ctx.lineTo(bx - ux * arrL + uy * arrL * 0.45, by - uy * arrL - ux * arrL * 0.45);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 
@@ -560,6 +589,23 @@ class GameWorld {
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
       ctx.fillText(t(b.descKey), bx + 24 * s, hdrY + 9 * s);
+
+      // Step number badge (top-right)
+      const _STEP_IDS = ['village','oracle','bt','gl','hall'];
+      const stepIdx = _STEP_IDS.indexOf(b.id);
+      if (stepIdx >= 0) {
+        const sn = stepIdx + 1;
+        const badgeR = 8 * s;
+        const badgeX = bx + bw - 16 * s;
+        const badgeY = by + 14 * s;
+        ctx.beginPath(); ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
+        ctx.fillStyle = b.tint + '1A'; ctx.fill();
+        ctx.strokeStyle = b.tint + '40'; ctx.lineWidth = 0.5 * s; ctx.stroke();
+        ctx.font = `700 ${Math.round(7 * s)}px ${_SF}`;
+        ctx.fillStyle = b.tint;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(sn.toString(), badgeX, badgeY);
+      }
 
       // Arena buildings: draw stage / queue zone divider
       if (b._stageH) {
