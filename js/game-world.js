@@ -916,8 +916,9 @@ class GameWorld {
        Step 4: Receiver updates belief lambda & takes action a
        Step 5: Payoff computed
      ================================================================ */
-  async _animateDecision(sp, result, arenaId) {
+  async _animateDecision(sp, result, arenaId, stepScale) {
     const stage = this._stageCenter(arenaId);
+    const w = ms => Math.round(ms * (stepScale || 1));
 
     // Move agent from queue to action stage — no dimming, others stay visible
     sp.active = true;
@@ -925,7 +926,7 @@ class GameWorld {
     sp._moveDelay = 0;
     sp.moveTo(stage.x, stage.y);
     this._focusStage(arenaId);
-    await this._wait(350);
+    await this._wait(w(350));
 
     // Card state — values array accumulates results per step, step increments
     const card = {
@@ -941,7 +942,7 @@ class GameWorld {
     card.step = 1;
     card.values[0] = `${result.s1}`;
     card.detail = `${t('gw.nature')} ${result.s1}`;
-    await this._wait(500);
+    await this._wait(w(500));
 
     // Step 2: Sender sends message
     card.step = 2;
@@ -950,7 +951,7 @@ class GameWorld {
     card.isLie = result.isLie;
     card.detail = `${t('gw.sender.obs')} \u03B8=${result.s1}, ${t('gw.sender.sends')} m=${result.sent}` +
       (result.isLie ? ` (m\u2260\u03B8 \u2014 ${t('gw.lie')})` : ` (m=\u03B8 \u2014 ${t('gw.truth')})`);
-    await this._wait(500);
+    await this._wait(w(500));
 
     // Step 3: Channel / miscommunication
     card.step = 3;
@@ -958,7 +959,7 @@ class GameWorld {
     card.detail = result.mc
       ? `${t('gw.ch.noise')} ${t('gw.ch.sent')} ${result.sent} \u2192 ${t('gw.ch.rcv')} ${result.rcv}`
       : `${t('gw.ch.ok')} rcv = ${result.rcv}`;
-    await this._wait(450);
+    await this._wait(w(450));
 
     // Step 4: Receiver belief update + action
     card.step = 4;
@@ -967,7 +968,7 @@ class GameWorld {
       ? `D=${result.dec.toFixed(2)} (${t('gw.deceptive')})`
       : `D=0 (${t('gw.honest')})`;
     card.detail = `${t('gw.receiver')}: \u03BB=${result.lambda.toFixed(3)}, action a=${result.a1.toFixed(3)} \u2502 ${decLabel}`;
-    await this._wait(500);
+    await this._wait(w(500));
 
     // Step 5: Payoff
     card.step = 5;
@@ -975,11 +976,11 @@ class GameWorld {
     card.detail = `${t('gw.payoff')} = ${result.sp.toFixed(3)}` +
       (result.isLie ? ` (${t('gw.incl')} c\u2097=${result.cl.toFixed(2)})` : '') +
       (result.isDec ? ` (${t('gw.incl')} c\u2091\u00B7D=${(result.cd * result.dec).toFixed(2)})` : '');
-    await this._wait(500);
+    await this._wait(w(500));
 
     // Fade out card
     card._fadeOut = true;
-    await this._wait(250);
+    await this._wait(w(250));
     this._decisionCard = null;
 
     // Update agent state and return sprite to queue
@@ -1088,7 +1089,6 @@ class GameWorld {
     const agentIds = Object.keys(stratMap).map(Number);
     const arenaSprites = agentIds.map(id => this._spriteOf(id)).filter(Boolean);
     const totalAgents = arenaSprites.length;
-    const detailCount = Math.min(totalAgents, Math.max(3, Math.min(8, Math.ceil(n / 4))));
 
     this._focusBuilding(type);
     this._setPhase(`${phaseNum} ${arenaLabel}`, `${totalAgents} ${t('gw.agents')}`);
@@ -1099,37 +1099,33 @@ class GameWorld {
     this._arrangeIn(type, arenaSprites);
     await this._wait(400);
 
+    // Adaptive step timing: scale down wait times for large populations
+    const stepScale = totalAgents <= 10 ? 1.0
+      : totalAgents <= 30 ? 0.6
+      : totalAgents <= 60 ? 0.3
+      : totalAgents <= 100 ? 0.16 : 0.08;
+
     // Each agent plays individually against the implicit Bayesian receiver
     const resultMap = {};
     records.filter((_, idx) => idx % rounds === 0).forEach(r => { resultMap[r.id] = r; });
 
-    for (let i = 0; i < detailCount && i < arenaSprites.length; i++) {
+    // ALL agents perform on the action stage
+    for (let i = 0; i < arenaSprites.length; i++) {
       const sp = arenaSprites[i];
       const res = resultMap[sp.agent.id];
       if (!res) continue;
-      this._setPhase(`${phaseNum} ${arenaLabel}`, `${sp.name} (${i + 1}/${totalAgents})`);
-      await this._animateDecision(sp, res, type);
+      this._setPhase(`${phaseNum} ${arenaLabel}`, `${sp.displayName} (${i + 1}/${totalAgents})`);
+      await this._animateDecision(sp, res, type, stepScale);
+      sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
       this.phaseProgress = (i + 1) / totalAgents;
-      await this._wait(100);
+      await this._wait(Math.round(100 * stepScale));
     }
 
-    // Fast-forward remaining agents
-    if (totalAgents > detailCount) {
-      this._logSummary('\u26A1', `${t('gw.fastfwd')} <strong>${totalAgents - detailCount}</strong> ${t('gw.moredec')} ${type.toUpperCase()} ${t('gw.decisions')}`);
-      for (const sp of arenaSprites) {
-        sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
-      }
-      this.phaseProgress = 0.9;
-      await this._wait(300);
-      const round1 = records.filter((_, idx) => idx % rounds === 0);
-      const lies = round1.filter(r => r.isLie).length;
-      const decs = round1.filter(r => r.isDec).length;
-      this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> ${t('gw.truths')}, <strong>${lies}</strong> ${t('gw.lies')}, <strong>${decs}</strong> ${t('gw.deceptive')}`);
-    } else {
-      for (const sp of arenaSprites) {
-        sp.rep = isBT ? (stratMap[sp.agent.id] ?? 0.5) : 1 - (stratMap[sp.agent.id] ?? 0.5);
-      }
-    }
+    // Summary stats
+    const round1 = records.filter((_, idx) => idx % rounds === 0);
+    const lies = round1.filter(r => r.isLie).length;
+    const decs = round1.filter(r => r.isDec).length;
+    this._logSummary('\uD83D\uDCCA', `${arenaLabel}: <strong>${round1.length - lies}</strong> ${t('gw.truths')}, <strong>${lies}</strong> ${t('gw.lies')}, <strong>${decs}</strong> ${t('gw.deceptive')}`);
     this.phaseProgress = 1;
     await this._wait(400);
   }
