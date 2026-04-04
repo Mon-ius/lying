@@ -595,31 +595,33 @@ class GameWorld {
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillText(b.icon, bx + 10 * s, hdrY);
 
-      // Inline step number + label: "1. Nature Stage"
+      // Title + description on same line: "1. Nature Stage — State θ drawn; ..."
       const _STEP_IDS = ['village','oracle','bt','gl','hall'];
       const stepIdx = _STEP_IDS.indexOf(b.id);
       const labelText = stepIdx >= 0 ? `${stepIdx + 1}. ${t(b.labelKey)}` : t(b.labelKey);
+      const descText = t(b.descKey);
       ctx.font = `600 ${Math.round(7.5 * s)}px ${_SF}`;
       ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
-      ctx.fillText(labelText, bx + 24 * s, hdrY - 1 * s);
-
+      const labelW = ctx.measureText(labelText).width;
+      ctx.fillText(labelText, bx + 24 * s, hdrY);
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
-      ctx.fillText(t(b.descKey), bx + 24 * s, hdrY + 9 * s);
+      ctx.fillText(`\u2014 ${descText}`, bx + 24 * s + labelW + 6 * s, hdrY);
 
-      // Explanatory note (below the building card, outside the container)
+      // Yellow explanatory note just below the title line
       if (b.noteKey) {
         const noteText = t(b.noteKey);
         if (noteText && noteText !== b.noteKey) {
           const noteFs = Math.round(4.5 * s);
           ctx.font = `400 ${noteFs}px ${_SFT}`;
-          ctx.fillStyle = dark ? 'rgba(174,174,178,0.55)' : 'rgba(60,60,67,0.4)';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-          const noteMaxW = bw - 12 * s;
-          const noteY = by + bh + 4 * s;
+          ctx.fillStyle = dark ? 'rgba(255,204,0,0.7)' : 'rgba(180,130,0,0.65)';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+          const noteX = bx + 12 * s;
+          const noteMaxW = bw - 24 * s;
+          const noteY = hdrY + 8 * s;
           const lines = _wrapText(ctx, noteText, noteMaxW);
-          for (let li = 0; li < Math.min(lines.length, 2); li++) {
-            ctx.fillText(lines[li], bx + bw / 2, noteY + li * (noteFs + 2 * s));
+          for (let li = 0; li < Math.min(lines.length, 3); li++) {
+            ctx.fillText(lines[li], noteX, noteY + li * (noteFs + 2 * s));
           }
         }
       }
