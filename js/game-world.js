@@ -620,20 +620,19 @@ class GameWorld {
         ctx.fillText(sn.toString(), badgeX, badgeY);
       }
 
-      // Explanatory note (wraps below header)
+      // Explanatory note (below the building card, outside the container)
       if (b.noteKey) {
         const noteText = t(b.noteKey);
         if (noteText && noteText !== b.noteKey) {
           const noteFs = Math.round(4.5 * s);
           ctx.font = `400 ${noteFs}px ${_SFT}`;
           ctx.fillStyle = dark ? 'rgba(174,174,178,0.55)' : 'rgba(60,60,67,0.4)';
-          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-          const noteX = bx + 12 * s;
-          const noteMaxW = bw - 24 * s;
-          const noteY = hdrY + 18 * s;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+          const noteMaxW = bw - 12 * s;
+          const noteY = by + bh + 4 * s;
           const lines = _wrapText(ctx, noteText, noteMaxW);
-          for (let li = 0; li < Math.min(lines.length, 3); li++) {
-            ctx.fillText(lines[li], noteX, noteY + li * (noteFs + 2 * s));
+          for (let li = 0; li < Math.min(lines.length, 2); li++) {
+            ctx.fillText(lines[li], bx + bw / 2, noteY + li * (noteFs + 2 * s));
           }
         }
       }
