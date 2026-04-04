@@ -15,6 +15,19 @@
 function _lerp(a, b, t) { return a + (b - a) * Math.min(1, t); }
 function _easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
+/** Wrap text into lines that fit within maxWidth */
+function _wrapText(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = []; let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 /* ---- Name Pool ---- */
 const NAME_POOL = [
   'Alice','Bob','Charlie','Diana','Eve','Frank','Grace','Hank',
@@ -49,11 +62,11 @@ function _dname(agent) { return `${agent.id + 1}.${agent._name || 'Agent' + agen
 let MAP_W = 1000, MAP_H = 720;
 
 const BUILDINGS_BASE = [
-  { id:'village', x:500, y:75,  w:340, h:60,  labelKey:'gw.hub',      icon:'\uD83C\uDFD8\uFE0F', tint:'#34C759', descKey:'gw.hub.d' },
-  { id:'oracle',  x:500, y:220, w:240, h:50,  labelKey:'gw.oracle',   icon:'\uD83D\uDD2E',       tint:'#AF52DE', descKey:'gw.oracle.d' },
-  { id:'bt',      x:220, y:370, w:240, h:80,  labelKey:'gw.btarena',  icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', descKey:'gw.btarena.d' },
-  { id:'gl',      x:780, y:370, w:240, h:80,  labelKey:'gw.glarena',  icon:'\u2694\uFE0F',        tint:'#FF9500', descKey:'gw.glarena.d' },
-  { id:'hall',    x:500, y:630, w:300, h:55,  labelKey:'gw.hall',     icon:'\uD83C\uDFDB\uFE0F', tint:'#FF3B30', descKey:'gw.hall.d' },
+  { id:'village', x:500, y:75,  w:340, h:60,  labelKey:'gw.hub',      icon:'\uD83C\uDFB2',       tint:'#34C759', descKey:'gw.hub.d',     noteKey:'gw.hub.n' },
+  { id:'oracle',  x:500, y:220, w:240, h:50,  labelKey:'gw.oracle',   icon:'\uD83D\uDCE1',       tint:'#AF52DE', descKey:'gw.oracle.d',  noteKey:'gw.oracle.n' },
+  { id:'bt',      x:220, y:370, w:240, h:80,  labelKey:'gw.btarena',  icon:'\uD83D\uDEE1\uFE0F', tint:'#007AFF', descKey:'gw.btarena.d', noteKey:'gw.btarena.n' },
+  { id:'gl',      x:780, y:370, w:240, h:80,  labelKey:'gw.glarena',  icon:'\u2694\uFE0F',        tint:'#FF9500', descKey:'gw.glarena.d', noteKey:'gw.glarena.n' },
+  { id:'hall',    x:500, y:630, w:300, h:55,  labelKey:'gw.hall',     icon:'\uD83D\uDCCA',       tint:'#FF3B30', descKey:'gw.hall.d',    noteKey:'gw.hall.n' },
 ];
 let BUILDINGS = BUILDINGS_BASE.map(b => ({...b}));
 const PATHS = [['village','oracle'],['oracle','bt'],['oracle','gl'],['bt','hall'],['gl','hall']];
@@ -605,6 +618,24 @@ class GameWorld {
         ctx.fillStyle = b.tint;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(sn.toString(), badgeX, badgeY);
+      }
+
+      // Explanatory note (wraps below header)
+      if (b.noteKey) {
+        const noteText = t(b.noteKey);
+        if (noteText && noteText !== b.noteKey) {
+          const noteFs = Math.round(4.5 * s);
+          ctx.font = `400 ${noteFs}px ${_SFT}`;
+          ctx.fillStyle = dark ? 'rgba(174,174,178,0.55)' : 'rgba(60,60,67,0.4)';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+          const noteX = bx + 12 * s;
+          const noteMaxW = bw - 24 * s;
+          const noteY = hdrY + 18 * s;
+          const lines = _wrapText(ctx, noteText, noteMaxW);
+          for (let li = 0; li < Math.min(lines.length, 3); li++) {
+            ctx.fillText(lines[li], noteX, noteY + li * (noteFs + 2 * s));
+          }
+        }
       }
 
       // Arena buildings: draw stage / queue zone divider
