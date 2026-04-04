@@ -595,30 +595,17 @@ class GameWorld {
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       ctx.fillText(b.icon, bx + 10 * s, hdrY);
 
+      // Inline step number + label: "1. Nature Stage"
+      const _STEP_IDS = ['village','oracle','bt','gl','hall'];
+      const stepIdx = _STEP_IDS.indexOf(b.id);
+      const labelText = stepIdx >= 0 ? `${stepIdx + 1}. ${t(b.labelKey)}` : t(b.labelKey);
       ctx.font = `600 ${Math.round(7.5 * s)}px ${_SF}`;
       ctx.fillStyle = dark ? '#f5f5f7' : '#1c1c1e';
-      ctx.fillText(t(b.labelKey), bx + 24 * s, hdrY - 1 * s);
+      ctx.fillText(labelText, bx + 24 * s, hdrY - 1 * s);
 
       ctx.font = `400 ${Math.round(5.5 * s)}px ${_SFT}`;
       ctx.fillStyle = '#8e8e93';
       ctx.fillText(t(b.descKey), bx + 24 * s, hdrY + 9 * s);
-
-      // Step number badge (top-right)
-      const _STEP_IDS = ['village','oracle','bt','gl','hall'];
-      const stepIdx = _STEP_IDS.indexOf(b.id);
-      if (stepIdx >= 0) {
-        const sn = stepIdx + 1;
-        const badgeR = 8 * s;
-        const badgeX = bx + bw - 16 * s;
-        const badgeY = by + 14 * s;
-        ctx.beginPath(); ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
-        ctx.fillStyle = b.tint + '1A'; ctx.fill();
-        ctx.strokeStyle = b.tint + '40'; ctx.lineWidth = 0.5 * s; ctx.stroke();
-        ctx.font = `700 ${Math.round(7 * s)}px ${_SF}`;
-        ctx.fillStyle = b.tint;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(sn.toString(), badgeX, badgeY);
-      }
 
       // Explanatory note (below the building card, outside the container)
       if (b.noteKey) {

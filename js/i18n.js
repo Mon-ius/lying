@@ -204,8 +204,8 @@ const I18N = {
     'gw.glarena.n':'Good-type sender lies (m\u2260\u03B8) in period 1 to separate from the behavioral type, revealing true alignment to secure trust in period 2. Lying here is non-deceptive.',
     'gw.hall.n':'Agents classified by observed behavior: equilibrium play, lying-averse (avoids m\u2260\u03B8 despite incentive), or deception-averse (avoids misleading receiver beliefs).',
     // Game view — labels
-    'gw.cls.eq':'Equilibrium','gw.cls.la':'Lying-Averse','gw.cls.da':'Deception-Averse','gw.cls.ie':'Inference Error',
-    'gw.rt.rl':'Risk Lover','gw.rt.rn':'Risk Neutral','gw.rt.ra':'Risk Averse',
+    'gw.cls.eq':'Equilibrium','gw.cls.la':'Lying-averse','gw.cls.da':'Deception-averse','gw.cls.ie':'Inference error',
+    'gw.rt.rl':'Risk-loving','gw.rt.rn':'Risk-neutral','gw.rt.ra':'Risk-averse',
     // Game view — phases
     'gw.ph1':'Phase 1 \u2014 Population','gw.ph2':'Phase 2 \u2014 Oracle','gw.ph5':'Phase 5 \u2014 Classification',
     'gw.results':'Results','gw.complete':'Game Complete',
@@ -482,7 +482,7 @@ const I18N = {
     'gw.hall.n':'按观察到的行为分类：均衡策略、说谎厌恶（尽管有激励仍避免 m\u2260\u03B8）、欺骗厌恶（避免误导接收者信念）。',
     // 游戏视图 — 标签
     'gw.cls.eq':'均衡','gw.cls.la':'说谎厌恶','gw.cls.da':'欺骗厌恶','gw.cls.ie':'推断误差',
-    'gw.rt.rl':'风险偏好者','gw.rt.rn':'风险中性者','gw.rt.ra':'风险厌恶者',
+    'gw.rt.rl':'风险偏好','gw.rt.rn':'风险中性','gw.rt.ra':'风险厌恶',
     // 游戏视图 — 阶段
     'gw.ph1':'阶段 1 \u2014 种群','gw.ph2':'阶段 2 \u2014 策略神谕','gw.ph5':'阶段 5 \u2014 分类',
     'gw.results':'结果','gw.complete':'游戏完成',
@@ -755,7 +755,7 @@ const I18N = {
     'gw.hall.n':'관찰된 행동에 따라 분류: 균형 전략, 거짓말 혐오(인센티브에도 불구하고 m\u2260\u03B8 회피), 기만 혐오(수신자 신념 오도 회피).',
     // 게임 뷰 — 레이블
     'gw.cls.eq':'균형','gw.cls.la':'거짓말 혐오','gw.cls.da':'기만 혐오','gw.cls.ie':'추론 오류',
-    'gw.rt.rl':'위험 선호자','gw.rt.rn':'위험 중립자','gw.rt.ra':'위험 회피자',
+    'gw.rt.rl':'위험 선호','gw.rt.rn':'위험 중립','gw.rt.ra':'위험 회피',
     // 게임 뷰 — 단계
     'gw.ph1':'단계 1 \u2014 인구','gw.ph2':'단계 2 \u2014 전략 신탁','gw.ph5':'단계 5 \u2014 분류',
     'gw.results':'결과','gw.complete':'게임 완료',
