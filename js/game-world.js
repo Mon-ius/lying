@@ -332,7 +332,7 @@ class GameWorld {
     if (!this._camFollow) return;
     const b = this._buildingMap[arenaId];
     if (!b) return;
-    const headerH = 48;
+    const headerH = 58;
     const stageH = b._stageH || 80;
     // Center on stage area, offset up for card space
     const stageY = b.y - b.h / 2 + headerH + stageH / 2;
@@ -404,7 +404,7 @@ class GameWorld {
     const cols = Math.max(1, Math.ceil(Math.sqrt(n * 1.5)));
     const rows = Math.ceil(n / cols);
     const gridW = (cols - 1) * gapX, gridH = (rows - 1) * gapY;
-    const headerH = 48;
+    const headerH = 58;
     const areaTop = v.y - v.h / 2 + headerH;
     const areaH = v.h - headerH;
     const startX = v.x - gridW / 2;
@@ -479,7 +479,7 @@ class GameWorld {
   /** Center of the action stage within an arena building */
   _stageCenter(buildingId) {
     const b = this._buildingMap[buildingId];
-    const headerH = 48;
+    const headerH = 58;
     const stageH = b._stageH || 80;
     return { x: b.x, y: b.y - b.h / 2 + headerH + stageH / 2 + 5 };
   }
@@ -608,37 +608,31 @@ class GameWorld {
       ctx.fillStyle = '#8e8e93';
       ctx.fillText(`\u2014 ${descText}`, bx + 24 * s + labelW + 6 * s, hdrY);
 
-      // Yellow explanatory note just below the title line
+      // Yellow numbered note lines below the title
       if (b.noteKey) {
         const noteText = t(b.noteKey);
         if (noteText && noteText !== b.noteKey) {
           const noteFs = Math.round(4.5 * s);
+          const lineH = noteFs + 3 * s;
           const noteX = bx + 12 * s;
           const noteY = hdrY + 10 * s;
-          // "Note:" prefix in bold
-          ctx.font = `600 ${noteFs}px ${_SFT}`;
           ctx.fillStyle = dark ? 'rgba(255,204,0,0.7)' : 'rgba(180,130,0,0.65)';
           ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-          const prefixW = ctx.measureText('Note: ').width;
+          // "Note:" header
+          ctx.font = `600 ${noteFs}px ${_SFT}`;
           ctx.fillText('Note:', noteX, noteY);
-          // Note body wraps after prefix on first line
+          // Each line is a numbered point separated by \n
           ctx.font = `400 ${noteFs}px ${_SFT}`;
-          const noteMaxW = bw - 24 * s;
-          const lines = _wrapText(ctx, noteText, noteMaxW - prefixW);
-          if (lines.length > 0) {
-            ctx.fillText(lines[0], noteX + prefixW, noteY);
-            // Remaining lines at full width
-            const restLines = _wrapText(ctx, lines.slice(1).join(' '), noteMaxW);
-            for (let li = 0; li < Math.min(restLines.length, 2); li++) {
-              ctx.fillText(restLines[li], noteX, noteY + (li + 1) * (noteFs + 2 * s));
-            }
+          const noteLines = noteText.split('\n');
+          for (let li = 0; li < noteLines.length; li++) {
+            ctx.fillText(noteLines[li], noteX, noteY + (li + 1) * lineH);
           }
         }
       }
 
       // Arena buildings: draw stage / queue zone divider
       if (b._stageH) {
-        const headerH = 48;
+        const headerH = 58;
         const divY = by + (headerH + b._stageH) * s;
 
         // Subtle stage background highlight
@@ -922,7 +916,7 @@ class GameWorld {
     const gridW = (cols - 1) * gapX;
     const gridH = (rows - 1) * gapY;
     // Header takes ~28px at top; arena buildings also have a stage zone
-    const headerH = 48;
+    const headerH = 58;
     const stageH = b._stageH || 0;
     const areaTop = b.y - b.h / 2 + headerH + stageH;
     const areaH = b.h - headerH - stageH;
