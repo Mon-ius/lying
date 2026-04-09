@@ -602,6 +602,7 @@ select:focus { border-color: var(--accent); }
 .slide-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
 .slide-three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
 .slide-col { display: flex; flex-direction: column; }
+.slide-col > .slide-card:only-child { flex: 1; }
 .slide-icon-lg { font-size: 2rem; margin-bottom: 8px; }
 
 /* Steps */
