@@ -1157,7 +1157,7 @@
       <div class="slide-body slide-center">
         <p class="slide-part-num">Part II</p>
         <h1 class="slide-part-title" data-i18n="sl.14.title">Computational Engine</h1>
-        <p class="slide-part-desc" data-i18n="sl.14.desc">From theory to simulation: how we implement the Bayesian belief system, augmented utility optimisation, and N-period game loop with &lambda; state inheritance.</p>
+        <p class="slide-part-desc" data-i18n="sl.14.desc">From theory to simulation: this part details the implementation pathway for the Bayesian belief updating system, the optimisation mechanism of the augmented utility function, and the core algorithm of &lambda; state inheritance in the N-period game loop. Every step is traceable to the theoretical foundations in Choi et al.&nbsp;(2025) and Sobel&nbsp;(2020).</p>
       </div>
     </div>
 
@@ -1165,7 +1165,7 @@
     <div class="slide" data-slide="15">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.15.title">Population Generation (Monte Carlo)</h2>
-        <p class="slide-text" data-i18n="sl.15.intro">Each agent is an independent draw from four distributions, creating a heterogeneous population for Monte Carlo analysis:</p>
+        <p class="slide-text" data-i18n="sl.15.intro">Heterogeneity is the key assumption of this model. Each agent is an independent draw from four distributions, constructing a heterogeneous population for Monte Carlo simulation. Parameter heterogeneity is what makes the emergence of equilibrium deviation behaviour possible:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$c_l \sim \text{LogNormal}(\mu_l,\,1), \quad c_d \sim \text{LogNormal}(\mu_d,\,1)$$</p>
           <p class="slide-formula">$$\alpha \sim \text{Normal}(\mu_{\alpha},\,\sigma_{\alpha}) \text{ per risk type}, \quad \beta \sim \text{Normal}(0.1,\,0.3)$$</p>
@@ -1173,18 +1173,18 @@
         <div class="slide-three-col">
           <div class="slide-card" style="border-left:4px solid var(--red)">
             <h3 data-i18n="sl.15.rl">Risk-loving</h3>
-            <p class="slide-sm" data-i18n="sl.15.rld">&alpha; ~ N(&minus;0.5, 0.2). Prefer gambles. More willing to deviate from equilibrium for potential gain.</p>
+            <p class="slide-sm" data-i18n="sl.15.rld">&alpha; ~ N(&minus;0.5, 0.2). In CRRA utility, &alpha; &lt; 0 implies a convex utility function&mdash;these agents prefer high-variance gambles and are more inclined to deviate from equilibrium strategies for potential gain. In reputation games this manifests as aggressive signalling behaviour.</p>
           </div>
           <div class="slide-card" style="border-left:4px solid var(--blue)">
             <h3 data-i18n="sl.15.rn">Risk-neutral</h3>
-            <p class="slide-sm" data-i18n="sl.15.rnd">&alpha; ~ N(0, 0.05). Expected-value maximisers. Closest to theoretical equilibrium predictions.</p>
+            <p class="slide-sm" data-i18n="sl.15.rnd">&alpha; ~ N(0, 0.05). Expected-value maximisers under linear utility, whose behaviour most closely tracks theoretical equilibrium predictions. They serve as the ideal benchmark group for verifying the conditions under which Props.&nbsp;1&ndash;2 hold.</p>
           </div>
           <div class="slide-card" style="border-left:4px solid var(--green)">
             <h3 data-i18n="sl.15.ra">Risk-averse</h3>
-            <p class="slide-sm" data-i18n="sl.15.rad">&alpha; ~ N(0.8, 0.3). Prefer certainty. May over-invest in reputation building.</p>
+            <p class="slide-sm" data-i18n="sl.15.rad">&alpha; ~ N(0.8, 0.3). Concave utility functions make them prefer certain payoffs&mdash;they may over-invest in reputation building, acting conservatively even when the equilibrium strategy calls for risk-taking.</p>
           </div>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.15.note">Composition is user-configurable (sliders sum to 100%). Fisher&ndash;Yates shuffle ensures random ordering. Seed = 42 for reproducibility.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.15.note">The proportions of the three risk types are user-configurable via sliders (constrained to sum to 100%), allowing exploration of equilibrium deviation patterns under different population structures. Fisher&ndash;Yates shuffle guarantees random ordering; a fixed seed (seed&nbsp;=&nbsp;42) ensures experimental reproducibility.</p>
       </div>
     </div>
 
@@ -1192,16 +1192,16 @@
     <div class="slide" data-slide="16">
       <div class="slide-body">
         <h2 class="slide-heading"><span class="slide-env-badge slide-bt">BT</span> <span data-i18n="sl.16.title">Bayesian Posteriors in Bad-type Truth-telling</span></h2>
-        <p class="slide-text" data-i18n="sl.16.intro">In BT, the strategic sender is bad type with mixing parameter v = P(m=1|&theta;=0). The belief system computes:</p>
+        <p class="slide-text" data-i18n="sl.16.intro">In the BT (bad-type truth-telling) environment, the strategic sender is bad type (&tau;&nbsp;=&nbsp;B) with mixing parameter v&nbsp;=&nbsp;P(m=1|&theta;=0) representing the probability that a bad type lies when &theta;&nbsp;=&nbsp;0. The Bayesian belief system computes the type posterior via:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$\lambda^{BT}(m{=}0,\,\theta{=}0) = \frac{\lambda}{2 - v + \varepsilon(2v{-}1)} \quad \text{(truth when }\theta{=}0\text{)}$$</p>
           <p class="slide-formula">$$\lambda^{BT}(m{=}1,\,\theta{=}0) = \frac{\lambda(1{-}\varepsilon)}{1 - \lambda + \lambda(1{-}\varepsilon) + v(1{-}2\varepsilon)} \quad \text{(lie when }\theta{=}0\text{)}$$</p>
         </div>
         <div class="slide-card" style="border-left:4px solid var(--purple)">
-          <p class="slide-sm" data-i18n="sl.16.note">When v &lt; 1 and &varepsilon; &gt; 0, sending m = 0 (truth) when &theta; = 0 raises &lambda; above the prior &mdash; the receiver thinks the sender is more likely to be the good (behavioral) type. This is the mechanism of <strong>deceptive truth-telling</strong>.</p>
+          <p class="slide-sm" data-i18n="sl.16.note">When v &lt; 1 and &varepsilon; &gt; 0, sending m&nbsp;=&nbsp;0 (truth) in state &theta;&nbsp;=&nbsp;0 causes the receiver&rsquo;s type belief &lambda; to rise above the prior&mdash;because the behavioral type (committed truth-teller) also sends m&nbsp;=&nbsp;0, truth-telling cannot distinguish between the two types. Counter-intuitively, <strong>telling the truth actually builds a false reputation</strong>: the receiver becomes more confident the sender is the good type. This is the game-theoretic mechanism behind &ldquo;deceptive truth-telling&rdquo; in Prop.&nbsp;1.</p>
         </div>
         <div class="slide-card">
-          <p class="slide-sm" data-i18n="sl.16.action"><strong>Receiver&rsquo;s action:</strong> a(m) = E[&theta;|m] computed via Bayes&rsquo; rule over the state, given the strategy profile. The action determines the sender&rsquo;s period payoff under the quadratic loss function.</p>
+          <p class="slide-sm" data-i18n="sl.16.action"><strong>Receiver&rsquo;s optimal action:</strong> a(m)&nbsp;=&nbsp;E[&theta;|m], the conditional expectation over the world state computed via Bayes&rsquo; rule. Under the quadratic loss function &minus;(a&minus;&theta;)&sup2;, the receiver&rsquo;s best response is exactly the posterior mean. The action a in turn determines the sender&rsquo;s period payoff, forming an incentive-compatible closed loop.</p>
         </div>
       </div>
     </div>
@@ -1210,13 +1210,13 @@
     <div class="slide" data-slide="17">
       <div class="slide-body">
         <h2 class="slide-heading"><span class="slide-env-badge slide-gl">GL</span> <span data-i18n="sl.17.title">Bayesian Posteriors in Good-type Lying</span></h2>
-        <p class="slide-text" data-i18n="sl.17.intro">In GL, the strategic sender is good type with mixing parameter w = P(m=0|&theta;=1). The behavioral type always sends m = 1:</p>
+        <p class="slide-text" data-i18n="sl.17.intro">In the GL (good-type lying) environment, the strategic sender is good type (&tau;&nbsp;=&nbsp;G) with mixing parameter w&nbsp;=&nbsp;P(m=0|&theta;=1). The behavioral type always sends m&nbsp;=&nbsp;1 (the myopic bad type&rsquo;s strategy). The critical asymmetry is:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$\lambda^{GL}(m{=}0,\,\theta{=}1) = \frac{(1{-}\lambda) w (1{-}\varepsilon)}{(1{-}\lambda) w (1{-}\varepsilon) + \lambda\varepsilon} \quad \text{(lie when }\theta{=}1\text{)}$$</p>
           <p class="slide-formula">$$\lambda^{GL}(m{=}1,\,\theta{=}1) = \frac{(1{-}\lambda)(1{-}w) + \lambda}{(1{-}\lambda)(1{-}w) + \lambda + \varepsilon(2w{-}1)(1{-}\lambda)} \quad \text{(truth when }\theta{=}1\text{)}$$</p>
         </div>
         <div class="slide-card" style="border-left:4px solid var(--green)">
-          <p class="slide-sm" data-i18n="sl.17.note">When w &gt; 0, sending m = 0 (a lie) when &theta; = 1 is a signal only a strategic good type would send. The behavioral type <em>never</em> sends m = 0 voluntarily, so &lambda; drops (good type identified). This is <strong>non-deceptive lying</strong>: the lie reveals, rather than conceals, the sender&rsquo;s true type.</p>
+          <p class="slide-sm" data-i18n="sl.17.note">When w &gt; 0, sending m&nbsp;=&nbsp;0 (a lie) in state &theta;&nbsp;=&nbsp;1 constitutes a separating signal that only a strategic good type would send. The logical chain: the behavioral type <em>never</em> voluntarily sends m&nbsp;=&nbsp;0 &rarr; the receiver, upon observing m&nbsp;=&nbsp;0, knows the sender must be strategic &rarr; &lambda; drops (good type identified) &rarr; in period 2 the receiver fully trusts the sender. Therefore, <strong>the lie reveals rather than conceals the sender&rsquo;s true type</strong>&mdash;this is the complete reasoning chain for &ldquo;non-deceptive lying.&rdquo;</p>
         </div>
       </div>
     </div>
@@ -1225,26 +1225,26 @@
     <div class="slide" data-slide="18">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.18.title">Deception Measure D(m, &theta;)</h2>
-        <p class="slide-text" data-i18n="sl.18.intro">The deception measure quantifies how much a message shifts the receiver&rsquo;s type belief compared to the alternative message (Sobel Def.&nbsp;4):</p>
+        <p class="slide-text" data-i18n="sl.18.intro">The deception measure (Sobel Def.&nbsp;4) precisely quantifies how much a message shifts the receiver&rsquo;s type belief relative to the alternative message. This measure is the core operationalisation tool for distinguishing lying from deception:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$D(m, \theta) = |\lambda(m,\theta) - \lambda(m^n, \theta)|$$</p>
-          <p class="slide-sm" style="text-align:center" data-i18n="sl.18.formula.d">where m<sup>n</sup> is the alternative message (m<sup>n</sup> = 1&minus;m). D = 0 means non-deceptive.</p>
+          <p class="slide-sm" style="text-align:center" data-i18n="sl.18.formula.d">where m<sup>n</sup> is the alternative message (m<sup>n</sup>&nbsp;=&nbsp;1&minus;m). D&nbsp;=&nbsp;0 means that regardless of which message is sent, the receiver&rsquo;s type inference remains unchanged&mdash;i.e. the message is non-deceptive.</p>
         </div>
         <div class="slide-two-col">
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--purple)">
               <h3 data-i18n="sl.18.bt.h">BT: D &gt; 0</h3>
-              <p class="slide-sm" data-i18n="sl.18.bt.d">Truth-telling when &theta; = 0 moves &lambda; upward vs. the alternative. The truth <em>is</em> deceptive because it builds false reputation.</p>
+              <p class="slide-sm" data-i18n="sl.18.bt.d">Truth-telling when &theta;&nbsp;=&nbsp;0 shifts &lambda; upward (relative to lying), hence D&nbsp;&gt;&nbsp;0. The truth <em>is</em> deceptive&mdash;it builds a false reputation, causing the receiver to deviate from a correct inference about the sender&rsquo;s true preference type. This validates the core prediction of Prop.&nbsp;1.</p>
             </div>
           </div>
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--green)">
               <h3 data-i18n="sl.18.gl.h">GL: D = 0</h3>
-              <p class="slide-sm" data-i18n="sl.18.gl.d">Lying when &theta; = 1 does not distort type beliefs relative to truth-telling. The lie is <em>not</em> deceptive &mdash; it reveals the sender&rsquo;s type.</p>
+              <p class="slide-sm" data-i18n="sl.18.gl.d">Lying and truth-telling when &theta;&nbsp;=&nbsp;1 produce equal &lambda; updates, hence D&nbsp;=&nbsp;0. The lie does <em>not</em> distort type beliefs&mdash;it is a fully transparent signalling act. The good type separates itself through lying, and the receiver&rsquo;s type inference suffers no damage.</p>
             </div>
           </div>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.18.note">D enters the augmented utility as c<sub>d</sub> &middot; D(m,&theta;). Higher c<sub>d</sub> makes agents more sensitive to belief distortion, driving deviation from BT equilibrium (Prop.&nbsp;3).</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.18.note">D enters the augmented utility function as c<sub>d</sub>&nbsp;&middot;&nbsp;D(m,&theta;). The higher c<sub>d</sub>, the more sensitive the agent is to belief distortion. In BT, agents with high c<sub>d</sub> refuse to deceive the receiver through truth-telling&mdash;even though it is the equilibrium strategy&mdash;this is precisely the deception-averse deviation predicted by Prop.&nbsp;3.</p>
       </div>
     </div>
 
@@ -1252,7 +1252,7 @@
     <div class="slide" data-slide="19">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.19.title">Strategy Computation via Augmented Utility</h2>
-        <p class="slide-text" data-i18n="sl.19.intro">For each agent, period, and game type, we compute the optimal strategy by comparing augmented utilities of truth vs. lie:</p>
+        <p class="slide-text" data-i18n="sl.19.intro">For each agent&ndash;period&ndash;game-type combination, the optimal strategy is determined by comparing augmented utilities of truth-telling versus lying. This computation unifies economic rationality (payoff maximisation) and moral preferences (honesty costs) within a single decision framework:</p>
         <div class="slide-card slide-code">
           <span class="kw">for each</span> agent a, game type gt, period t:<br>
           &nbsp;&nbsp;<span class="cm">// Current state</span><br>
@@ -1264,7 +1264,7 @@
           &nbsp;&nbsp;<span class="kw">strategy</span> = P(truth) = &sigma;(EU<sup>a</sup>(truth) &minus; EU<sup>a</sup>(lie))<br>
           &nbsp;&nbsp;<span class="cm">// &sigma; = logistic smoothing to avoid discontinuities</span>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.19.note">The strategy is a truth-telling probability in [0,1]. Risk aversion (&alpha;) and altruism (&beta;) modify the base payoff via CRRA utility transformation before augmentation.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.19.note">The strategy output is a truth-telling probability &sigma; in [0,1]. The risk aversion parameter &alpha; modifies base payoffs via the CRRA utility transform u(x)&nbsp;=&nbsp;x<sup>1&minus;&alpha;</sup>/(1&minus;&alpha;), while the altruism parameter &beta; adjusts social preferences by weighting the opponent&rsquo;s payoff. These two dimensions, together with moral costs (c<sub>l</sub>, c<sub>d</sub>), form a four-dimensional heterogeneity space that produces the behavioural classification emergence shown in Fig.&nbsp;5.</p>
       </div>
     </div>
 
@@ -1272,7 +1272,7 @@
     <div class="slide" data-slide="20">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.20.title">N-Period Game Loop with &lambda; Inheritance</h2>
-        <p class="slide-text" data-i18n="sl.20.intro">The core simulation loop. Each period&rsquo;s posterior belief becomes the next period&rsquo;s prior:</p>
+        <p class="slide-text" data-i18n="sl.20.intro">The core simulation loop implements the cross-period transmission of reputation&mdash;the most important theoretical extension of the original two-period model. Each period&rsquo;s posterior belief &lambda;<sub>t</sub> becomes the next period&rsquo;s prior &lambda;<sub>t+1</sub>, giving rise to the dynamic evolution of reputation:</p>
         <div class="slide-card slide-code">
           <span class="kw">function</span> playNPeriodGame(agent, gt, periods, weights):<br>
           &nbsp;&nbsp;&lambda; = p<sub>b</sub> &nbsp;&nbsp;&nbsp;<span class="cm">// initial prior</span><br>
@@ -1286,7 +1286,7 @@
           &nbsp;&nbsp;<span class="kw">return</span> trajectory
         </div>
         <div class="slide-card slide-result">
-          <p data-i18n="sl.20.key"><strong>Key innovation:</strong> The line <code>&lambda; = bayesUpdate(...)</code> is where state inheritance happens. Unlike the original two-period model, our N-period extension creates continuous reputation trajectories observable in Fig.&nbsp;7.</p>
+          <p data-i18n="sl.20.key"><strong>Key innovation:</strong> The line <code>&lambda; = bayesUpdate(...)</code> is the exact point where state inheritance occurs. Unlike the two-period model in Choi et al.&nbsp;(2025)&mdash;which allows only a single belief update&mdash;our N-period extension makes reputation a continuously evolving state variable. This allows us to observe the reputation trajectories in Fig.&nbsp;7: how &lambda; rises over periods (reputation accumulation) or falls (trust erosion), and the trajectory divergence patterns across different behavioural types.</p>
         </div>
       </div>
     </div>
@@ -1295,22 +1295,22 @@
     <div class="slide" data-slide="21">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.21.title">Miscommunication Channel (&varepsilon;)</h2>
-        <p class="slide-text" data-i18n="sl.21.intro">Messages can be flipped in transit with probability &varepsilon;, modelling real-world communication noise:</p>
+        <p class="slide-text" data-i18n="sl.21.intro">Messages are flipped in transit with probability &varepsilon;. This seemingly simple technical device resolves deep technical issues in the game-theoretic model while simultaneously enhancing realism:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$m_{\text{rcv}} = \begin{cases} m & \text{with prob } 1{-}\varepsilon \\ 1{-}m & \text{with prob } \varepsilon \end{cases}$$</p>
         </div>
         <div class="slide-steps">
           <div class="slide-step">
             <span class="slide-step-num">1</span>
-            <p data-i18n="sl.21.s1"><strong>Full-support beliefs.</strong> With &varepsilon; &gt; 0, every (m, &theta;) pair is observed with positive probability. This prevents division by zero in Bayes&rsquo; rule and eliminates off-path belief degeneracy.</p>
+            <p data-i18n="sl.21.s1"><strong>Full-support belief guarantee.</strong> When &varepsilon;&nbsp;&gt;&nbsp;0, every (m,&nbsp;&theta;) pair in the information set occurs with positive probability. This technically guarantees that the denominator of Bayes&rsquo; rule is never zero, eliminating belief degeneracy on off-path information sets. Without this condition, certain message&ndash;state combinations would produce 0/0 indeterminate forms, rendering the equilibrium concept meaningless.</p>
           </div>
           <div class="slide-step">
             <span class="slide-step-num">2</span>
-            <p data-i18n="sl.21.s2"><strong>Smoothed posteriors.</strong> Belief updates become continuous functions of v and w, avoiding knife-edge equilibria and enabling meaningful comparative statics.</p>
+            <p data-i18n="sl.21.s2"><strong>Smoothed posterior continuity.</strong> With &varepsilon; introduced, &lambda;(m,&theta;) becomes a continuous (in fact, analytic) function of the mixing strategy parameters v and w. This prevents knife-edge equilibria&mdash;where infinitesimal changes in strategy cause discontinuous jumps in beliefs&mdash;making comparative statics analysis and numerical optimisation feasible.</p>
           </div>
           <div class="slide-step">
             <span class="slide-step-num">3</span>
-            <p data-i18n="sl.21.s3"><strong>Realistic communication.</strong> In practice, messages are never perfectly transmitted. Small &varepsilon; (e.g. 5%) captures the noise in real strategic environments without fundamentally altering equilibrium structure.</p>
+            <p data-i18n="sl.21.s3"><strong>Realistic communication noise modelling.</strong> In real economic environments, message transmission is never perfect: written documents may be misread, verbal promises may be forgotten. A small &varepsilon; (e.g.&nbsp;5%) captures the communication friction in actual strategic interactions without fundamentally altering the equilibrium structure.</p>
           </div>
         </div>
       </div>
@@ -1320,25 +1320,25 @@
     <div class="slide" data-slide="22">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.22.title">Equilibrium Regions in (c<sub>l</sub>, c<sub>d</sub>) Space</h2>
-        <p class="slide-text" data-i18n="sl.22.intro">Props. 3&ndash;4 predict regions where agents follow or deviate from equilibrium, determined by their moral cost parameters:</p>
+        <p class="slide-text" data-i18n="sl.22.intro">Props.&nbsp;3&ndash;4 establish precise boundaries of equilibrium compliance/deviation in the moral cost parameter space. These boundaries partition the space into three behavioural regions, each corresponding to a distinct reputation-building pattern:</p>
         <div class="slide-two-col">
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--blue)">
               <h3 data-i18n="sl.22.full">Full reputation building</h3>
-              <p class="slide-sm" data-i18n="sl.22.fulld">Above the solid boundary: c<sub>l</sub> &gt; 0.8c<sub>d</sub> + 0.2. Agents follow equilibrium in both BT and GL. Moral costs are not strong enough to override strategic incentives.</p>
+              <p class="slide-sm" data-i18n="sl.22.fulld">Above the solid boundary: c<sub>l</sub>&nbsp;&gt;&nbsp;0.8c<sub>d</sub>&nbsp;+&nbsp;0.2. In this region, moral costs are insufficient to outweigh the strategic gains from reputation building. Agents follow equilibrium in both BT and GL&mdash;bad types tell deceptive truths, good types lie to separate. This corresponds to the fully rational benchmark prediction.</p>
             </div>
             <div class="slide-card" style="border-left:4px solid var(--amber)">
               <h3 data-i18n="sl.22.partial">Partial reputation</h3>
-              <p class="slide-sm" data-i18n="sl.22.partiald">Between boundaries. Agents deviate in one environment based on whichever moral cost dominates.</p>
+              <p class="slide-sm" data-i18n="sl.22.partiald">Between the two boundaries. Agents deviate from equilibrium in one environment, depending on the relative magnitudes of c<sub>l</sub> and c<sub>d</sub>: if c<sub>d</sub> dominates, they deviate from BT (deception aversion); if c<sub>l</sub> dominates, they deviate from GL (lying aversion). This is the key region where Choi et al. identify behavioural types.</p>
             </div>
           </div>
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--red)">
               <h3 data-i18n="sl.22.none">No reputation building</h3>
-              <p class="slide-sm" data-i18n="sl.22.noned">Below the dashed boundary: c<sub>l</sub> &lt; 0.3c<sub>d</sub>. Both moral costs are strong. Agent deviates from equilibrium in both environments (inference error zone).</p>
+              <p class="slide-sm" data-i18n="sl.22.noned">Below the dashed boundary: c<sub>l</sub>&nbsp;&lt;&nbsp;0.3c<sub>d</sub>. Both moral costs are strong enough to make reputation building uneconomical in both environments. This corresponds to the inference error type&mdash;though note that these agents&rsquo; deviations are rational cost&ndash;benefit calculations, not cognitive limitations.</p>
             </div>
             <div class="slide-card slide-formula-card">
-              <p class="slide-sm" style="text-align:center" data-i18n="sl.22.fig">This corresponds to <strong>Fig.&nbsp;6</strong> in the simulation &mdash; each agent is plotted in (c<sub>d</sub>, c<sub>l</sub>) space, coloured by classification.</p>
+              <p class="slide-sm" style="text-align:center" data-i18n="sl.22.fig">This analysis corresponds to <strong>Fig.&nbsp;6</strong> in the simulation&mdash;each agent is plotted in (c<sub>d</sub>, c<sub>l</sub>) space and colour-coded by behavioural classification. The slope and intercept of the boundary lines reflect the asymmetric structure of reputation payoffs across the two environments.</p>
             </div>
           </div>
         </div>
@@ -1352,7 +1352,7 @@
       <div class="slide-body slide-center">
         <p class="slide-part-num">Part III</p>
         <h1 class="slide-part-title" data-i18n="sl.23.title">AI Agent Mode</h1>
-        <p class="slide-part-desc" data-i18n="sl.23.desc">Can large language models play the sender&ndash;receiver game? We replace mathematical agents with LLM-powered decision makers and compare their behaviour to theory.</p>
+        <p class="slide-part-desc" data-i18n="sl.23.desc">Can large language models exhibit strategic honesty behaviour? We replace mathematical optimisation agents with LLM-powered decision makers and compare their behaviour against theoretical predictions within the same game-theoretic framework. Core question: does LLM training implicitly shape moral cost priors analogous to c<sub>l</sub> and c<sub>d</sub>?</p>
       </div>
     </div>
 
@@ -1360,7 +1360,7 @@
     <div class="slide" data-slide="24">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.24.title">Multi-Provider LLM Architecture</h2>
-        <p class="slide-text" data-i18n="sl.24.intro">The AI mode supports 8 LLM providers, enabling cross-model comparison of strategic behaviour:</p>
+        <p class="slide-text" data-i18n="sl.24.intro">The AI mode integrates multiple models across 8 LLM providers, building a cross-architecture, cross-training-method platform for strategic behaviour comparison. Model heterogeneity allows us to test a core hypothesis: do different training methods (RLHF, DPO, reasoning-augmented) produce systematically different moral cost profiles?</p>
         <div class="slide-provider-grid">
           <div class="slide-provider-card"><h4>Claude</h4><p>Opus 4.6, Sonnet 4.6/4.5, Haiku 4.5</p></div>
           <div class="slide-provider-card"><h4>GPT</h4><p>GPT-5.4, o3, o4-mini, GPT-4.1, 4o</p></div>
@@ -1371,7 +1371,7 @@
           <div class="slide-provider-card"><h4>Kimi</h4><p>Kimi-K2</p></div>
           <div class="slide-provider-card"><h4>Zhipu</h4><p>GLM-4-Plus, GLM-4-Flash</p></div>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.24.note">Each provider uses a unified OpenAI-compatible interface (except Claude and Gemini which have native APIs). Custom endpoints are supported for self-hosted models.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.24.note">All providers except Claude (Anthropic native API) and Gemini (Google native API) use a unified OpenAI-compatible interface. Custom endpoints support self-hosted models, making the experiment extensible to any LLM conforming to the interface specification.</p>
       </div>
     </div>
 
@@ -1379,7 +1379,7 @@
     <div class="slide" data-slide="25">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.25.title">Two-Tier Dispatch: Administrator &rarr; Agent</h2>
-        <p class="slide-text" data-i18n="sl.25.intro">A unique two-tier architecture separates prompt generation from game play:</p>
+        <p class="slide-text" data-i18n="sl.25.intro">We designed a unique two-tier architecture that separates game-theoretic knowledge injection from strategic decision execution. The motivation: feeding the complete game-theory text directly to each agent would produce overly long prompts with low signal-to-noise ratio:</p>
         <div class="slide-flow">
           <div class="slide-flow-box highlight">Administrator LLM</div>
           <span class="slide-flow-arrow">&rarr;</span>
@@ -1394,14 +1394,14 @@
         <div class="slide-two-col">
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--accent)">
-              <h3 data-i18n="sl.25.admin.h">Tier 1: Administrator</h3>
-              <p class="slide-sm" data-i18n="sl.25.admin.d">A single LLM receives the full game-theoretic context (GAME_CONTEXT) plus each agent&rsquo;s parameters (c<sub>l</sub>, c<sub>d</sub>, &alpha;, &beta;, game type). It generates a tailored prompt for each agent, embedding the relevant beliefs and incentives.</p>
+              <h3 data-i18n="sl.25.admin.h">Tier 1: Administrator LLM</h3>
+              <p class="slide-sm" data-i18n="sl.25.admin.d">A single administrator LLM receives the full game-theoretic context (GAME_CONTEXT: type definitions, Bayesian belief framework, equilibrium structure, utility functions) plus each agent&rsquo;s specific parameters (c<sub>l</sub>, c<sub>d</sub>, &alpha;, &beta;, game type). It encodes this information into a tailored natural-language decision scenario for each agent, preserving decision-relevant information while stripping away formal details.</p>
             </div>
           </div>
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--teal)">
-              <h3 data-i18n="sl.25.agent.h">Tier 2: Agents</h3>
-              <p class="slide-sm" data-i18n="sl.25.agent.d">Each agent LLM receives its personalised prompt and returns a truth-telling probability in [0,1]. Agents are dispatched in parallel (concurrency limit = 4) with retry logic for rate limits (429 errors).</p>
+              <h3 data-i18n="sl.25.agent.h">Tier 2: Agent LLMs</h3>
+              <p class="slide-sm" data-i18n="sl.25.agent.d">Each agent LLM receives only its personalised prompt and need not understand the full game-theoretic framework. Output is a truth-telling probability in [0,1]. Agents are dispatched in parallel (concurrency limit&nbsp;=&nbsp;4) with exponential-backoff retry logic for 429 rate limits, ensuring stable operation of large-scale experiments.</p>
             </div>
           </div>
         </div>
@@ -1412,7 +1412,7 @@
     <div class="slide" data-slide="26">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.26.title">Prompt Engineering: GAME_CONTEXT</h2>
-        <p class="slide-text" data-i18n="sl.26.intro">The administrator LLM is briefed with a structured game-theory context that embeds the formal model:</p>
+        <p class="slide-text" data-i18n="sl.26.intro">The administrator LLM receives a structured game-theory context template embedding the complete formal model. The core challenge of this design is translating abstract mathematical game theory into natural-language decision scenarios that an LLM can comprehend:</p>
         <div class="slide-card slide-code">
           <span class="kw">GAME_CONTEXT</span> = {<br>
           &nbsp;&nbsp;game: "sender-receiver reputation game",<br>
@@ -1426,7 +1426,7 @@
           &nbsp;&nbsp;output: "<strong>single number in [0,1]</strong>"<br>
           }
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.26.note">The administrator must translate abstract game theory into natural-language decision scenarios. If the administrator call fails, a local fallback generates prompts directly from templates.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.26.note">The administrator must accomplish a critical translation task: converting formal Bayesian game theory (posterior probabilities, mixed strategies, belief updates) into concrete, contextualised decision narratives. If the administrator API call fails, the system automatically falls back to local templates for prompt generation, ensuring experiments are not interrupted by single points of failure.</p>
       </div>
     </div>
 
@@ -1434,27 +1434,27 @@
     <div class="slide" data-slide="27">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.27.title">Multi-Trial Experiment Design</h2>
-        <p class="slide-text" data-i18n="sl.27.intro">To ensure statistical robustness, AI experiments run multiple independent trials:</p>
+        <p class="slide-text" data-i18n="sl.27.intro">To ensure statistical robustness, AI experiments employ a multi-trial independent replication design. The rationale: LLM outputs carry intrinsic stochasticity (temperature parameters, sampling strategies), and single-trial results may not be representative:</p>
         <div class="slide-steps">
           <div class="slide-step">
             <span class="slide-step-num">1</span>
             <div>
-              <p><strong data-i18n="sl.27.s1h">Independent trials</strong></p>
-              <p class="slide-sm" data-i18n="sl.27.s1d">Each trial generates a fresh population, runs the administrator, dispatches all agents, and collects strategies. Trials are independent to avoid sequential contamination.</p>
+              <p><strong data-i18n="sl.27.s1h">Independent trial design</strong></p>
+              <p class="slide-sm" data-i18n="sl.27.s1d">Each trial independently generates a fresh population, runs the administrator to produce prompts, dispatches all agents in parallel, and collects strategy responses. Inter-trial independence is maintained to prevent sequential contamination (e.g. residual prior-trial information in context windows). This corresponds to a &ldquo;between-subjects&rdquo; design in experimental economics.</p>
             </div>
           </div>
           <div class="slide-step">
             <span class="slide-step-num">2</span>
             <div>
-              <p><strong data-i18n="sl.27.s2h">Cross-model aggregation</strong></p>
-              <p class="slide-sm" data-i18n="sl.27.s2d">Per-model statistics (mean &plusmn; s.d.) are computed across trials. This reveals whether a model&rsquo;s strategic behaviour is consistent or stochastic.</p>
+              <p><strong data-i18n="sl.27.s2h">Cross-model statistical aggregation</strong></p>
+              <p class="slide-sm" data-i18n="sl.27.s2d">Aggregate statistics per model (mean &plusmn; s.d., 95% confidence intervals) are computed across trials. This lets us distinguish a model&rsquo;s systematic strategic tendency (mean shift) from random fluctuation (variance), providing statistical evidence for the question: &ldquo;Do LLMs have stable moral cost priors?&rdquo;</p>
             </div>
           </div>
           <div class="slide-step">
             <span class="slide-step-num">3</span>
             <div>
-              <p><strong data-i18n="sl.27.s3h">Rich game log</strong></p>
-              <p class="slide-sm" data-i18n="sl.27.s3d">Every trial records: agent ID, game type, provider, model, full prompt text, raw LLM response, parsed strategy, and any errors. This enables post-hoc analysis of LLM reasoning.</p>
+              <p><strong data-i18n="sl.27.s3h">Complete game log</strong></p>
+              <p class="slide-sm" data-i18n="sl.27.s3d">Each trial records a full audit trail: agent ID, game type, API provider, model name, complete prompt text, raw LLM response, parsed strategy value, and any errors. This enables researchers to perform post-hoc analysis of LLM reasoning, tracing the linguistic reasoning pathway behind specific strategy choices.</p>
             </div>
           </div>
         </div>
@@ -1465,23 +1465,23 @@
     <div class="slide" data-slide="28">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.28.title">Cross-Model Strategy &amp; Classification (Figs.&nbsp;8&ndash;9)</h2>
-        <p class="slide-text" data-i18n="sl.28.intro">The AI mode produces three novel visualisations comparing LLM behaviour to theoretical predictions:</p>
+        <p class="slide-text" data-i18n="sl.28.intro">The AI mode produces three novel visualisations that enable a three-way comparison of LLM behaviour against theoretical predictions from Choi et al.&nbsp;(2025) and human experimental data:</p>
         <div class="slide-two-col">
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--accent)">
-              <h3 data-i18n="sl.28.fig8h">Fig.&nbsp;8: Strategy Comparison</h3>
-              <p class="slide-sm" data-i18n="sl.28.fig8d">Per-model mean truth-telling probability with 95% CI error bars. Dashed lines mark equilibrium predictions (BT: v* = 1, GL: w* = 0). Reveals which models conform to or deviate from game-theoretic equilibria.</p>
+              <h3 data-i18n="sl.28.fig8h">Fig.&nbsp;8: Cross-Model Strategy Distribution</h3>
+              <p class="slide-sm" data-i18n="sl.28.fig8d">Displays each model&rsquo;s mean truth-telling probability in BT and GL environments with 95% CI error bars. Dashed lines mark theoretical equilibrium values (BT: v*&nbsp;=&nbsp;1, GL: w*&nbsp;=&nbsp;0). The magnitude and direction of deviation reveal systematic differences in strategic honesty across model architectures.</p>
             </div>
           </div>
           <div class="slide-col">
             <div class="slide-card" style="border-left:4px solid var(--teal)">
-              <h3 data-i18n="sl.28.fig9h">Fig.&nbsp;9: Classification</h3>
-              <p class="slide-sm" data-i18n="sl.28.fig9d">Behavioural classification proportions per model across all trials. Do LLMs exhibit the same equilibrium / lying-averse / deception-averse / inference-error taxonomy as human subjects?</p>
+              <h3 data-i18n="sl.28.fig9h">Fig.&nbsp;9: Behavioural Type Classification</h3>
+              <p class="slide-sm" data-i18n="sl.28.fig9d">Classifies each model&rsquo;s behaviour into the four types from Choi et al.&nbsp;Fig.&nbsp;5 (equilibrium / lying-averse / deception-averse / inference error) and shows cross-trial type proportions. Core question: do LLMs exhibit the same classification distribution as the 198 human participants?</p>
             </div>
           </div>
         </div>
         <div class="slide-card slide-result">
-          <p data-i18n="sl.28.result"><strong>Key question:</strong> Do different LLM architectures (transformer-based, MoE, reasoning-optimised) produce systematically different moral-cost profiles?</p>
+          <p data-i18n="sl.28.result"><strong>Core research question:</strong> Do different LLM architectures (pure Transformer, Mixture-of-Experts, reasoning-optimised, RLHF-aligned) systematically produce different moral cost profiles? If so, this implies that training methodology itself implicitly encodes different attitudes toward strategic honesty.</p>
         </div>
       </div>
     </div>
@@ -1490,25 +1490,25 @@
     <div class="slide" data-slide="29">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.29.title">Model vs. Equilibrium Deviation (Fig.&nbsp;10)</h2>
-        <p class="slide-text" data-i18n="sl.29.intro">Each model is plotted as a point in (BT deviation, GL deviation) space, where deviation = |strategy &minus; equilibrium|:</p>
+        <p class="slide-text" data-i18n="sl.29.intro">Fig.&nbsp;10 visualises each model in two-dimensional deviation space, where deviation is defined as the absolute distance between strategy and equilibrium prediction. This scatter plot is the most diagnostically valuable output of the AI mode:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$\Delta_{BT} = |v - v^*| = |v - 1|, \qquad \Delta_{GL} = |w - w^*| = |w - 0| = w$$</p>
         </div>
         <div class="slide-steps">
           <div class="slide-step">
             <span class="slide-step-num" style="background:var(--green)">&starf;</span>
-            <p data-i18n="sl.29.origin"><strong>Origin (0,0):</strong> Perfect equilibrium play. Both BT truth-telling and GL lying match theory exactly.</p>
+            <p data-i18n="sl.29.origin"><strong>Origin (0,0)&mdash;Perfect equilibrium play:</strong> Full truth-telling in BT (v&nbsp;=&nbsp;1) and full lying in GL (w&nbsp;=&nbsp;0), matching theoretical predictions exactly. Models near the origin exhibit pure strategic rationality, unaffected by moral cost interference.</p>
           </div>
           <div class="slide-step">
             <span class="slide-step-num" style="background:var(--red)">&rarr;</span>
-            <p data-i18n="sl.29.btdev"><strong>Right shift:</strong> BT deviation &mdash; model refuses to tell deceptive truths. Consistent with high effective c<sub>d</sub>.</p>
+            <p data-i18n="sl.29.btdev"><strong>Right shift&mdash;BT deviation (&Delta;<sub>BT</sub>&nbsp;&gt;&nbsp;0):</strong> The model refuses to deceive the receiver through truth-telling in BT. Consistent with high effective c<sub>d</sub>: RLHF training may have instilled an intrinsic aversion to &ldquo;deceptive truths,&rdquo; even though truth-telling itself does not violate literal honesty.</p>
           </div>
           <div class="slide-step">
             <span class="slide-step-num" style="background:var(--purple)">&uarr;</span>
-            <p data-i18n="sl.29.gldev"><strong>Upward shift:</strong> GL deviation &mdash; model refuses to lie even when non-deceptive. Consistent with high effective c<sub>l</sub>.</p>
+            <p data-i18n="sl.29.gldev"><strong>Upward shift&mdash;GL deviation (&Delta;<sub>GL</sub>&nbsp;&gt;&nbsp;0):</strong> The model refuses to lie in GL even though the lie is non-deceptive. Consistent with high effective c<sub>l</sub>: safety training may have implanted a strong &ldquo;do not produce false statements&rdquo; preference that does not distinguish whether a literal lie carries deceptive intent.</p>
           </div>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.29.note">Clustering patterns reveal whether LLMs have implicit moral cost priors. Models trained with RLHF may show stronger lying aversion; reasoning-optimised models may show more strategic behaviour.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.29.note">Clustering patterns offer a window into LLM moral reasoning: if RLHF models cluster in the upper-right (dual deviation) while reasoning-optimised models sit near the origin, this indicates that different training paradigms encode strategic honesty in fundamentally different ways. This provides an actionable empirical framework for AI alignment research.</p>
       </div>
     </div>
 
@@ -1516,35 +1516,35 @@
     <div class="slide" data-slide="30">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.30.title">AI vs.&nbsp;Math: Two Paradigms of Agent Decision</h2>
-        <p class="slide-text" data-i18n="sl.30.intro">The platform enables direct comparison between mathematical optimisation and LLM-based reasoning:</p>
+        <p class="slide-text" data-i18n="sl.30.intro">The core design philosophy of this platform is to enable parallel comparison of mathematical optimisation and LLM reasoning within the same game-theoretic framework. The two modes share identical population parameters and game environments, differing only in the strategy generation mechanism&mdash;making difference analysis strictly comparable:</p>
         <table class="slide-matrix">
           <thead>
             <tr><th></th><th data-i18n="sl.30.math">Math Mode</th><th data-i18n="sl.30.ai">AI Mode</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td class="slide-matrix-label" data-i18n="sl.30.r1">Strategy</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r1m">Augmented utility maximisation</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r1a">LLM prompt &rarr; [0,1] response</td>
+              <td class="slide-matrix-label" data-i18n="sl.30.r1">Strategy generation</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r1m">Augmented utility maximisation (analytic computation)</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r1a">LLM natural-language reasoning &rarr; [0,1] probability</td>
             </tr>
             <tr>
               <td class="slide-matrix-label" data-i18n="sl.30.r2">Moral costs</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r2m">Explicit (c<sub>l</sub>, c<sub>d</sub>) parameters</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r2a">Implicit in training (RLHF, alignment)</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r2m">Explicit parameters (c<sub>l</sub>, c<sub>d</sub>) sampled from distributions</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r2a">Implicitly encoded by training process (RLHF/DPO alignment)</td>
             </tr>
             <tr>
               <td class="slide-matrix-label" data-i18n="sl.30.r3">Belief update</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r3m">Exact Bayesian computation</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r3a">Natural-language reasoning</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r3m">Exact Bayesian posterior computation</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r3a">Probabilistic reasoning in natural language (potentially with systematic biases)</td>
             </tr>
             <tr>
               <td class="slide-matrix-label" data-i18n="sl.30.r4">Reproducibility</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r4m">Deterministic (seed = 42)</td>
-              <td class="slide-matrix-cell" data-i18n="sl.30.r4a">Stochastic (temperature, multi-trial)</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r4m">Deterministic (fixed seed&nbsp;=&nbsp;42)</td>
+              <td class="slide-matrix-cell" data-i18n="sl.30.r4a">Stochastic (temperature parameter, multi-trial statistical inference)</td>
             </tr>
           </tbody>
         </table>
-        <p class="slide-text slide-note-sm" data-i18n="sl.30.note">By running both modes on the same population and comparing Figs.&nbsp;1&ndash;7 (Math) with Figs.&nbsp;8&ndash;10 (AI), we can estimate the <em>effective moral costs</em> that LLM training has implicitly instilled.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.30.note">By running both modes on the same population in parallel and comparing Figs.&nbsp;1&ndash;7 (Math) with Figs.&nbsp;8&ndash;10 (AI), we can reverse-estimate the <em>effective moral costs</em> implicitly injected by LLM training&mdash;i.e. find the (c<sub>l</sub>*, c<sub>d</sub>*) parameter pair that best fits the mathematical model to LLM behavioural data. This provides an actionable quantitative framework for understanding the &ldquo;moral compass&rdquo; of LLMs.</p>
       </div>
     </div>
 
@@ -1553,27 +1553,27 @@
     <!-- Slide 31: Key Takeaways -->
     <div class="slide" data-slide="31">
       <div class="slide-body slide-center">
-        <h2 class="slide-heading" data-i18n="sl.31.title">Key Takeaways</h2>
+        <h2 class="slide-heading" data-i18n="sl.31.title">Key Findings and Theoretical Contributions</h2>
         <div class="slide-takeaways">
           <div class="slide-takeaway">
             <span class="slide-take-num">1</span>
-            <p data-i18n="sl.31.t1"><strong>Lying &ne; Deception.</strong> Sobel (2020) formalises: lying is locutionary (what you say), deception is illocutionary (what the audience infers). They are independently measurable.</p>
+            <p data-i18n="sl.31.t1"><strong>Lying &ne; Deception.</strong> Sobel&nbsp;(2020) establishes the formal distinction: lying is locutionary (depends solely on whether the message matches the state), deception is illocutionary (depends on the message&rsquo;s effect on the audience&rsquo;s beliefs). The two are conceptually independent and experimentally separable.</p>
           </div>
           <div class="slide-takeaway">
             <span class="slide-take-num">2</span>
-            <p data-i18n="sl.31.t2"><strong>Truth can deceive, lies can be honest.</strong> Choi et al. construct two environments where these emerge as unique equilibria: BT (Prop.&nbsp;1) and GL (Prop.&nbsp;2).</p>
+            <p data-i18n="sl.31.t2"><strong>Truth can deceive, lies can be honest.</strong> Choi et al.&nbsp;(2025) construct two reputation game environments (BT/GL) in which these counter-intuitive behaviours emerge as unique equilibria. In BT, the bad type&rsquo;s truth-telling builds false reputation (Prop.&nbsp;1); in GL, the good type&rsquo;s lying reveals its true type (Prop.&nbsp;2).</p>
           </div>
           <div class="slide-takeaway">
             <span class="slide-take-num">3</span>
-            <p data-i18n="sl.31.t3"><strong>Moral costs drive deviation.</strong> Heterogeneous c<sub>l</sub> and c<sub>d</sub> produce four behavioural types (Props.&nbsp;3&ndash;4), validated by 198-participant experiments at SNU.</p>
+            <p data-i18n="sl.31.t3"><strong>Moral costs drive systematic deviation.</strong> Heterogeneous lying cost c<sub>l</sub> and deception cost c<sub>d</sub> produce four identifiable behavioural types (Props.&nbsp;3&ndash;4), validated by controlled experiments with 198 participants at Seoul National University, where 47&ndash;53% of deviation is attributable to moral preference rather than inference error.</p>
           </div>
           <div class="slide-takeaway">
             <span class="slide-take-num">4</span>
-            <p data-i18n="sl.31.t4"><strong>N-period &lambda; dynamics.</strong> Our simulation extends the model to N periods with inherited belief state, miscommunication, and heterogeneous populations &mdash; continuous reputation trajectories.</p>
+            <p data-i18n="sl.31.t4"><strong>N-period &lambda; continuous dynamics.</strong> We extend the two-period model to an N-period repeated game where the reputation belief &lambda; carries forward as a state variable across periods. Combined with geometric period weighting and a miscommunication channel, this extension produces continuous reputation trajectories revealing the gradual dynamics of reputation accumulation.</p>
           </div>
           <div class="slide-takeaway">
             <span class="slide-take-num">5</span>
-            <p data-i18n="sl.31.t5"><strong>LLMs as experimental subjects.</strong> AI agents exhibit implicit moral costs shaped by training, enabling cross-architecture comparison of strategic honesty.</p>
+            <p data-i18n="sl.31.t5"><strong>LLMs as experimental subjects: a methodological innovation.</strong> AI agents exhibit implicit moral cost priors shaped by their training paradigm. Cross-architecture comparison reveals systematic differences in how training methods encode strategic honesty, offering a game-theoretic lens on the &ldquo;honesty&ndash;helpfulness&rdquo; trade-off in AI alignment.</p>
           </div>
         </div>
       </div>
@@ -1582,13 +1582,13 @@
     <!-- Slide 32: Call to Action -->
     <div class="slide" data-slide="32">
       <div class="slide-body slide-center">
-        <h2 class="slide-heading" data-i18n="sl.32.title">Try It Yourself</h2>
+        <h2 class="slide-heading" data-i18n="sl.32.title">Interactive Experiment</h2>
         <div class="slide-card slide-highlight" style="max-width:640px;margin:0 auto">
-          <p class="slide-big" data-i18n="sl.32.cta1">Switch to the <strong>Experiment</strong> tab to run the simulation.</p>
-          <p class="slide-text" data-i18n="sl.32.cta2" style="margin-top:12px">Adjust population parameters, compare BT vs GL, toggle Math/AI mode, and observe how lying aversion and deception aversion shape reputation dynamics in real time.</p>
+          <p class="slide-big" data-i18n="sl.32.cta1">Switch to the <strong>Experiment</strong> tab to run the simulation and verify the theoretical predictions above.</p>
+          <p class="slide-text" data-i18n="sl.32.cta2" style="margin-top:12px">Adjust population parameters (risk type proportions, moral cost distributions), compare BT vs.&nbsp;GL environments, toggle Math/AI mode, and observe in real time how lying aversion and deception aversion shape the emergent distribution of strategic behaviour across N-period reputation games. All charts support export to JSON/CSV for further analysis.</p>
         </div>
         <div class="slide-meta" style="margin-top:32px">
-          <p data-i18n="sl.32.refs">Choi, Lee &amp; Lim (2025) &bull; Sobel (2020, <em>JPE</em>)</p>
+          <p data-i18n="sl.32.refs">Choi, Lee &amp; Lim (2025) &bull; Sobel (2020, <em>Journal of Political Economy</em>)</p>
           <p data-i18n="sl.32.url" style="margin-top:8px"><strong>game.m0nius.com</strong></p>
         </div>
       </div>
