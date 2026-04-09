@@ -273,6 +273,44 @@ function exportCSV() {
   URL.revokeObjectURL(a.href);
 }
 
+/* ---- Slides navigation ---- */
+let _curSlide = 1;
+function _slideCount() { return document.querySelectorAll('#slides-viewport .slide').length; }
+function slideNav(dir) {
+  const total = _slideCount();
+  const next = Math.max(1, Math.min(total, _curSlide + dir));
+  if (next === _curSlide) return;
+  _curSlide = next;
+  document.querySelectorAll('#slides-viewport .slide').forEach(s => s.classList.remove('active'));
+  const el = document.querySelector(`#slides-viewport .slide[data-slide="${_curSlide}"]`);
+  if (el) el.classList.add('active');
+  document.getElementById('slide-cur').textContent = _curSlide;
+  document.getElementById('slide-prev').disabled = _curSlide <= 1;
+  document.getElementById('slide-next').disabled = _curSlide >= total;
+}
+function toggleSlideFullscreen() {
+  const vp = document.getElementById('slides-viewport');
+  vp.classList.toggle('fullscreen');
+}
+(function initSlides() {
+  const total = document.querySelectorAll('#slides-viewport .slide').length;
+  const totEl = document.getElementById('slide-tot');
+  if (totEl) totEl.textContent = total;
+  const prevBtn = document.getElementById('slide-prev');
+  if (prevBtn) prevBtn.disabled = true;
+  document.addEventListener('keydown', e => {
+    const slidesTab = document.getElementById('tab-slides');
+    if (!slidesTab || !slidesTab.classList.contains('active')) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); slideNav(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); slideNav(-1); }
+    if (e.key === 'Escape') {
+      const vp = document.getElementById('slides-viewport');
+      if (vp && vp.classList.contains('fullscreen')) { vp.classList.remove('fullscreen'); e.preventDefault(); }
+    }
+    if (e.key === 'f' || e.key === 'F') { toggleSlideFullscreen(); e.preventDefault(); }
+  });
+})();
+
 /* ---- Init ---- */
 window.addEventListener('load', () => {
   const ls = document.getElementById('lang-select');

@@ -24,6 +24,7 @@
     <button class="nav-tab active" data-tab="experiment" data-i18n="nav.experiment">Experiment</button>
     <button class="nav-tab" data-tab="architecture" data-i18n="nav.architecture">Architecture</button>
     <button class="nav-tab" data-tab="glossary" data-i18n="nav.glossary">Glossary</button>
+    <button class="nav-tab" data-tab="slides" data-i18n="nav.slides">Slides</button>
   </div>
   <div class="nav-menu" id="nav-menu">
     <div class="paradigm-switch" id="paradigm-switch">
@@ -819,6 +820,363 @@
   </div>
 </div>
 </div><!-- /tab-glossary -->
+
+<!-- ============================================================ SLIDES TAB -->
+<div id="tab-slides" class="tab-content">
+<div class="slides-wrap">
+  <div class="slides-toolbar">
+    <span class="slides-counter"><span id="slide-cur">1</span> / <span id="slide-tot">14</span></span>
+    <div class="slides-nav">
+      <button class="slides-btn" id="slide-prev" onclick="slideNav(-1)" title="Previous">&larr;</button>
+      <button class="slides-btn" id="slide-next" onclick="slideNav(1)" title="Next">&rarr;</button>
+      <button class="slides-btn" id="slide-fs" onclick="toggleSlideFullscreen()" title="Fullscreen">&#x26F6;</button>
+    </div>
+  </div>
+
+  <div class="slides-viewport" id="slides-viewport">
+
+    <!-- Slide 1: Title -->
+    <div class="slide active" data-slide="1">
+      <div class="slide-body slide-center">
+        <h1 class="slide-title" data-i18n="sl.1.title">The Anatomy of Honesty</h1>
+        <p class="slide-subtitle" data-i18n="sl.1.sub">Lying Aversion vs. Deception Aversion in Sender&ndash;Receiver Games</p>
+        <div class="slide-meta">
+          <p data-i18n="sl.1.ref">Choi, Lee &amp; Lim (2025) &bull; Sobel (2020, <em>Journal of Political Economy</em>)</p>
+          <p class="slide-tag" data-i18n="sl.1.tag">Multi-Period Interactive Simulation</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Motivation -->
+    <div class="slide" data-slide="2">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.2.title">Why Distinguish Lying from Deception?</h2>
+        <div class="slide-card slide-highlight">
+          <p class="slide-big" data-i18n="sl.2.q1">Can you <strong>lie</strong> without <strong>deceiving</strong>?</p>
+          <p class="slide-big" data-i18n="sl.2.q2">Can you <strong>deceive</strong> without <strong>lying</strong>?</p>
+        </div>
+        <p class="slide-text" data-i18n="sl.2.body">Traditional behavioral economics treats dishonesty as a single concept. However, the cognitive processes are fundamentally different: lying aversion does not require higher-order reasoning about the audience, while deception aversion does. Separating them has distinct implications for market design and policy (Choi et al. 2025, &sect;1).</p>
+      </div>
+    </div>
+
+    <!-- Slide 3: Sobel's Framework -->
+    <div class="slide" data-slide="3">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.3.title">Sobel&rsquo;s Framework: Three Properties of Speech Acts</h2>
+        <p class="slide-text" data-i18n="sl.3.intro">Sobel (2020) builds on Austin&rsquo;s speech-act theory to formalise lying and deception in strategic settings:</p>
+        <div class="slide-three-col">
+          <div class="slide-card" style="border-left:4px solid var(--red)">
+            <h3 data-i18n="sl.3.loc">Locution</h3>
+            <p class="slide-sm" data-i18n="sl.3.loc.d"><strong>What the speaker says.</strong> Lying is purely locutionary: a message m is a lie if its literal meaning does not match the true state. No model of the audience is needed.</p>
+          </div>
+          <div class="slide-card" style="border-left:4px solid var(--purple)">
+            <h3 data-i18n="sl.3.ill">Illocution</h3>
+            <p class="slide-sm" data-i18n="sl.3.ill.d"><strong>How the audience interprets it.</strong> Deception is illocutionary: the sender must have a model of the receiver&rsquo;s belief-updating process. Deception does not require lying.</p>
+          </div>
+          <div class="slide-card" style="border-left:4px solid var(--amber)">
+            <h3 data-i18n="sl.3.per">Perlocution</h3>
+            <p class="slide-sm" data-i18n="sl.3.per.d"><strong>The consequences.</strong> Damage is the payoff consequence of communication. Sobel shows deception does not always cause damage, and damage can occur without deception.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Formal Definitions -->
+    <div class="slide" data-slide="4">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.4.title">Formal Definitions (Choi et al. &sect;2)</h2>
+        <div class="slide-steps">
+          <div class="slide-step">
+            <span class="slide-step-num" style="background:var(--red)">1</span>
+            <div>
+              <p><strong data-i18n="sl.4.d1h">Lying (Def. 1, from Sobel 2020)</strong></p>
+              <p class="slide-formula" style="text-align:left">$$m \text{ is a } \textbf{lie} \text{ given } \theta \iff m \neq \theta; \quad m \text{ is a } \textbf{truth} \iff m = \theta$$</p>
+            </div>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num" style="background:var(--purple)">2</span>
+            <div>
+              <p><strong data-i18n="sl.4.d2h">Deception about preference type (Def. 2)</strong></p>
+              <p class="slide-sm" data-i18n="sl.4.d2d">Message m is <strong>deceptive w.r.t. the preference type</strong> if there exists m&prime; such that the receiver&rsquo;s posterior belief &lambda;(m&prime;) about the sender&rsquo;s type &tau; is closer to the true type than &lambda;(m).</p>
+            </div>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num" style="background:var(--teal)">3</span>
+            <div>
+              <p><strong data-i18n="sl.4.d3h">Deception about state (Def. 3)</strong></p>
+              <p class="slide-sm" data-i18n="sl.4.d3d">Message m is <strong>deceptive w.r.t. the state</strong> if there exists m&prime; such that the receiver&rsquo;s interim belief Pr(&theta;|m&prime;) is closer to the true state than Pr(&theta;|m). In both BT and GL, no equilibrium message is deceptive about the state.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: 2x2 Matrix -->
+    <div class="slide" data-slide="5">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.5.title">The Key Separation</h2>
+        <table class="slide-matrix">
+          <thead>
+            <tr><th></th><th data-i18n="sl.5.dec">Deceptive w.r.t. type</th><th data-i18n="sl.5.nondec">Non-deceptive w.r.t. type</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="slide-matrix-label" data-i18n="sl.5.lie">Lie (m &ne; &theta;)</td>
+              <td class="slide-matrix-cell cell-common" data-i18n="sl.5.c1">Common intuition</td>
+              <td class="slide-matrix-cell cell-gl" data-i18n="sl.5.c2"><strong>GL equilibrium</strong><br>Good type lies to reveal type (Prop.&nbsp;2)</td>
+            </tr>
+            <tr>
+              <td class="slide-matrix-label" data-i18n="sl.5.truth">Truth (m = &theta;)</td>
+              <td class="slide-matrix-cell cell-bt" data-i18n="sl.5.c3"><strong>BT equilibrium</strong><br>Bad type tells truth to conceal type (Prop.&nbsp;1)</td>
+              <td class="slide-matrix-cell cell-ordinary" data-i18n="sl.5.c4">Ordinary honesty</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="slide-text slide-note-sm" data-i18n="sl.5.note">The off-diagonal cells are the key theoretical predictions: lying can be <em>non-deceptive</em>, and truth-telling can be <em>deceptive</em>. Both papers provide conditions under which these arise in equilibrium.</p>
+      </div>
+    </div>
+
+    <!-- Slide 6: Game Environment & Timeline -->
+    <div class="slide" data-slide="6">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.6.title">Game Environment &amp; Timeline</h2>
+        <p class="slide-text" data-i18n="sl.6.intro">A two-period reputation-building game (Choi et al. &sect;2). The receiver cannot directly observe the sender&rsquo;s preference type &tau; &mdash; only messages about the state.</p>
+        <div class="slide-card slide-formula-card">
+          <p class="slide-formula">$$U_P = -\textstyle\sum_{i=1}^{2} x_i(a_i - \theta_i)^2 \qquad U_G = U_P \qquad U_B = -\textstyle\sum_{i=1}^{2} x_i(a_i - 1)^2$$</p>
+          <p class="slide-sm" style="text-align:center" data-i18n="sl.6.ratio">When x<sub>2</sub>/x<sub>1</sub> is large, reputation-building dominates &mdash; unique equilibrium emerges (x<sub>2</sub>/x<sub>1</sub> = 20 in experiments).</p>
+        </div>
+        <div class="slide-card" style="border-left:4px solid var(--accent)">
+          <p class="slide-sm" data-i18n="sl.6.timeline"><strong>Per-period timeline</strong> (Choi et al. Fig.&nbsp;1): S sends m &rarr; R receives m &rarr; R forms interim belief Pr(&theta;|m) &rarr; R chooses action a &rarr; &theta; revealed &rarr; R updates posterior type belief Pr(&tau;|&theta;,m). The posterior &lambda; <strong>carries forward</strong> as inherited state to the next period.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: BT Environment -->
+    <div class="slide" data-slide="7">
+      <div class="slide-body">
+        <h2 class="slide-heading"><span class="slide-env-badge slide-bt">BT</span> <span data-i18n="sl.7.title">Reputation Building with Bad-type Truth-telling</span></h2>
+        <div class="slide-card slide-highlight" style="border-left:4px solid var(--purple)">
+          <p class="slide-text" data-i18n="sl.7.setup">Strategic sender = <strong>bad type</strong> (&tau; = B, wants a = 1). Behavioral type commits to truth-telling (strategy of a myopic good type). Prior p<sub>b</sub> = 1/2.</p>
+        </div>
+        <div class="slide-steps">
+          <div class="slide-step">
+            <span class="slide-step-num">1</span>
+            <p data-i18n="sl.7.s1">When &theta;<sub>1</sub> = 0, the bad type sends m<sub>1</sub> = 0 (truth) &mdash; mimicking the behavioral type to <strong>conceal</strong> her preference type.</p>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">2</span>
+            <p data-i18n="sl.7.s2">The receiver updates: &lambda;(0,0) = 1/(2&minus;v) &gt; p<sub>b</sub>. Reputation increases &mdash; the sender appears more trustworthy.</p>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">3</span>
+            <p data-i18n="sl.7.s3">In period 2, the bad type exploits accumulated &lambda; by sending m = 1 to push a closer to 1.</p>
+          </div>
+        </div>
+        <div class="slide-card slide-result">
+          <p data-i18n="sl.7.result"><strong>Proposition 1.</strong> The equilibrium message m<sub>1</sub> = 0 is (a) a <span class="tag-truth">TRUTH</span>, (b) <span class="tag-dec">DECEPTIVE</span> w.r.t. preference type, (c) not deceptive w.r.t. state.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: GL Environment -->
+    <div class="slide" data-slide="8">
+      <div class="slide-body">
+        <h2 class="slide-heading"><span class="slide-env-badge slide-gl">GL</span> <span data-i18n="sl.8.title">Reputation Building with Good-type Lying</span></h2>
+        <div class="slide-card slide-highlight" style="border-left:4px solid var(--green)">
+          <p class="slide-text" data-i18n="sl.8.setup">Strategic sender = <strong>good type</strong> (&tau; = G, wants a = &theta;). Behavioral type always sends m = 1 (strategy of a myopic bad type). Prior p<sub>b</sub> = 1/2.</p>
+        </div>
+        <div class="slide-steps">
+          <div class="slide-step">
+            <span class="slide-step-num">1</span>
+            <p data-i18n="sl.8.s1">When &theta;<sub>1</sub> = 1, the good type sends m<sub>1</sub> = 0 (a lie) &mdash; since the behavioral type never sends 0, this <strong>reveals</strong> her good type.</p>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">2</span>
+            <p data-i18n="sl.8.s2">The receiver updates: &lambda;(0, &middot;) = 1. The sender is identified as good with certainty.</p>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">3</span>
+            <p data-i18n="sl.8.s3">In period 2, the receiver fully trusts the sender&rsquo;s messages, benefiting both parties.</p>
+          </div>
+        </div>
+        <div class="slide-card slide-result">
+          <p data-i18n="sl.8.result"><strong>Proposition 2.</strong> The equilibrium message m<sub>1</sub> = 0 is (a) a <span class="tag-lie">LIE</span>, (b) <span class="tag-nondec">NOT DECEPTIVE</span> w.r.t. preference type, (c) not deceptive w.r.t. state.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Two-step belief updating -->
+    <div class="slide" data-slide="9">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.9.title">Two-Step Belief Updating &amp; &lambda; Inheritance</h2>
+        <p class="slide-text" data-i18n="sl.9.intro">Each period involves two distinct belief updates (Choi et al. Fig.&nbsp;1). In our N-period extension, the posterior type belief &lambda; is the inherited state that carries reputation across periods:</p>
+        <div class="slide-two-col">
+          <div class="slide-col">
+            <div class="slide-card" style="border-left:4px solid var(--accent)">
+              <h3 data-i18n="sl.9.step1h">Step 1: Interim belief</h3>
+              <p class="slide-formula">$$\Pr(\theta \mid m)$$</p>
+              <p class="slide-sm" data-i18n="sl.9.step1d">After receiving m but before &theta; is revealed, the receiver forms a belief about the state. This determines action a.</p>
+            </div>
+          </div>
+          <div class="slide-col">
+            <div class="slide-card" style="border-left:4px solid var(--teal)">
+              <h3 data-i18n="sl.9.step2h">Step 2: Posterior type belief</h3>
+              <p class="slide-formula">$$\lambda_{t+1} = \Pr(\tau{=}G \mid \theta, m) = \lambda_t \;\text{updated via Bayes}$$</p>
+              <p class="slide-sm" data-i18n="sl.9.step2d">After &theta; is revealed, the receiver updates her belief about the sender&rsquo;s preference type. This &lambda; becomes the prior for the next period.</p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-card slide-formula-card">
+          <p class="slide-sm" style="text-align:center" data-i18n="sl.9.chain">&lambda;<sub>0</sub> = p<sub>b</sub> &xrarr; period 1 &xrarr; &lambda;<sub>1</sub> &xrarr; period 2 &xrarr; &lambda;<sub>2</sub> &xrarr; &hellip; &xrarr; &lambda;<sub>N</sub>. Each &lambda; encodes the cumulative reputation history. This state inheritance is the engine of reputation building.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Augmented utility & moral costs -->
+    <div class="slide" data-slide="10">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.10.title">Augmented Utility &amp; Moral Costs (Choi et al. &sect;5)</h2>
+        <p class="slide-text" data-i18n="sl.10.intro">Experimental data shows agents deviate from equilibrium. Choi et al. propose two independent moral costs as the mechanism:</p>
+        <div class="slide-card slide-formula-card">
+          <p class="slide-formula">$$EU^a(m|\theta) = EU(m|\theta) \;-\; c_l \cdot \mathbb{1}\{m \neq \theta\} \;-\; c_d \cdot |\lambda(m,\theta) - \lambda(m^n,\theta)|$$</p>
+        </div>
+        <div class="slide-two-col">
+          <div class="slide-col">
+            <div class="slide-card">
+              <h3 style="color:var(--red)" data-i18n="sl.10.cl.h">c<sub>l</sub> &mdash; Lying Cost (locutionary)</h3>
+              <p class="slide-text" data-i18n="sl.10.cl.d">Fixed penalty for m &ne; &theta;. Does not require theory of mind. Drives deviation from GL equilibrium: agents refuse to lie even when non-deceptive (Prop.&nbsp;4).</p>
+            </div>
+          </div>
+          <div class="slide-col">
+            <div class="slide-card">
+              <h3 style="color:var(--purple)" data-i18n="sl.10.cd.h">c<sub>d</sub> &mdash; Deception Cost (illocutionary)</h3>
+              <p class="slide-text" data-i18n="sl.10.cd.d">Proportional to belief distortion D(m,&theta;). Requires modelling receiver&rsquo;s inference. Drives deviation from BT equilibrium: agents refuse to deceive even by truth-telling (Prop.&nbsp;3).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Our N-period Extension -->
+    <div class="slide" data-slide="11">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.11.title">Our Extension: N-Period Game with State Inheritance</h2>
+        <p class="slide-text" data-i18n="sl.11.intro">We extend the two-period framework to an N-period repeated game where reputation is a continuous, evolving state:</p>
+        <div class="slide-steps">
+          <div class="slide-step">
+            <span class="slide-step-num">1</span>
+            <div>
+              <p><strong data-i18n="sl.11.f1h">Geometric period weights</strong></p>
+              <p class="slide-sm" data-i18n="sl.11.f1d">$x_t = r^{t/(N{-}1)}$ where $r = x_2/x_1$. Later periods matter more, creating graduated reputation incentives rather than a single binary trade-off.</p>
+            </div>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">2</span>
+            <div>
+              <p><strong data-i18n="sl.11.f2h">&lambda; inheritance across periods</strong></p>
+              <p class="slide-sm" data-i18n="sl.11.f2d">The posterior type belief $\lambda_t$ from period $t$ becomes the prior for period $t{+}1$. Each period&rsquo;s strategy is re-optimised given the current &lambda;, creating a dynamic reputation trajectory.</p>
+            </div>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">3</span>
+            <div>
+              <p><strong data-i18n="sl.11.f3h">Miscommunication channel (&epsilon;)</strong></p>
+              <p class="slide-sm" data-i18n="sl.11.f3d">Messages can be flipped in transit with probability &epsilon;, ensuring full-support beliefs and avoiding off-path degeneracy. Models noise in real communication.</p>
+            </div>
+          </div>
+          <div class="slide-step">
+            <span class="slide-step-num">4</span>
+            <div>
+              <p><strong data-i18n="sl.11.f4h">Heterogeneous agent population</strong></p>
+              <p class="slide-sm" data-i18n="sl.11.f4d">Each agent draws $(c_l, c_d) \sim \text{LogNormal}$, $\alpha \sim \text{Normal}$ (risk), $\beta \sim \text{Normal}$ (altruism). Monte Carlo simulation over the population reveals emergent classification distributions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Classification -->
+    <div class="slide" data-slide="12">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.12.title">Behavioral Classification (Choi et al. Fig.&nbsp;5)</h2>
+        <p class="slide-text" data-i18n="sl.12.intro">Cross-tabulating BT and GL behavior classifies agents into four types, separating the preference channel from inference errors:</p>
+        <div class="slide-class-grid">
+          <div class="slide-class-card" style="border-top:3px solid var(--blue)">
+            <h3 data-i18n="sl.12.eq">Equilibrium</h3>
+            <p class="slide-sm" data-i18n="sl.12.eq.d">Truth-tells in BT (tp &gt; 0.5) and lies in GL (tp &lt; 0.5). Follows equilibrium in both. No moral override.</p>
+          </div>
+          <div class="slide-class-card" style="border-top:3px solid var(--green)">
+            <h3 data-i18n="sl.12.la">Lying-averse</h3>
+            <p class="slide-sm" data-i18n="sl.12.la.d">Truth-tells in BT &check; but also truth-tells in GL &cross;. Refuses to lie even when non-deceptive. Driven by high c<sub>l</sub>.</p>
+          </div>
+          <div class="slide-class-card" style="border-top:3px solid var(--red)">
+            <h3 data-i18n="sl.12.da">Deception-averse</h3>
+            <p class="slide-sm" data-i18n="sl.12.da.d">Lies in GL &check; but also lies in BT &cross;. Refuses to deceive even by telling truth. Driven by high c<sub>d</sub>.</p>
+          </div>
+          <div class="slide-class-card" style="border-top:3px solid var(--amber)">
+            <h3 data-i18n="sl.12.ie">Inference Error</h3>
+            <p class="slide-sm" data-i18n="sl.12.ie.d">Deviates in both environments. Sender perceives reputation-building as not worthwhile (erroneous second-order beliefs).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 13: Experimental Evidence -->
+    <div class="slide" data-slide="13">
+      <div class="slide-body">
+        <h2 class="slide-heading" data-i18n="sl.13.title">Experimental Evidence (Choi et al. &sect;3&ndash;4)</h2>
+        <p class="slide-text" data-i18n="sl.13.intro">198 participants at Seoul National University across two experiments (x<sub>2</sub>/x<sub>1</sub> = 20). Strategy distributions show strong bimodality &mdash; most subjects either fully conform or fully deviate:</p>
+        <div class="slide-two-col">
+          <div class="slide-col">
+            <div class="slide-card">
+              <h3 data-i18n="sl.13.bt.h">BT (Exp. II, Fig. 5a)</h3>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.eq">Equilibrium</span><div class="slide-bar"><div class="slide-bar-fill" style="width:31%;background:var(--blue)"></div></div><span>31%</span></div>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.da">Deception-averse</span><div class="slide-bar"><div class="slide-bar-fill" style="width:53%;background:var(--red)"></div></div><span>53%</span></div>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.ie">Inference error</span><div class="slide-bar"><div class="slide-bar-fill" style="width:16%;background:var(--amber)"></div></div><span>16%</span></div>
+            </div>
+          </div>
+          <div class="slide-col">
+            <div class="slide-card">
+              <h3 data-i18n="sl.13.gl.h">GL (Exp. II, Fig. 5b)</h3>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.eq">Equilibrium</span><div class="slide-bar"><div class="slide-bar-fill" style="width:16%;background:var(--blue)"></div></div><span>16%</span></div>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.la">Lying-averse</span><div class="slide-bar"><div class="slide-bar-fill" style="width:47%;background:var(--green)"></div></div><span>47%</span></div>
+              <div class="slide-bar-row"><span class="slide-bar-label" data-i18n="sl.12.ie">Inference error</span><div class="slide-bar"><div class="slide-bar-fill" style="width:37%;background:var(--amber)"></div></div><span>37%</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="slide-text slide-note-sm" data-i18n="sl.13.note">47&ndash;53% of subjects deviate due to preference (c<sub>l</sub> or c<sub>d</sub>), not inference errors. Experiment II uses second-order beliefs to cleanly separate these channels. Learning effects are absent across rounds (Choi et al. Fig. 11).</p>
+      </div>
+    </div>
+
+    <!-- Slide 14: Takeaways -->
+    <div class="slide" data-slide="14">
+      <div class="slide-body slide-center">
+        <h2 class="slide-heading" data-i18n="sl.14.title">Key Takeaways</h2>
+        <div class="slide-takeaways">
+          <div class="slide-takeaway">
+            <span class="slide-take-num">1</span>
+            <p data-i18n="sl.14.t1"><strong>Lying &ne; Deception.</strong> Sobel (2020) formalises: lying is locutionary (what you say), deception is illocutionary (what the audience infers). They are independently measurable.</p>
+          </div>
+          <div class="slide-takeaway">
+            <span class="slide-take-num">2</span>
+            <p data-i18n="sl.14.t2"><strong>Truth can deceive, lies can be honest.</strong> Choi et al. construct two environments where these emerge as unique equilibria: BT (Prop.&nbsp;1) and GL (Prop.&nbsp;2).</p>
+          </div>
+          <div class="slide-takeaway">
+            <span class="slide-take-num">3</span>
+            <p data-i18n="sl.14.t3"><strong>Moral costs drive deviation.</strong> Heterogeneous c<sub>l</sub> and c<sub>d</sub> produce four behavioural types (Props.&nbsp;3&ndash;4), validated by 198-participant experiments at SNU.</p>
+          </div>
+          <div class="slide-takeaway">
+            <span class="slide-take-num">4</span>
+            <p data-i18n="sl.14.t4"><strong>N-period &lambda; dynamics.</strong> Our simulation extends the model to N periods with inherited belief state, miscommunication, and heterogeneous populations &mdash; observe reputation trajectories emerge in the Experiment tab.</p>
+          </div>
+        </div>
+        <p class="slide-cta" data-i18n="sl.14.cta">Switch to the <strong>Experiment</strong> tab to run the simulation and observe these phenomena in the multi-period game.</p>
+      </div>
+    </div>
+
+  </div><!-- /slides-viewport -->
+</div>
+</div><!-- /tab-slides -->
 
 <script src="js/engine.js"></script>
 <script src="js/i18n.js"></script>
