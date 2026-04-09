@@ -1120,6 +1120,11 @@
             <p class="slide-sm" data-i18n="sl.12.ie.d">Deviates in both environments. Sender perceives reputation-building as not worthwhile (erroneous second-order beliefs).</p>
           </div>
         </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart"><p class="slide-result-label">Balanced</p><div id="sc-types-def"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">High $c_d$</p><div id="sc-types-hcd"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">High $c_l$</p><div id="sc-types-hcl"></div></div>
+        </div>
       </div>
     </div>
 
@@ -1184,6 +1189,9 @@
             <p class="slide-sm" data-i18n="sl.15.rad">&alpha; ~ N(0.8, 0.3). Concave utility functions make them prefer certain payoffs&mdash;they may over-invest in reputation building, acting conservatively even when the equilibrium strategy calls for risk-taking.</p>
           </div>
         </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart slide-result-wide"><p class="slide-result-label">Fig. 1 &mdash; Parameter distributions (n=30, balanced)</p><div id="sc-params"></div></div>
+        </div>
         <p class="slide-text slide-note-sm" data-i18n="sl.15.note">The proportions of the three risk types are user-configurable via sliders (constrained to sum to 100%), allowing exploration of equilibrium deviation patterns under different population structures. Fisher&ndash;Yates shuffle guarantees random ordering; a fixed seed (seed&nbsp;=&nbsp;42) ensures experimental reproducibility.</p>
       </div>
     </div>
@@ -1203,6 +1211,10 @@
         <div class="slide-card">
           <p class="slide-sm" data-i18n="sl.16.action"><strong>Receiver&rsquo;s optimal action:</strong> a(m)&nbsp;=&nbsp;E[&theta;|m], the conditional expectation over the world state computed via Bayes&rsquo; rule. Under the quadratic loss function &minus;(a&minus;&theta;)&sup2;, the receiver&rsquo;s best response is exactly the posterior mean. The action a in turn determines the sender&rsquo;s period payoff, forming an incentive-compatible closed loop.</p>
         </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart"><p class="slide-result-label">BT &mdash; Balanced</p><div id="sc-strat-bt-def"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">BT &mdash; High $c_d$</p><div id="sc-strat-bt-hcd"></div></div>
+        </div>
       </div>
     </div>
 
@@ -1217,6 +1229,10 @@
         </div>
         <div class="slide-card" style="border-left:4px solid var(--green)">
           <p class="slide-sm" data-i18n="sl.17.note">When w &gt; 0, sending m&nbsp;=&nbsp;0 (a lie) in state &theta;&nbsp;=&nbsp;1 constitutes a separating signal that only a strategic good type would send. The logical chain: the behavioral type <em>never</em> voluntarily sends m&nbsp;=&nbsp;0 &rarr; the receiver, upon observing m&nbsp;=&nbsp;0, knows the sender must be strategic &rarr; &lambda; drops (good type identified) &rarr; in period 2 the receiver fully trusts the sender. Therefore, <strong>the lie reveals rather than conceals the sender&rsquo;s true type</strong>&mdash;this is the complete reasoning chain for &ldquo;non-deceptive lying.&rdquo;</p>
+        </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart"><p class="slide-result-label">GL &mdash; Balanced</p><div id="sc-strat-gl-def"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">GL &mdash; High $c_l$</p><div id="sc-strat-gl-hcl"></div></div>
         </div>
       </div>
     </div>
@@ -1288,6 +1304,9 @@
         <div class="slide-card slide-result">
           <p data-i18n="sl.20.key"><strong>Key innovation:</strong> The line <code>&lambda; = bayesUpdate(...)</code> is the exact point where state inheritance occurs. Unlike the two-period model in Choi et al.&nbsp;(2025)&mdash;which allows only a single belief update&mdash;our N-period extension makes reputation a continuously evolving state variable. This allows us to observe the reputation trajectories in Fig.&nbsp;7: how &lambda; rises over periods (reputation accumulation) or falls (trust erosion), and the trajectory divergence patterns across different behavioural types.</p>
         </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart slide-result-wide"><p class="slide-result-label">Fig. 7 &mdash; &lambda; trajectory (8 periods, &varepsilon;=5%)</p><div id="sc-lambda"></div></div>
+        </div>
       </div>
     </div>
 
@@ -1337,6 +1356,11 @@
             <h3 data-i18n="sl.22.none">No reputation building</h3>
             <p class="slide-sm" data-i18n="sl.22.noned">Below the dashed boundary: $c_l < 0.3\,c_d$. Both moral costs are strong enough to make reputation building uneconomical in both environments. This corresponds to the inference error type&mdash;though note that these agents&rsquo; deviations are rational cost&ndash;benefit calculations, not cognitive limitations.</p>
           </div>
+        </div>
+        <div class="slide-result-row">
+          <div class="slide-result-chart"><p class="slide-result-label">Balanced</p><div id="sc-regions-def"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">High $c_d$</p><div id="sc-regions-hcd"></div></div>
+          <div class="slide-result-chart"><p class="slide-result-label">High $c_l$</p><div id="sc-regions-hcl"></div></div>
         </div>
         <p class="slide-text slide-note-sm" data-i18n="sl.22.fig">This analysis corresponds to <strong>Fig.&nbsp;6</strong> in the simulation&mdash;each agent is plotted in $(c_d, c_l)$ space and colour-coded by behavioural classification. The slope and intercept of the boundary lines reflect the asymmetric structure of reputation payoffs across the two environments.</p>
       </div>
@@ -1602,6 +1626,7 @@
 <script src="js/ai-charts.js"></script>
 <script src="js/game-world.js"></script>
 <script src="js/modes.js"></script>
+<script src="js/slide-results.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

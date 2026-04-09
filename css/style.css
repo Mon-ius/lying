@@ -605,6 +605,21 @@ select:focus { border-color: var(--accent); }
 .slide-col > .slide-card:only-child { flex: 1; }
 .slide-icon-lg { font-size: 2rem; margin-bottom: 8px; }
 
+/* Slide embedded results */
+.slide-result-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px; margin-top: 16px;
+}
+.slide-result-chart {
+  background: var(--bg-2); border-radius: var(--radius-sm); padding: 8px 8px 4px;
+  min-height: 160px;
+}
+.slide-result-chart.slide-result-wide { grid-column: 1 / -1; }
+.slide-result-label {
+  font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--fg-2); margin: 0 0 4px 4px;
+}
+
 /* Steps */
 .slide-steps { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
 .slide-step {
