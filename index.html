@@ -1170,7 +1170,7 @@
     <div class="slide" data-slide="15">
       <div class="slide-body">
         <h2 class="slide-heading" data-i18n="sl.15.title">Population Generation (Monte Carlo)</h2>
-        <p class="slide-text" data-i18n="sl.15.intro">Heterogeneity is the key assumption of this model. Each agent is an independent draw from four distributions, constructing a heterogeneous population for Monte Carlo simulation. Parameter heterogeneity is what makes the emergence of equilibrium deviation behaviour possible:</p>
+        <p class="slide-text" data-i18n="sl.15.intro">Each agent is an independent draw from four distributions. Parameter heterogeneity drives the emergence of equilibrium deviation behaviour:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$c_l \sim \text{LogNormal}(\mu_l,\,1), \quad c_d \sim \text{LogNormal}(\mu_d,\,1)$$</p>
           <p class="slide-formula">$$\alpha \sim \text{Normal}(\mu_{\alpha},\,\sigma_{\alpha}) \text{ per risk type}, \quad \beta \sim \text{Normal}(0.1,\,0.3)$$</p>
@@ -1178,21 +1178,21 @@
         <div class="slide-three-col">
           <div class="slide-card" style="border-left:4px solid var(--red)">
             <h3 data-i18n="sl.15.rl">Risk-loving</h3>
-            <p class="slide-sm" data-i18n="sl.15.rld">&alpha; ~ N(&minus;0.5, 0.2). In CRRA utility, &alpha; &lt; 0 implies a convex utility function&mdash;these agents prefer high-variance gambles and are more inclined to deviate from equilibrium strategies for potential gain. In reputation games this manifests as aggressive signalling behaviour.</p>
+            <p class="slide-sm" data-i18n="sl.15.rld">&alpha; ~ N(&minus;0.5, 0.2). Convex utility (&alpha;&lt;0) &mdash; prefers high-variance gambles, aggressive signalling.</p>
           </div>
           <div class="slide-card" style="border-left:4px solid var(--blue)">
             <h3 data-i18n="sl.15.rn">Risk-neutral</h3>
-            <p class="slide-sm" data-i18n="sl.15.rnd">&alpha; ~ N(0, 0.05). Expected-value maximisers under linear utility, whose behaviour most closely tracks theoretical equilibrium predictions. They serve as the ideal benchmark group for verifying the conditions under which Props.&nbsp;1&ndash;2 hold.</p>
+            <p class="slide-sm" data-i18n="sl.15.rnd">&alpha; ~ N(0, 0.05). Linear utility &mdash; tracks equilibrium predictions, benchmark for Props.&nbsp;1&ndash;2.</p>
           </div>
           <div class="slide-card" style="border-left:4px solid var(--green)">
             <h3 data-i18n="sl.15.ra">Risk-averse</h3>
-            <p class="slide-sm" data-i18n="sl.15.rad">&alpha; ~ N(0.8, 0.3). Concave utility functions make them prefer certain payoffs&mdash;they may over-invest in reputation building, acting conservatively even when the equilibrium strategy calls for risk-taking.</p>
+            <p class="slide-sm" data-i18n="sl.15.rad">&alpha; ~ N(0.8, 0.3). Concave utility &mdash; prefers certain payoffs, conservative reputation building.</p>
           </div>
         </div>
         <div class="slide-result-row">
           <div class="slide-result-chart slide-result-wide"><p class="slide-result-label">Fig. 1 &mdash; Parameter distributions (n=30, balanced)</p><div id="sc-params"></div></div>
         </div>
-        <p class="slide-text slide-note-sm" data-i18n="sl.15.note">The proportions of the three risk types are user-configurable via sliders (constrained to sum to 100%), allowing exploration of equilibrium deviation patterns under different population structures. Fisher&ndash;Yates shuffle guarantees random ordering; a fixed seed (seed&nbsp;=&nbsp;42) ensures experimental reproducibility.</p>
+        <p class="slide-text slide-note-sm" data-i18n="sl.15.note">Risk-type proportions are configurable via sliders (sum&nbsp;=&nbsp;100%). Seed&nbsp;=&nbsp;42 ensures reproducibility.</p>
       </div>
     </div>
 
@@ -1200,16 +1200,13 @@
     <div class="slide" data-slide="16">
       <div class="slide-body">
         <h2 class="slide-heading"><span class="slide-env-badge slide-bt">BT</span> <span data-i18n="sl.16.title">Bayesian Posteriors in Bad-type Truth-telling</span></h2>
-        <p class="slide-text" data-i18n="sl.16.intro">In the BT (bad-type truth-telling) environment, the strategic sender is bad type (&tau;&nbsp;=&nbsp;B) with mixing parameter v&nbsp;=&nbsp;P(m=1|&theta;=0) representing the probability that a bad type lies when &theta;&nbsp;=&nbsp;0. The Bayesian belief system computes the type posterior via:</p>
+        <p class="slide-text" data-i18n="sl.16.intro">In BT, the strategic sender is bad type (&tau;=B) with v&nbsp;=&nbsp;P(m=1|&theta;=0). Bayesian posteriors:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$\lambda^{BT}(m{=}0,\,\theta{=}0) = \frac{\lambda}{2 - v + \varepsilon(2v{-}1)} \quad \text{(truth when }\theta{=}0\text{)}$$</p>
           <p class="slide-formula">$$\lambda^{BT}(m{=}1,\,\theta{=}0) = \frac{\lambda(1{-}\varepsilon)}{1 - \lambda + \lambda(1{-}\varepsilon) + v(1{-}2\varepsilon)} \quad \text{(lie when }\theta{=}0\text{)}$$</p>
         </div>
         <div class="slide-card" style="border-left:4px solid var(--purple)">
-          <p class="slide-sm" data-i18n="sl.16.note">When v &lt; 1 and &varepsilon; &gt; 0, sending m&nbsp;=&nbsp;0 (truth) in state &theta;&nbsp;=&nbsp;0 causes the receiver&rsquo;s type belief &lambda; to rise above the prior&mdash;because the behavioral type (committed truth-teller) also sends m&nbsp;=&nbsp;0, truth-telling cannot distinguish between the two types. Counter-intuitively, <strong>telling the truth actually builds a false reputation</strong>: the receiver becomes more confident the sender is the good type. This is the game-theoretic mechanism behind &ldquo;deceptive truth-telling&rdquo; in Prop.&nbsp;1.</p>
-        </div>
-        <div class="slide-card">
-          <p class="slide-sm" data-i18n="sl.16.action"><strong>Receiver&rsquo;s optimal action:</strong> a(m)&nbsp;=&nbsp;E[&theta;|m], the conditional expectation over the world state computed via Bayes&rsquo; rule. Under the quadratic loss function &minus;(a&minus;&theta;)&sup2;, the receiver&rsquo;s best response is exactly the posterior mean. The action a in turn determines the sender&rsquo;s period payoff, forming an incentive-compatible closed loop.</p>
+          <p class="slide-sm" data-i18n="sl.16.note">Truth-telling (m=0) when &theta;=0 is pooling with the behavioral type &rarr; &lambda; rises &rarr; <strong>truth builds a false reputation</strong> (Prop.&nbsp;1). Receiver&rsquo;s optimal action a(m)=E[&theta;|m] closes the incentive loop.</p>
         </div>
         <div class="slide-result-row">
           <div class="slide-result-chart"><p class="slide-result-label">BT &mdash; Balanced</p><div id="sc-strat-bt-def"></div></div>
@@ -1222,13 +1219,13 @@
     <div class="slide" data-slide="17">
       <div class="slide-body">
         <h2 class="slide-heading"><span class="slide-env-badge slide-gl">GL</span> <span data-i18n="sl.17.title">Bayesian Posteriors in Good-type Lying</span></h2>
-        <p class="slide-text" data-i18n="sl.17.intro">In the GL (good-type lying) environment, the strategic sender is good type (&tau;&nbsp;=&nbsp;G) with mixing parameter w&nbsp;=&nbsp;P(m=0|&theta;=1). The behavioral type always sends m&nbsp;=&nbsp;1 (the myopic bad type&rsquo;s strategy). The critical asymmetry is:</p>
+        <p class="slide-text" data-i18n="sl.17.intro">In GL, the strategic sender is good type (&tau;=G) with w&nbsp;=&nbsp;P(m=0|&theta;=1). Behavioral type always sends m=1. Posteriors:</p>
         <div class="slide-card slide-formula-card">
           <p class="slide-formula">$$\lambda^{GL}(m{=}0,\,\theta{=}1) = \frac{(1{-}\lambda) w (1{-}\varepsilon)}{(1{-}\lambda) w (1{-}\varepsilon) + \lambda\varepsilon} \quad \text{(lie when }\theta{=}1\text{)}$$</p>
           <p class="slide-formula">$$\lambda^{GL}(m{=}1,\,\theta{=}1) = \frac{(1{-}\lambda)(1{-}w) + \lambda}{(1{-}\lambda)(1{-}w) + \lambda + \varepsilon(2w{-}1)(1{-}\lambda)} \quad \text{(truth when }\theta{=}1\text{)}$$</p>
         </div>
         <div class="slide-card" style="border-left:4px solid var(--green)">
-          <p class="slide-sm" data-i18n="sl.17.note">When w &gt; 0, sending m&nbsp;=&nbsp;0 (a lie) in state &theta;&nbsp;=&nbsp;1 constitutes a separating signal that only a strategic good type would send. The logical chain: the behavioral type <em>never</em> voluntarily sends m&nbsp;=&nbsp;0 &rarr; the receiver, upon observing m&nbsp;=&nbsp;0, knows the sender must be strategic &rarr; &lambda; drops (good type identified) &rarr; in period 2 the receiver fully trusts the sender. Therefore, <strong>the lie reveals rather than conceals the sender&rsquo;s true type</strong>&mdash;this is the complete reasoning chain for &ldquo;non-deceptive lying.&rdquo;</p>
+          <p class="slide-sm" data-i18n="sl.17.note">Lying (m=0) when &theta;=1 is a separating signal: behavioral type never sends m=0 &rarr; receiver identifies good type &rarr; &lambda; drops &rarr; full trust in period 2. <strong>The lie reveals rather than conceals type</strong> (Prop.&nbsp;2, &ldquo;non-deceptive lying&rdquo;).</p>
         </div>
         <div class="slide-result-row">
           <div class="slide-result-chart"><p class="slide-result-label">GL &mdash; Balanced</p><div id="sc-strat-gl-def"></div></div>

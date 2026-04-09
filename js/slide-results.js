@@ -6,19 +6,16 @@
 
 /* ---- Presets: three representative parameter configurations ---- */
 const SLIDE_PRESETS = {
-  /** Default balanced population */
   default: {
     n: 30, rlPct: 33, rnPct: 34, raPct: 33,
     clMean: 0.5, cdMean: 0.5,
     env: 'both', rounds: 3, nPeriods: 8, ratio: 20, pb: 0.50, miscomm: 0.05,
   },
-  /** High deception cost — amplifies deception-averse deviation */
   highCd: {
     n: 30, rlPct: 33, rnPct: 34, raPct: 33,
     clMean: 0.3, cdMean: 1.2,
     env: 'both', rounds: 3, nPeriods: 8, ratio: 20, pb: 0.50, miscomm: 0.05,
   },
-  /** High lying cost — amplifies lying-averse deviation */
   highCl: {
     n: 30, rlPct: 33, rnPct: 34, raPct: 33,
     clMean: 1.2, cdMean: 0.3,
@@ -28,7 +25,6 @@ const SLIDE_PRESETS = {
 
 let _slideCache = {};
 
-/* ---- Run a preset and cache results ---- */
 function _runPreset(key) {
   if (_slideCache[key]) return _slideCache[key];
   const p = SLIDE_PRESETS[key];
@@ -42,9 +38,21 @@ function _runPreset(key) {
   return _slideCache[key];
 }
 
-/* ---- Chart renderers for slide containers ---- */
+/* ---- Measure exact container dimensions ---- */
+function _dim(divId) {
+  const el = document.getElementById(divId);
+  if (!el) return { w: 280, h: 160 };
+  const r = el.getBoundingClientRect();
+  return {
+    w: Math.max(Math.round(r.width), 100),
+    h: Math.max(Math.round(r.height), 80),
+  };
+}
+
+/* ---- Chart renderers ---- */
 
 function _slidePlotParams(divId, agents) {
+  const { w, h } = _dim(divId);
   const items = [
     { k: 'cl', l: 'c<sub>l</sub>', c: '#be185d' },
     { k: 'cd', l: 'c<sub>d</sub>', c: '#4338ca' },
@@ -73,7 +81,7 @@ function _slidePlotParams(divId, agents) {
   });
   const layout = _layout({
     grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.12, ygap: 0.3 },
-    height: 260, margin: { l: 36, r: 12, t: 28, b: 22 },
+    width: w, height: h, margin: { l: 36, r: 12, t: 28, b: 22 },
     annotations,
   });
   for (let i = 1; i <= 4; i++) {
@@ -87,6 +95,7 @@ function _slidePlotStrat(divId, R, gt) {
   const strats = gt === 'BT' ? R.btS : R.glS;
   const vals = Object.values(strats);
   if (!vals.length) return;
+  const { w, h } = _dim(divId);
   const col = gt === 'BT' ? '#2563eb' : '#dc2626';
   const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
   const eq = gt === 'BT' ? 1 : 0;
@@ -97,7 +106,7 @@ function _slidePlotStrat(divId, R, gt) {
     showlegend: false,
   }];
   const layout = _layout({
-    height: 200,
+    width: w, height: h,
     xaxis: { ...(_layout().xaxis), title: 'P(truth)', range: [-0.02, 1.02] },
     yaxis: { ...(_layout().yaxis), title: '' },
     shapes: [{
@@ -115,6 +124,7 @@ function _slidePlotStrat(divId, R, gt) {
 }
 
 function _slidePlotRegions(divId, agents) {
+  const { w, h } = _dim(divId);
   const mx = 5, res = 60;
   const dark = _isDark();
   const z = [];
@@ -161,7 +171,7 @@ function _slidePlotRegions(divId, agents) {
     marker: { color: CL[k] || '#999', size: 5, opacity: 0.6 },
   }));
   const layout = _layout({
-    height: 260,
+    width: w, height: h,
     xaxis: { ...(_layout().xaxis), title: 'c_d', range: [0, mx] },
     yaxis: { ...(_layout().yaxis), title: 'c_l', range: [0, mx] },
     legend: { x: 0.98, y: 0.02, xanchor: 'right', yanchor: 'bottom', font: { size: 8 }, bgcolor: 'rgba(0,0,0,0)' },
@@ -171,6 +181,7 @@ function _slidePlotRegions(divId, agents) {
 }
 
 function _slidePlotLambda(divId, R, ratio) {
+  const { w, h } = _dim(divId);
   const dark = _isDark();
   const gc = dark ? '#1e242e' : '#eef0f3';
   const collect = arr => {
@@ -205,7 +216,7 @@ function _slidePlotLambda(divId, R, ratio) {
   addBand(bt, 'BT', 'rgba(37,99,235,1)');
   addBand(gl, 'GL', 'rgba(220,38,38,1)');
   const layout = _layout({
-    height: 220,
+    width: w, height: h,
     xaxis: { ...(_layout().xaxis), title: 'Period', dtick: 1 },
     yaxis: { ...(_layout().yaxis), title: 'λ', range: [0, 1.05] },
     legend: { x: 0.02, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
@@ -215,66 +226,106 @@ function _slidePlotLambda(divId, R, ratio) {
 }
 
 function _slidePlotTypes(divId, agents) {
+  const { w, h } = _dim(divId);
   const n = agents.length;
   const cls = {};
   for (const a of agents) cls[a.classification] = (cls[a.classification] || 0) + 1;
-  const nameMap = { equilibrium: 'Equilibrium', lying_averse: 'Lying-averse', deception_averse: 'Deception-averse', inference_error: 'Inference error' };
+  const nameMap = { equilibrium: 'Eq.', lying_averse: 'Lying-av.', deception_averse: 'Decep.-av.', inference_error: 'Inf. error' };
   const CL = { equilibrium: '#2563eb', lying_averse: '#16a34a', deception_averse: '#dc2626', inference_error: '#d97706' };
   const entries = Object.entries(cls).sort((a, b) => a[1] - b[1]);
+  const lMargin = Math.min(90, Math.round(w * 0.3));
   const trace = {
     y: entries.map(([k]) => nameMap[k] || k),
     x: entries.map(([, v]) => (v / n * 100)),
     type: 'bar', orientation: 'h',
     marker: { color: entries.map(([k]) => CL[k] || '#888'), opacity: 0.7 },
     text: entries.map(([, v]) => (v / n * 100).toFixed(0) + '%'),
-    textposition: 'outside',
-    textfont: { family: 'JetBrains Mono, monospace', size: 10 },
+    textposition: 'inside',
+    insidetextanchor: 'end',
+    textfont: { family: 'JetBrains Mono, monospace', size: 9, color: '#fff' },
     showlegend: false,
+    cliponaxis: false,
   };
   const layout = _layout({
-    height: 160, margin: { l: 120, r: 36, t: 8, b: 24 },
-    xaxis: { ...(_layout().xaxis), range: [0, 105], showticklabels: false, zeroline: false },
-    yaxis: { ...(_layout().yaxis), zeroline: false, automargin: true },
+    width: w, height: h,
+    margin: { l: lMargin, r: 8, t: 4, b: 16 },
+    xaxis: { ...(_layout().xaxis), range: [0, 102], showticklabels: false, zeroline: false },
+    yaxis: { ...(_layout().yaxis), zeroline: false, tickfont: { size: 9 } },
+    bargap: 0.25,
   });
   Plotly.react(divId, [trace], layout, _cfg);
 }
 
-/* ---- Master render: populate all slide chart containers ---- */
-let _slideResultsRendered = false;
+/* ---- Lazy per-slide rendering ---- */
+let _slideRendered = {};
+let _slideDataReady = false;
+
+function _ensureSlideData() {
+  if (_slideDataReady) return;
+  _runPreset('default');
+  _runPreset('highCd');
+  _runPreset('highCl');
+  _slideDataReady = true;
+}
+
+const _SLIDE_CHARTS = {
+  12: () => {
+    const def = _runPreset('default'), hCd = _runPreset('highCd'), hCl = _runPreset('highCl');
+    _slidePlotTypes('sc-types-def', def.agents);
+    _slidePlotTypes('sc-types-hcd', hCd.agents);
+    _slidePlotTypes('sc-types-hcl', hCl.agents);
+  },
+  15: () => {
+    _slidePlotParams('sc-params', _runPreset('default').agents);
+  },
+  16: () => {
+    const def = _runPreset('default'), hCd = _runPreset('highCd');
+    _slidePlotStrat('sc-strat-bt-def', def.R, 'BT');
+    _slidePlotStrat('sc-strat-bt-hcd', hCd.R, 'BT');
+  },
+  17: () => {
+    const def = _runPreset('default'), hCl = _runPreset('highCl');
+    _slidePlotStrat('sc-strat-gl-def', def.R, 'GL');
+    _slidePlotStrat('sc-strat-gl-hcl', hCl.R, 'GL');
+  },
+  20: () => {
+    const def = _runPreset('default');
+    _slidePlotLambda('sc-lambda', def.R, def.p.ratio);
+  },
+  22: () => {
+    const def = _runPreset('default'), hCd = _runPreset('highCd'), hCl = _runPreset('highCl');
+    _slidePlotRegions('sc-regions-def', def.agents);
+    _slidePlotRegions('sc-regions-hcd', hCd.agents);
+    _slidePlotRegions('sc-regions-hcl', hCl.agents);
+  },
+};
+
+function renderSlideCharts(slideNum) {
+  const fn = _SLIDE_CHARTS[slideNum];
+  if (!fn) return;
+  _ensureSlideData();
+  // Double rAF: first rAF triggers layout, second reads resolved dimensions
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fn();
+    _slideRendered[slideNum] = true;
+  }));
+}
+
+function _invalidateSlideCharts() {
+  _slideRendered = {};
+}
+
+function renderAllSlideCharts() {
+  _ensureSlideData();
+  for (const num of Object.keys(_SLIDE_CHARTS)) {
+    _SLIDE_CHARTS[num]();
+    _slideRendered[num] = true;
+  }
+}
 
 function renderSlideResults() {
-  if (_slideResultsRendered) return;
-  _slideResultsRendered = false; // allow re-render on theme change
-
-  const def = _runPreset('default');
-  const hCd = _runPreset('highCd');
-  const hCl = _runPreset('highCl');
-
-  // Slide 15: Population parameter distributions
-  _slidePlotParams('sc-params', def.agents);
-
-  // Slide 16: BT strategy — default vs high c_d
-  _slidePlotStrat('sc-strat-bt-def', def.R, 'BT');
-  _slidePlotStrat('sc-strat-bt-hcd', hCd.R, 'BT');
-
-  // Slide 17: GL strategy — default vs high c_l
-  _slidePlotStrat('sc-strat-gl-def', def.R, 'GL');
-  _slidePlotStrat('sc-strat-gl-hcl', hCl.R, 'GL');
-
-  // Slide 20: Lambda trajectories — default
-  _slidePlotLambda('sc-lambda', def.R, def.p.ratio);
-
-  // Slide 22: Equilibrium regions — three presets
-  _slidePlotRegions('sc-regions-def', def.agents);
-  _slidePlotRegions('sc-regions-hcd', hCd.agents);
-  _slidePlotRegions('sc-regions-hcl', hCl.agents);
-
-  // Slide 12: Classification — three presets
-  _slidePlotTypes('sc-types-def', def.agents);
-  _slidePlotTypes('sc-types-hcd', hCd.agents);
-  _slidePlotTypes('sc-types-hcl', hCl.agents);
-
-  _slideResultsRendered = true;
+  const active = document.querySelector('#slides-viewport .slide.active');
+  if (active) renderSlideCharts(parseInt(active.dataset.slide));
 }
 
 /* ---- Auto-render when slides tab is shown ---- */
@@ -293,8 +344,8 @@ window.addEventListener('load', () => {
   if (origApply) {
     window.applyTheme = function () {
       origApply();
-      if (_slideResultsRendered) {
-        _slideResultsRendered = false;
+      if (_slideDataReady) {
+        _invalidateSlideCharts();
         const slidesTab = document.getElementById('tab-slides');
         if (slidesTab && slidesTab.classList.contains('active')) renderSlideResults();
       }
