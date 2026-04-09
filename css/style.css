@@ -688,3 +688,82 @@ select:focus { border-color: var(--accent); }
   .slide-big { font-size: 1.1rem; }
   .slides-viewport.fullscreen .slide { padding: 32px 24px; }
 }
+
+/* Reading mode — all slides visible vertically for PDF export */
+.slides-viewport.reading-mode { overflow: visible; }
+.slides-viewport.reading-mode .slide {
+  display: flex !important; flex-direction: column; justify-content: center;
+  page-break-after: always; break-after: page;
+  min-height: auto; padding: 40px 56px; border-bottom: 1px solid var(--border);
+  animation: none;
+}
+.slides-viewport.reading-mode .slide:last-child { border-bottom: none; }
+.slides-export-row { display: flex; gap: 6px; align-items: center; }
+
+/* Part divider slides */
+.slide-part-num {
+  font-size: 1rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px;
+}
+.slide-part-title {
+  font-size: 2rem; font-weight: 800; letter-spacing: -.02em;
+  margin-bottom: 12px; color: var(--fg-0);
+}
+.slide-part-desc { font-size: 1rem; color: var(--fg-2); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+
+/* Code-like blocks for formulas in slides */
+.slide-code {
+  font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+  background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; margin: 10px 0; overflow-x: auto; line-height: 1.6;
+  color: var(--fg-1);
+}
+.slide-code .kw { color: var(--accent); font-weight: 600; }
+.slide-code .cm { color: var(--fg-3); font-style: italic; }
+
+/* Provider grid for AI slides */
+.slide-provider-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.slide-provider-card {
+  background: var(--bg-2); border-radius: var(--radius-sm); padding: 10px 12px;
+  border: 1px solid var(--border); text-align: center;
+}
+.slide-provider-card h4 { font-size: .82rem; font-weight: 700; margin-bottom: 4px; }
+.slide-provider-card p { font-size: .72rem; color: var(--fg-3); line-height: 1.4; }
+
+/* Flow diagram for AI dispatch */
+.slide-flow { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 16px 0; flex-wrap: wrap; }
+.slide-flow-box {
+  background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 16px; font-size: .82rem; font-weight: 600; text-align: center;
+}
+.slide-flow-box.highlight { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.slide-flow-arrow { font-size: 1.2rem; color: var(--fg-3); }
+
+@media (max-width: 768px) {
+  .slide-provider-grid { grid-template-columns: 1fr 1fr; }
+  .slide-flow { flex-direction: column; }
+  .slide-flow-arrow { transform: rotate(90deg); }
+}
+
+/* Print styles */
+@media print {
+  body > *:not(#tab-slides) { display: none !important; }
+  .top-bar, .sidebar, .nav-tabs, .slides-toolbar, .sidebar-backdrop,
+  #sidebar-toggle, .slides-export-row { display: none !important; }
+  #tab-slides { display: block !important; }
+  .slides-viewport {
+    overflow: visible !important; border: none !important;
+    box-shadow: none !important; position: static !important;
+  }
+  .slide {
+    display: flex !important; flex-direction: column; justify-content: center;
+    page-break-after: always; break-after: page;
+    min-height: 95vh; padding: 48px 56px;
+    border: none !important; box-shadow: none !important;
+    animation: none !important;
+  }
+  .slide:last-child { page-break-after: avoid; }
+  .slide-card { break-inside: avoid; }
+  .slide-formula { break-inside: avoid; }
+  @page { size: A4 landscape; margin: 1cm; }
+}

@@ -292,6 +292,21 @@ function toggleSlideFullscreen() {
   const vp = document.getElementById('slides-viewport');
   vp.classList.toggle('fullscreen');
 }
+
+function toggleReadingMode() {
+  const vp = document.getElementById('slides-viewport');
+  vp.classList.toggle('reading-mode');
+}
+
+function exportSlidesPDF() {
+  const vp = document.getElementById('slides-viewport');
+  const wasReading = vp.classList.contains('reading-mode');
+  if (!wasReading) vp.classList.add('reading-mode');
+  setTimeout(() => {
+    window.print();
+    if (!wasReading) vp.classList.remove('reading-mode');
+  }, 200);
+}
 (function initSlides() {
   const total = document.querySelectorAll('#slides-viewport .slide').length;
   const totEl = document.getElementById('slide-tot');
