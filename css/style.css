@@ -689,10 +689,10 @@ select:focus { border-color: var(--accent); }
 .slide-class-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
 
 /* Takeaways */
-.slide-takeaways { display: flex; flex-direction: column; gap: 14px; margin: 20px auto; max-width: 720px; text-align: left; }
+.slide-takeaways { display: flex; flex-direction: column; gap: 8px; margin: 12px auto; max-width: 720px; text-align: left; }
 .slide-takeaway {
-  display: flex; align-items: flex-start; gap: 14px;
-  background: var(--bg-2); padding: 16px 20px; border-radius: var(--radius);
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg-2); padding: 10px 16px; border-radius: var(--radius);
 }
 .slide-take-num {
   flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
@@ -700,7 +700,7 @@ select:focus { border-color: var(--accent); }
   font-weight: 800; font-size: .9rem;
   display: flex; align-items: center; justify-content: center;
 }
-.slide-takeaway p { font-size: .92rem; line-height: 1.55; color: var(--fg-1); }
+.slide-takeaway p { font-size: .82rem; line-height: 1.45; color: var(--fg-1); }
 .slide-cta {
   margin-top: 28px; font-size: .88rem; color: var(--fg-3);
   padding: 12px 20px; border-radius: var(--radius-sm);
