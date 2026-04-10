@@ -321,19 +321,6 @@ select:focus { border-color: var(--accent); }
 .log-toggle-hint { font-size: .65rem; color: var(--fg-3); margin-left: auto; font-weight: 400; }
 .log-card[open] .log-toggle-hint { display: none; }
 .log-card h4 { font-size: .78rem; font-weight: 600; color: var(--fg-1); margin-bottom: 8px; }
-/* Log view tabs */
-.log-view-tabs { display: flex; gap: 2px; margin-top: 10px; padding-bottom: 0; }
-.log-view-btn {
-  padding: 5px 14px; font-size: .65rem; font-weight: 600;
-  font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .06em;
-  border: 1px solid var(--border); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: var(--bg-2); color: var(--fg-3); cursor: pointer; transition: color .15s, background .15s;
-}
-.log-view-btn.active { background: var(--bg-1); color: var(--fg-1); border-bottom: 1px solid var(--bg-1); margin-bottom: -1px; position: relative; z-index: 1; }
-.log-view-btn:hover:not(.active) { color: var(--fg-2); background: var(--bg-3); }
-#log-view-txt { margin-top: 0; border-top: 1px solid var(--border); padding-top: 10px; }
-#log-view-3d { border-top: 1px solid var(--border); padding-top: 4px; }
-#c-pointcloud { height: 600px; }
 .log-entries {
   max-height: 600px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
   font-size: .72rem; color: var(--fg-2); line-height: 1.7;

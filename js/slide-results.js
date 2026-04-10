@@ -91,34 +91,114 @@ function _slidePlotParams(divId, agents) {
   Plotly.react(divId, traces, layout, _cfg);
 }
 
-function _slidePlotStrat(divId, R, gt) {
+/** Paper Fig. 9 / Appendix D.1 — Sender strategy (bar + histogram) for a single treatment. */
+function _slidePlotSender(divId, R, gt) {
   const strats = gt === 'BT' ? R.btS : R.glS;
-  const vals = Object.values(strats);
+  const vals = Object.values(strats || {});
   if (!vals.length) return;
   const { w, h } = _dim(divId);
-  const col = gt === 'BT' ? '#2563eb' : '#dc2626';
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const eq = gt === 'BT' ? 1 : 0;
   const dark = _isDark();
-  const traces = [{
-    x: vals, type: 'histogram', nbinsx: 16,
-    marker: { color: col, opacity: 0.5 },
-    showlegend: false,
-  }];
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const BAR = '#c97373', PRED = '#1e40af';
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const eq = gt === 'BT' ? 1 : 0;
+  const traces = [
+    {
+      type: 'bar', x: [gt], y: [mean],
+      marker: { color: BAR, opacity: 0.75 }, width: 0.5,
+      showlegend: false, xaxis: 'x', yaxis: 'y',
+    },
+    {
+      type: 'scatter', mode: 'markers', x: [gt], y: [eq],
+      marker: { symbol: 'diamond', size: 10, color: PRED },
+      showlegend: false, xaxis: 'x', yaxis: 'y',
+    },
+    {
+      type: 'histogram', x: vals,
+      xbins: { start: -0.025, end: 1.025, size: 0.05 },
+      marker: { color: BAR, opacity: 0.75 },
+      showlegend: false, xaxis: 'x2', yaxis: 'y2',
+    },
+    {
+      type: 'scatter', mode: 'markers', x: [eq], y: [Math.max(1, vals.length)],
+      marker: { symbol: 'x', size: 10, color: PRED, line: { width: 2 } },
+      showlegend: false, xaxis: 'x2', yaxis: 'y2', hoverinfo: 'skip',
+    },
+  ];
   const layout = _layout({
     width: w, height: h,
-    xaxis: { ...(_layout().xaxis), title: 'P(truth)', range: [-0.02, 1.02] },
-    yaxis: { ...(_layout().yaxis), title: '' },
-    shapes: [{
-      type: 'line', x0: eq, x1: eq, y0: 0, y1: 1,
-      xref: 'x', yref: 'paper',
-      line: { color: col, width: 2, dash: 'dash' },
-    }],
+    margin: { l: 38, r: 10, t: 6, b: 32 },
+    xaxis: { gridcolor: gc, domain: [0.00, 0.22], tickfont: { size: 9 }, fixedrange: true },
+    yaxis: { gridcolor: gc, range: [0, 1.05], title: { text: 'P(truth)', font: { size: 9 } }, ticklabelstandoff: 3 },
+    xaxis2: { gridcolor: gc, domain: [0.32, 1.00], range: [-0.02, 1.02], title: { text: 'P(truth)', font: { size: 9 } } },
+    yaxis2: { gridcolor: gc, anchor: 'x2', title: { text: '#', font: { size: 9 } } },
+    bargap: 0.05,
+  });
+  Plotly.react(divId, traces, layout, _cfg);
+}
+
+/** Paper Fig. 11 — Sender strategy time trend (two lines: t=1 and t=2), both treatments side by side. */
+function _slidePlotTrend(divId, R) {
+  const { w, h } = _dim(divId);
+  const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  const compute = (results, targetState) => {
+    const byAgent = {};
+    for (const r of results) {
+      if (!r.periods || r.periods.length < 2) continue;
+      if (!byAgent[r.id]) byAgent[r.id] = [];
+      byAgent[r.id].push(r);
+    }
+    const anyAgent = Object.values(byAgent)[0];
+    if (!anyAgent) return null;
+    const nRounds = anyAgent.length;
+    const s1Sum = new Float64Array(nRounds), s1N = new Float64Array(nRounds);
+    const s2Sum = new Float64Array(nRounds), s2N = new Float64Array(nRounds);
+    for (const arr of Object.values(byAgent)) {
+      arr.forEach((r, i) => {
+        if (!r.periods || r.periods.length < 2) return;
+        if (r.periods[0].st !== targetState) return;
+        s1Sum[i] += r.periods[0].sent; s1N[i]++;
+        s2Sum[i] += r.periods[1].sent; s2N[i]++;
+      });
+    }
+    const xs = [], y1 = [], y2 = [];
+    for (let i = 0; i < nRounds; i++) {
+      if (s1N[i] > 0) {
+        xs.push(i + 1);
+        y1.push(s1Sum[i] / s1N[i]);
+        y2.push(s2Sum[i] / s2N[i]);
+      }
+    }
+    return { xs, y1, y2 };
+  };
+
+  const btD = compute(R.bt, 0);
+  const glD = compute(R.gl, 1);
+  const C_S1 = '#db2777', C_S2 = '#f59e0b';
+  const traces = [];
+  const addLines = (d, axx, axy, showLegend) => {
+    if (!d || !d.xs.length) return;
+    traces.push({ type: 'scatter', mode: 'lines+markers', x: d.xs, y: d.y1, line: { color: C_S1, width: 2 }, marker: { size: 5 }, name: 't=1', showlegend: showLegend, legendgroup: 's1', xaxis: axx, yaxis: axy });
+    traces.push({ type: 'scatter', mode: 'lines+markers', x: d.xs, y: d.y2, line: { color: C_S2, width: 2 }, marker: { size: 5 }, name: 't=2', showlegend: showLegend, legendgroup: 's2', xaxis: axx, yaxis: axy });
+  };
+  addLines(btD, 'x',  'y',  true);
+  addLines(glD, 'x2', 'y2', false);
+
+  const layout = _layout({
+    width: w, height: h,
+    margin: { l: 40, r: 10, t: 26, b: 32 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], title: { text: 'Round', font: { size: 9 } }, dtick: 1 },
+    yaxis:  { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'P(m=1|θ₁=0)', font: { size: 9 } } },
+    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], title: { text: 'Round', font: { size: 9 } }, dtick: 1, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'P(m=1|θ₁=1)', font: { size: 9 } }, anchor: 'x2' },
+    legend: { x: 0.5, y: 1.15, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     annotations: [
-      { text: `μ = ${avg.toFixed(3)}`, xref: 'paper', yref: 'paper', x: 0.02, y: 0.92, showarrow: false, font: { size: 10, color: dark ? '#c9d1d9' : '#3d4250', family: 'JetBrains Mono, monospace' } },
-      { text: gt === 'BT' ? 'v*=1 (eq.)' : 'w*=0 (eq.)', xref: 'paper', yref: 'paper', x: 0.98, y: 0.92, xanchor: 'right', showarrow: false, font: { size: 9, color: col + '99' } },
+      { text: '<b>BT</b>', xref: 'paper', yref: 'paper', x: 0.02, y: 1.08, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>GL</b>', xref: 'paper', yref: 'paper', x: 0.56, y: 1.08, showarrow: false, font: { size: 10, color: annColor } },
     ],
-    margin: { l: 36, r: 12, t: 8, b: 32 },
   });
   Plotly.react(divId, traces, layout, _cfg);
 }
@@ -180,51 +260,6 @@ function _slidePlotRegions(divId, agents) {
   Plotly.react(divId, [heatmap, solidTrace, dashTrace, ...dotTraces], layout, _cfg);
 }
 
-function _slidePlotLambda(divId, R, ratio) {
-  const { w, h } = _dim(divId);
-  const dark = _isDark();
-  const gc = dark ? '#1e242e' : '#eef0f3';
-  const collect = arr => {
-    if (!arr.length || !arr[0].periods) return null;
-    const N = arr[0].periods.length;
-    if (N < 2) return null;
-    const sums = new Float64Array(N), sqSums = new Float64Array(N);
-    let count = 0;
-    for (const r of arr) {
-      if (!r.periods || r.periods.length !== N) continue;
-      for (let t = 0; t < N; t++) { sums[t] += r.periods[t].lambda; sqSums[t] += r.periods[t].lambda ** 2; }
-      count++;
-    }
-    if (!count) return null;
-    const means = [], stds = [], xs = [];
-    for (let t = 0; t < N; t++) { xs.push(t + 1); const m = sums[t] / count; means.push(m); stds.push(Math.sqrt(Math.max(0, sqSums[t] / count - m * m))); }
-    return { xs, means, stds };
-  };
-  const bt = collect(R.bt), gl = collect(R.gl);
-  if (!bt && !gl) return;
-  const traces = [];
-  const addBand = (d, name, color) => {
-    if (!d) return;
-    traces.push({
-      x: [...d.xs, ...d.xs.slice().reverse()],
-      y: [...d.means.map((m, i) => m + d.stds[i]), ...d.means.map((m, i) => m - d.stds[i]).reverse()],
-      fill: 'toself', fillcolor: color.replace('1)', '0.12)'),
-      line: { width: 0 }, showlegend: false, hoverinfo: 'skip',
-    });
-    traces.push({ x: d.xs, y: d.means, mode: 'lines+markers', name, line: { color, width: 2.5 }, marker: { size: 4 } });
-  };
-  addBand(bt, 'BT', 'rgba(37,99,235,1)');
-  addBand(gl, 'GL', 'rgba(220,38,38,1)');
-  const layout = _layout({
-    width: w, height: h,
-    xaxis: { ...(_layout().xaxis), title: 'Period', dtick: 1 },
-    yaxis: { ...(_layout().yaxis), title: 'λ', range: [0, 1.05] },
-    legend: { x: 0.02, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 42, r: 12, t: 8, b: 32 },
-  });
-  Plotly.react(divId, traces, layout, _cfg);
-}
-
 function _slidePlotTypes(divId, agents) {
   const { w, h } = _dim(divId);
   const n = agents.length;
@@ -280,17 +315,17 @@ const _SLIDE_CHARTS = {
   },
   16: () => {
     const def = _runPreset('default'), hCd = _runPreset('highCd');
-    _slidePlotStrat('sc-strat-bt-def', def.R, 'BT');
-    _slidePlotStrat('sc-strat-bt-hcd', hCd.R, 'BT');
+    _slidePlotSender('sc-strat-bt-def', def.R, 'BT');
+    _slidePlotSender('sc-strat-bt-hcd', hCd.R, 'BT');
   },
   17: () => {
     const def = _runPreset('default'), hCl = _runPreset('highCl');
-    _slidePlotStrat('sc-strat-gl-def', def.R, 'GL');
-    _slidePlotStrat('sc-strat-gl-hcl', hCl.R, 'GL');
+    _slidePlotSender('sc-strat-gl-def', def.R, 'GL');
+    _slidePlotSender('sc-strat-gl-hcl', hCl.R, 'GL');
   },
   20: () => {
     const def = _runPreset('default');
-    _slidePlotLambda('sc-lambda', def.R, def.p.ratio);
+    _slidePlotTrend('sc-trend', def.R);
   },
   22: () => {
     const def = _runPreset('default'), hCd = _runPreset('highCd'), hCl = _runPreset('highCl');

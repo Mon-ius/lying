@@ -88,68 +88,209 @@ function plotParams(agents) {
   });
 }
 
-/** 2. Joint (c_l, c_d) scatter — colored by classification */
-function plotJoint(agents) {
-  const groups = {};
-  for (const a of agents) {
-    const c = a.classification || 'unknown';
-    if (!groups[c]) groups[c] = { x: [], y: [] };
-    groups[c].x.push(a.cl);
-    groups[c].y.push(a.cd);
-  }
-  const nameMap = { equilibrium: t('cls.eq'), lying_averse: t('cls.la'), deception_averse: t('cls.da'), inference_error: t('cls.ie') };
-  const traces = Object.entries(groups).map(([k, v]) => ({
-    x: v.x, y: v.y,
-    mode: 'markers',
-    type: 'scatter',
-    name: nameMap[k] || k,
-    marker: { color: CL[k] || '#999', size: 5, opacity: 0.55 },
-  }));
-  const allCl = agents.map(a => a.cl), allCd = agents.map(a => a.cd);
-  const axMax = Math.min(Math.max(...allCl, ...allCd) * 1.1, 15);
+/** 2. Sender Strategy — BT + GL side-by-side (bar + histogram).
+ *  Replicates Choi, Lee & Lim (2025) Fig. 9 / Appendix D.1.
+ *  Left half per treatment: average truth-telling probability bar with equilibrium marker (▼).
+ *  Right half per treatment: histogram of per-individual truth-telling probabilities with equilibrium cross (×).
+ */
+function plotSender(R) {
+  const el = document.getElementById('c-sender');
+  if (!el) return;
+  const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  const btVals = Object.values(R.btS || {});
+  const glVals = Object.values(R.glS || {});
+  if (!btVals.length && !glVals.length) { Plotly.purge(el); return; }
+
+  const BAR_COL = '#c97373';  // paper-style muted red
+  const PRED = '#1e40af';     // paper-style prediction blue
+  const traces = [];
+
+  const addPanel = (vals, gt, axBar, axHist) => {
+    if (!vals.length) return;
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const eq = gt === 'BT' ? 1 : 0;  // BT eq: v*=1 always truth; GL eq: truth-telling rate 0 (always lie)
+
+    // Bar of mean
+    traces.push({
+      type: 'bar',
+      x: [gt], y: [mean],
+      marker: { color: BAR_COL, opacity: 0.75 },
+      width: 0.55,
+      showlegend: false,
+      hovertemplate: `${gt}: mean = ${mean.toFixed(3)}<extra></extra>`,
+      xaxis: axBar.x, yaxis: axBar.y,
+    });
+    // Prediction marker on bar
+    traces.push({
+      type: 'scatter', mode: 'markers',
+      x: [gt], y: [eq],
+      marker: { symbol: 'diamond', size: 11, color: PRED },
+      showlegend: false,
+      hovertemplate: `prediction = ${eq}<extra></extra>`,
+      xaxis: axBar.x, yaxis: axBar.y,
+    });
+
+    // Histogram of per-individual truth-telling rates
+    traces.push({
+      type: 'histogram',
+      x: vals,
+      xbins: { start: -0.025, end: 1.025, size: 0.05 },
+      marker: { color: BAR_COL, opacity: 0.75 },
+      showlegend: false,
+      xaxis: axHist.x, yaxis: axHist.y,
+    });
+    // Prediction cross on histogram — place near top of distribution
+    traces.push({
+      type: 'scatter', mode: 'markers',
+      x: [eq], y: [Math.max(1, vals.length)],
+      marker: { symbol: 'x', size: 11, color: PRED, line: { width: 2 } },
+      showlegend: false,
+      hoverinfo: 'skip',
+      xaxis: axHist.x, yaxis: axHist.y,
+    });
+  };
+
+  addPanel(btVals, 'BT', { x: 'x',  y: 'y'  }, { x: 'x2', y: 'y2' });
+  addPanel(glVals, 'GL', { x: 'x3', y: 'y3' }, { x: 'x4', y: 'y4' });
+
   const layout = _layout({
-    height: 400,
-    xaxis: { ...(_layout().xaxis), title: t('ax.cl'), range: [0, axMax], scaleanchor: 'y', scaleratio: 1 },
-    yaxis: { ...(_layout().yaxis), title: t('ax.cd'), range: [0, axMax] },
-    legend: { x: 0.98, y: 0.98, xanchor: 'right', yanchor: 'top', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)', tracegroupgap: 2 },
-    margin: { l: 52, r: 16, t: 8, b: 42 },
+    height: 300,
+    margin: { l: 52, r: 16, t: 32, b: 40 },
+    xaxis:  { gridcolor: gc, domain: [0.000, 0.090], tickfont: { size: 9 }, fixedrange: true },
+    yaxis:  { gridcolor: gc, range: [0, 1.05], title: { text: t('ax.ttp'), font: { size: 10 } }, ticklabelstandoff: 4 },
+    xaxis2: { gridcolor: gc, domain: [0.140, 0.470], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } } },
+    yaxis2: { gridcolor: gc, title: { text: t('ax.obs'), font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
+    xaxis3: { gridcolor: gc, domain: [0.550, 0.640], tickfont: { size: 9 }, fixedrange: true, anchor: 'y3' },
+    yaxis3: { gridcolor: gc, range: [0, 1.05], anchor: 'x3', ticklabelstandoff: 4 },
+    xaxis4: { gridcolor: gc, domain: [0.690, 1.000], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } }, anchor: 'y4' },
+    yaxis4: { gridcolor: gc, anchor: 'x4', ticklabelstandoff: 4 },
+    annotations: [
+      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.235, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.775, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+    ],
+    bargap: 0.05,
   });
-  Plotly.react('c-joint', traces, layout, _cfg);
+
+  Plotly.react('c-sender', traces, layout, _cfg);
 }
 
-/** 3. Strategy distribution — BT or GL histogram */
-function plotStrat(R, gt) {
-  const cid = gt === 'BT' ? 'c-strat-bt' : 'c-strat-gl';
-  const strats = gt === 'BT' ? R.btS : R.glS;
-  const vals = Object.values(strats);
-  if (!vals.length) return;
-  const col = gt === 'BT' ? '#2563eb' : '#dc2626';
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const eq = gt === 'BT' ? 1 : 0;
-  const traces = [{
-    x: vals,
-    type: 'histogram',
-    nbinsx: 20,
-    marker: { color: col, opacity: 0.5 },
-    name: 'Observed',
-    showlegend: false,
-  }];
+/** 3. Clustering of Sender Strategy — BT + GL scatter plots.
+ *  Replicates Choi, Lee & Lim (2025) Fig. 10 / Appendix D.2.
+ *  BT axes: Pr(m₁=1|θ₁=0) × Pr(m₂=1|θ₁=0). GL axes: Pr(m₁=1|θ₁=1) × Pr(m₂=1|θ₁=1).
+ *  Each point is one individual's average across all rounds; prediction marker shows theoretical equilibrium.
+ */
+function plotCluster(R) {
+  const el = document.getElementById('c-cluster');
+  if (!el) return;
   const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  if (!(R.bt && R.bt.length) && !(R.gl && R.gl.length)) { Plotly.purge(el); return; }
+
+  // Compute per-individual (x = Pr(m₁=1|θ₁=target), y = Pr(m₂=1|θ₁=target))
+  const computePts = (results, targetState) => {
+    const byAgent = {};
+    for (const r of results) {
+      if (!r.periods || r.periods.length < 2) continue;
+      if (r.periods[0].st !== targetState) continue;
+      if (!byAgent[r.id]) byAgent[r.id] = { m1: 0, m2: 0, n: 0 };
+      const b = byAgent[r.id];
+      b.m1 += r.periods[0].sent;
+      b.m2 += r.periods[1].sent;
+      b.n++;
+    }
+    const pts = [];
+    for (const [id, b] of Object.entries(byAgent)) {
+      if (!b.n) continue;
+      pts.push({ id: +id, x: b.m1 / b.n, y: b.m2 / b.n });
+    }
+    return pts;
+  };
+
+  const btPts = computePts(R.bt, 0);
+  const glPts = computePts(R.gl, 1);
+
+  // Simple corner-based clustering — paper Fig. 10 identifies natural clusters at corners of the unit square
+  const classify = p => {
+    const near = (v, t) => Math.abs(v - t) < 0.15;
+    if (near(p.x, 0) && near(p.y, 1)) return 'rep_builder';   // blue square (BT eq / full reputation)
+    if (near(p.x, 0) && near(p.y, 0)) return 'truth_teller';  // green triangle
+    if (near(p.x, 1) && near(p.y, 1)) return 'deceiver';      // red circle / always-m=1
+    if (near(p.x, 1) && near(p.y, 0)) return 'inverter';      // orange diamond
+    return 'mixed';                                            // pink star / cyan hexagon
+  };
+
+  const CLS_COL = {
+    rep_builder:  '#1e40af',
+    truth_teller: '#15803d',
+    deceiver:     '#dc2626',
+    inverter:     '#ea580c',
+    mixed:        '#c026d3',
+  };
+  const CLS_NAME = {
+    rep_builder:  'Reputation builder',
+    truth_teller: 'Truth-teller',
+    deceiver:     'Deceiver',
+    inverter:     'Inverter',
+    mixed:        'Mixed',
+  };
+
+  const traces = [];
+  const addPanel = (pts, axx, axy, prediction) => {
+    const groups = {};
+    for (const p of pts) {
+      const c = classify(p);
+      if (!groups[c]) groups[c] = { x: [], y: [], id: [] };
+      groups[c].x.push(p.x); groups[c].y.push(p.y); groups[c].id.push(p.id);
+    }
+    for (const [k, g] of Object.entries(groups)) {
+      const frac = g.x.length / Math.max(1, pts.length);
+      traces.push({
+        type: 'scatter', mode: 'markers',
+        x: g.x, y: g.y,
+        marker: { color: CLS_COL[k], size: 8, opacity: 0.75 },
+        name: `${CLS_NAME[k]} (${(frac * 100).toFixed(0)}%)`,
+        showlegend: false,
+        customdata: g.id,
+        hovertemplate: '#%{customdata}: (%{x:.2f}, %{y:.2f})<extra>' + CLS_NAME[k] + '</extra>',
+        xaxis: axx, yaxis: axy,
+      });
+    }
+    // Prediction marker — hollow circle
+    traces.push({
+      type: 'scatter', mode: 'markers',
+      x: [prediction.x], y: [prediction.y],
+      marker: { symbol: 'circle-open', size: 22, color: '#1e40af', line: { width: 2.5 } },
+      showlegend: false,
+      hovertemplate: `prediction (${prediction.x}, ${prediction.y})<extra></extra>`,
+      xaxis: axx, yaxis: axy,
+    });
+  };
+
+  // Equilibrium predictions:
+  //  BT: period-1 truth → Pr(m₁=1|θ₁=0)=0; period-2 bad type always sends m=1 → Pr(m₂=1)=1 → (0,1)
+  //  GL: period-1 good type lies → Pr(m₁=1|θ₁=1)=0; period-2 good type honest → Pr(m₂=1|θ₁=1)=Pr(θ₂=1)=0.5 → (0,0.5)
+  addPanel(btPts, 'x',  'y',  { x: 0, y: 1   });
+  addPanel(glPts, 'x2', 'y2', { x: 0, y: 0.5 });
+
   const layout = _layout({
-    height: 260,
-    xaxis: { ...(_layout().xaxis), title: t('ax.ttp'), range: [-0.02, 1.02] },
-    yaxis: { ...(_layout().yaxis), title: t('ax.obs') },
-    shapes: [{
-      type: 'line', x0: eq, x1: eq, y0: 0, y1: 1,
-      xref: 'x', yref: 'paper',
-      line: { color: col, width: 2, dash: 'dash' },
-    }],
+    height: 340,
+    margin: { l: 52, r: 16, t: 32, b: 46 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } } },
+    yaxis:  { gridcolor: gc, range: [-0.05, 1.05], title: { text: 'Pr(m<sub>2</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } }, ticklabelstandoff: 4 },
+    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.05, 1.05], title: { text: 'Pr(m<sub>2</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
     annotations: [
-      { text: `μ = ${avg.toFixed(3)}`, xref: 'paper', yref: 'paper', x: 0.02, y: 0.95, showarrow: false, font: { size: 11, color: dark ? '#c9d1d9' : '#3d4250', family: 'JetBrains Mono, monospace' } },
+      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
     ],
-    margin: { l: 48, r: 12, t: 8, b: 36 },
   });
-  Plotly.react(cid, traces, layout, _cfg);
+
+  Plotly.react('c-cluster', traces, layout, _cfg);
 }
 
 /** 4. Agent type proportions — horizontal bar chart */
@@ -368,258 +509,314 @@ async function downloadChart(id, name) {
   a.download = (name || id) + '.png'; a.click();
 }
 
-/** 7. Reputation dynamics — λ trajectory across N periods */
-function plotLambda(R) {
-  const el = document.getElementById('c-lambda');
+/** 4. Sender Strategy — Time Trend across rounds (BT + GL).
+ *  Replicates Choi, Lee & Lim (2025) Fig. 11.
+ *  Two lines per panel: Pr(m_t=1|θ₁=target) for t=1 (stage 1) and t=2 (stage 2).
+ *  Demonstrates stability of sender strategies across repeated rounds.
+ */
+function plotTrend(R) {
+  const el = document.getElementById('c-trend');
+  if (!el) return;
+  const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  if (!(R.bt && R.bt.length) && !(R.gl && R.gl.length)) { Plotly.purge(el); return; }
+
+  // Group results by agent then by round index
+  const compute = (results, targetState) => {
+    const byAgent = {};
+    for (const r of results) {
+      if (!r.periods || r.periods.length < 2) continue;
+      if (!byAgent[r.id]) byAgent[r.id] = [];
+      byAgent[r.id].push(r);
+    }
+    const anyAgent = Object.values(byAgent)[0];
+    if (!anyAgent) return null;
+    const nRounds = anyAgent.length;
+    const s1Sum = new Float64Array(nRounds), s1N = new Float64Array(nRounds);
+    const s2Sum = new Float64Array(nRounds), s2N = new Float64Array(nRounds);
+    for (const arr of Object.values(byAgent)) {
+      arr.forEach((r, i) => {
+        if (!r.periods || r.periods.length < 2) return;
+        if (r.periods[0].st !== targetState) return;
+        s1Sum[i] += r.periods[0].sent; s1N[i]++;
+        s2Sum[i] += r.periods[1].sent; s2N[i]++;
+      });
+    }
+    const xs = [], y1 = [], y2 = [];
+    for (let i = 0; i < nRounds; i++) {
+      if (s1N[i] > 0) {
+        xs.push(i + 1);
+        y1.push(s1Sum[i] / s1N[i]);
+        y2.push(s2Sum[i] / s2N[i]);
+      }
+    }
+    return { xs, y1, y2 };
+  };
+
+  const btD = compute(R.bt, 0);
+  const glD = compute(R.gl, 1);
+
+  const C_S1 = '#db2777';  // stage 1 — magenta (paper style)
+  const C_S2 = '#f59e0b';  // stage 2 — amber
+
+  const traces = [];
+  const addLines = (d, axx, axy, showLegend) => {
+    if (!d || !d.xs.length) return;
+    traces.push({
+      type: 'scatter', mode: 'lines+markers',
+      x: d.xs, y: d.y1,
+      line: { color: C_S1, width: 2.2 },
+      marker: { size: 6, color: C_S1 },
+      name: 't=1 (Stage 1)',
+      showlegend: showLegend,
+      legendgroup: 's1',
+      xaxis: axx, yaxis: axy,
+    });
+    traces.push({
+      type: 'scatter', mode: 'lines+markers',
+      x: d.xs, y: d.y2,
+      line: { color: C_S2, width: 2.2 },
+      marker: { size: 6, color: C_S2 },
+      name: 't=2 (Stage 2)',
+      showlegend: showLegend,
+      legendgroup: 's2',
+      xaxis: axx, yaxis: axy,
+    });
+  };
+  addLines(btD, 'x',  'y',  true);
+  addLines(glD, 'x2', 'y2', false);
+
+  const layout = _layout({
+    height: 300,
+    margin: { l: 52, r: 16, t: 32, b: 44 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1 },
+    yaxis:  { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'Pr(m<sub>t</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } }, ticklabelstandoff: 4 },
+    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'Pr(m<sub>t</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
+    legend: { x: 0.23, y: 1.14, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    annotations: [
+      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.02, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.56, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+    ],
+  });
+  Plotly.react('c-trend', traces, layout, _cfg);
+}
+
+/** 5. Receiver Strategy in Each Stage (BT + GL × Stage 1 + Stage 2).
+ *  Replicates Choi, Lee & Lim (2025) Fig. 12 / Appendix D.3.
+ *  Stage-1 bars: mean a₁ conditional on m₁. Stage-2 bars: mean a₂ conditional on (m₁, θ₁, m₂).
+ *  Blue diamonds (◆) mark equilibrium predictions.
+ */
+function plotReceiver(R) {
+  const el = document.getElementById('c-receiver');
+  if (!el) return;
+  const dark = _isDark();
+  const gc = dark ? '#1e242e' : '#eef0f3';
+  const annColor = dark ? '#c9d1d9' : '#3d4250';
+
+  if (!(R.bt && R.bt.length) && !(R.gl && R.gl.length)) { Plotly.purge(el); return; }
+
+  const compute = (results) => {
+    const stage1 = { 0: { sum: 0, n: 0 }, 1: { sum: 0, n: 0 } };
+    const stage2 = {};
+    for (const r of results) {
+      if (!r.periods || r.periods.length < 2) continue;
+      const p0 = r.periods[0], p1 = r.periods[1];
+      stage1[p0.sent].sum += p0.at;
+      stage1[p0.sent].n++;
+      const key = `${p0.sent}|${p0.st}|${p1.sent}`;
+      if (!stage2[key]) stage2[key] = { sum: 0, n: 0 };
+      stage2[key].sum += p1.at;
+      stage2[key].n++;
+    }
+    return { stage1, stage2 };
+  };
+
+  const bt = compute(R.bt);
+  const gl = compute(R.gl);
+
+  // Equilibrium predictions (Choi+ 2025 Table 3)
+  // BT stage 1: a₁(m=0)=0, a₁(m=1)=1. BT stage 2: depends on history.
+  // For BT period 2: bad type always sends m₂=1 → on-path histories are (m₁=0,θ₁=0,m₂=1)=2/3 and (m₁=1,θ₁=1,m₂=1)=2/3.
+  // For GL stage 1: a₁(m=0)=1/2, a₁(m=1)=1/2 (equilibrium).
+  // We show the bars anchored to equilibrium values observed in-simulation.
+  const pred = {
+    bt: {
+      s1: { 0: 0, 1: 1 },
+      s2: { '0|0|0': 0, '0|0|1': 2/3, '1|1|0': 0, '1|1|1': 2/3 },
+    },
+    gl: {
+      s1: { 0: 0.5, 1: 0.5 },
+      s2: { '0|1|0': 0, '0|1|1': 1, '0|0|0': 0, '0|0|1': 1, '1|1|0': 1/2, '1|1|1': 1/2 },
+    },
+  };
+
+  const traces = [];
+  const BAR_COL = '#c97373';
+  const PRED = '#1e40af';
+
+  const addStage1 = (s1, prd, axx, axy) => {
+    const labels = ['m₁=0', 'm₁=1'];
+    const vals = [
+      s1[0].n ? s1[0].sum / s1[0].n : null,
+      s1[1].n ? s1[1].sum / s1[1].n : null,
+    ];
+    const present = vals.map(v => v != null);
+    traces.push({
+      type: 'bar',
+      x: labels.filter((_, i) => present[i]),
+      y: vals.filter(v => v != null),
+      marker: { color: BAR_COL, opacity: 0.75 },
+      width: 0.5,
+      showlegend: false,
+      xaxis: axx, yaxis: axy,
+      hovertemplate: '%{x}: a₁ = %{y:.3f}<extra></extra>',
+    });
+    // Prediction diamonds
+    traces.push({
+      type: 'scatter', mode: 'markers',
+      x: labels.filter((_, i) => present[i]),
+      y: [prd[0], prd[1]].filter((_, i) => present[i]),
+      marker: { symbol: 'diamond', size: 10, color: PRED },
+      showlegend: false,
+      xaxis: axx, yaxis: axy,
+      hovertemplate: 'prediction = %{y}<extra></extra>',
+    });
+  };
+
+  const STAGE2_ORDER = ['0|0|0', '0|0|1', '0|1|0', '0|1|1', '1|0|0', '1|0|1', '1|1|0', '1|1|1'];
+  const addStage2 = (s2, prd, axx, axy) => {
+    const labels = [], vals = [], preds = [];
+    for (const k of STAGE2_ORDER) {
+      const d = s2[k];
+      if (!d || d.n === 0) continue;
+      const [m1, t1, m2] = k.split('|');
+      labels.push(`m₂=${m2}<br>θ₁=${t1}, m₁=${m1}`);
+      vals.push(d.sum / d.n);
+      preds.push(prd[k] != null ? prd[k] : null);
+    }
+    traces.push({
+      type: 'bar',
+      x: labels, y: vals,
+      marker: { color: BAR_COL, opacity: 0.75 },
+      showlegend: false,
+      xaxis: axx, yaxis: axy,
+      hovertemplate: 'a₂ = %{y:.3f}<extra></extra>',
+    });
+    const predLabels = labels.filter((_, i) => preds[i] != null);
+    const predVals = preds.filter(v => v != null);
+    if (predVals.length) {
+      traces.push({
+        type: 'scatter', mode: 'markers',
+        x: predLabels, y: predVals,
+        marker: { symbol: 'diamond', size: 10, color: PRED },
+        showlegend: false,
+        xaxis: axx, yaxis: axy,
+        hovertemplate: 'prediction = %{y}<extra></extra>',
+      });
+    }
+  };
+
+  addStage1(bt.stage1, pred.bt.s1, 'x',  'y');
+  addStage1(gl.stage1, pred.gl.s1, 'x2', 'y2');
+  addStage2(bt.stage2, pred.bt.s2, 'x3', 'y3');
+  addStage2(gl.stage2, pred.gl.s2, 'x4', 'y4');
+
+  const layout = _layout({
+    height: 520,
+    margin: { l: 52, r: 16, t: 32, b: 60 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.46] },
+    yaxis:  { gridcolor: gc, range: [0, 1.1], domain: [0.60, 1.00], title: { text: 'a<sub>1</sub>', font: { size: 11 } }, ticklabelstandoff: 4 },
+    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [0, 1.1], domain: [0.60, 1.00], anchor: 'x2', ticklabelstandoff: 4 },
+    xaxis3: { gridcolor: gc, domain: [0.00, 0.46], anchor: 'y3', tickfont: { size: 8 } },
+    yaxis3: { gridcolor: gc, range: [0, 1.1], domain: [0.00, 0.43], anchor: 'x3', title: { text: 'a<sub>2</sub>', font: { size: 11 } }, ticklabelstandoff: 4 },
+    xaxis4: { gridcolor: gc, domain: [0.54, 1.00], anchor: 'y4', tickfont: { size: 8 } },
+    yaxis4: { gridcolor: gc, range: [0, 1.1], domain: [0.00, 0.43], anchor: 'x4', ticklabelstandoff: 4 },
+    annotations: [
+      { text: '<b>(a) Stage 1 — BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(b) Stage 1 — GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(c) Stage 2 — BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(d) Stage 2 — GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
+    ],
+  });
+  Plotly.react('c-receiver', traces, layout, _cfg);
+}
+
+/** 6. Intertemporal Tradeoff of Reputation Building.
+ *  Replicates Choi, Lee & Lim (2025) Fig. 14 / Appendix D.4.
+ *  Single bar chart showing Δπ₁,₂ = π₁ − π₂ for BT and GL: positive in BT (stage-1 reputation cost),
+ *  negative in GL (stage-1 sacrifice pays off in stage 2).
+ */
+function plotTradeoff(R) {
+  const el = document.getElementById('c-tradeoff');
   if (!el) return;
   const dark = _isDark();
   const gc = dark ? '#1e242e' : '#eef0f3';
 
-  const collect = (arr) => {
-    if (!arr.length || !arr[0].periods) return null;
-    const N = arr[0].periods.length;
-    if (N < 2) return null;
-    const sums = new Float64Array(N), sqSums = new Float64Array(N);
-    let count = 0;
-    for (const r of arr) {
-      if (!r.periods || r.periods.length !== N) continue;
-      for (let t = 0; t < N; t++) {
-        sums[t] += r.periods[t].lambda;
-        sqSums[t] += r.periods[t].lambda ** 2;
-      }
-      count++;
+  if (!(R.bt && R.bt.length) && !(R.gl && R.gl.length)) { Plotly.purge(el); return; }
+
+  const compute = (results) => {
+    let p1 = 0, p2 = 0, n = 0;
+    for (const r of results) {
+      if (!r.periods || r.periods.length < 2) continue;
+      const a = r.periods[0], b = r.periods[1];
+      p1 += -((a.at - a.st) ** 2);
+      p2 += -((b.at - b.st) ** 2);
+      n++;
     }
-    if (!count) return null;
-    const means = [], stds = [], xs = [];
-    for (let t = 0; t < N; t++) {
-      xs.push(t + 1);
-      const m = sums[t] / count;
-      means.push(m);
-      stds.push(Math.sqrt(Math.max(0, sqSums[t] / count - m * m)));
-    }
-    return { xs, means, stds, count };
+    return n ? { pi1: p1 / n, pi2: p2 / n, delta: (p1 - p2) / n } : null;
   };
 
-  const bt = collect(R.bt);
-  const gl = collect(R.gl);
-  if (!bt && !gl) { Plotly.purge(el); return; }
+  const bt = compute(R.bt);
+  const gl = compute(R.gl);
+  const labels = [], vals = [], colors = [];
+  if (bt) { labels.push('BT'); vals.push(bt.delta); colors.push('#c97373'); }
+  if (gl) { labels.push('GL'); vals.push(gl.delta); colors.push('#c97373'); }
 
-  const traces = [];
-  const addBand = (d, name, color) => {
-    if (!d) return;
-    const upper = d.means.map((m, i) => m + d.stds[i]);
-    const lower = d.means.map((m, i) => m - d.stds[i]);
-    traces.push({
-      x: [...d.xs, ...d.xs.slice().reverse()],
-      y: [...upper, ...lower.reverse()],
-      fill: 'toself', fillcolor: color.replace('1)', '0.12)'),
-      line: { width: 0 }, showlegend: false, hoverinfo: 'skip',
-    });
-    traces.push({
-      x: d.xs, y: d.means,
-      mode: 'lines+markers', name,
-      line: { color: color, width: 2.5 },
-      marker: { size: 5 },
-    });
+  const trace = {
+    type: 'bar',
+    x: labels, y: vals,
+    marker: { color: colors, opacity: 0.8 },
+    width: 0.42,
+    text: vals.map(v => v.toFixed(3)),
+    textposition: 'outside',
+    textfont: { size: 10 },
+    showlegend: false,
+    hovertemplate: '%{x}: Δπ₁,₂ = %{y:.4f}<extra></extra>',
   };
 
-  addBand(bt, 'BT', 'rgba(37,99,235,1)');
-  addBand(gl, 'GL', 'rgba(220,38,38,1)');
-
-  const ref = bt || gl;
-  const N = ref.xs.length;
-  const ratio = parseFloat(document.getElementById('s-ratio')?.value || 20);
-  const weights = [];
-  for (let t = 0; t < N; t++) weights.push(Math.pow(ratio, t / (N - 1)));
-  traces.push({
-    x: ref.xs, y: weights,
-    mode: 'lines', name: 'x\u209c',
-    line: { color: dark ? 'rgba(150,160,175,0.4)' : 'rgba(100,110,130,0.3)', width: 1.5, dash: 'dot' },
-    yaxis: 'y2',
-  });
-
+  const ymax = Math.max(0.02, ...vals.map(v => Math.abs(v))) * 1.4;
   const layout = _layout({
-    height: 320,
-    xaxis: { ...(_layout().xaxis), title: t('ax.period'), dtick: 1 },
-    yaxis: { ...(_layout().yaxis), title: '\u03bb', range: [0, 1.05] },
-    yaxis2: { overlaying: 'y', side: 'right', title: 'x\u209c', showgrid: false, zeroline: false,
-              gridcolor: gc, range: [0, Math.max(...weights) * 1.1],
-              tickfont: { size: 9, color: dark ? '#555' : '#bbb' },
-              titlefont: { size: 10, color: dark ? '#555' : '#bbb' } },
-    legend: { x: 0.02, y: 0.98, font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
-    margin: { l: 48, r: 48, t: 8, b: 36 },
-  });
-  Plotly.react('c-lambda', traces, layout, _cfg);
-}
-
-/** Point Cloud — Communication Trajectory Cloud */
-function plotPointCloud(R, agents) {
-  const el = document.getElementById('c-pointcloud');
-  if (!el || !R) return;
-  const view3d = document.getElementById('log-view-3d');
-  if (view3d && view3d.style.display === 'none') return;
-
-  const dark = _isDark();
-  const isV2 = typeof currentVersion !== 'undefined' && currentVersion === 'ai';
-  const rounds = +(document.getElementById('s-rounds')?.value) || 1;
-  const _rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; };
-
-  const clsC = { equilibrium:'#2563eb', lying_averse:'#16a34a', deception_averse:'#dc2626', inference_error:'#d97706' };
-  const clsN = { equilibrium:t('cls.eq'), lying_averse:t('cls.la'), deception_averse:t('cls.da'), inference_error:t('cls.ie') };
-  const v2P = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0d9488','#be185d','#c2410c'];
-
-  const bt0 = R.bt.filter((_, i) => i % rounds === 0);
-  const gl0 = R.gl.filter((_, i) => i % rounds === 0);
-  const hasBT = bt0.length > 0, hasGL = gl0.length > 0;
-  if (!hasBT && !hasGL) { Plotly.purge(el); return; }
-  const N = Math.max(bt0[0]?.periods?.length || 0, gl0[0]?.periods?.length || 0);
-
-  if (N < 2) {
-    const wm = {};
-    for (const r of [...R.bt, ...R.gl]) { if (!wm[r.id]) wm[r.id]={s:0,n:0}; wm[r.id].s+=r.sp+r.rp; wm[r.id].n++; }
-    const grp = {};
-    for (const a of agents) {
-      const gk = isV2 && a.modelKey ? (a.modelKey||'unknown').split('/').pop() : (a.classification||'unknown');
-      if (!grp[gk]) grp[gk]={x:[],y:[],z:[],text:[]};
-      const g = grp[gk], w = wm[a.id] ? wm[a.id].s/wm[a.id].n : 0;
-      g.x.push(R.btS[a.id]??1); g.y.push(R.glS[a.id]??0); g.z.push(w);
-      g.text.push(`<b>${agentName(a.id)}</b><br>v=${(R.btS[a.id]??1).toFixed(3)} GL=${(R.glS[a.id]??0).toFixed(3)}<br>Welfare=${w.toFixed(3)}<br>${clsN[a.classification]||a.classification}`);
-    }
-    const tr=[]; let ci=0;
-    for (const [k,g] of Object.entries(grp)) {
-      tr.push({x:g.x,y:g.y,z:g.z,text:g.text,mode:'markers',type:'scatter3d',name:isV2?k:(clsN[k]||k.replace(/_/g,' ')),
-        marker:{color:isV2?v2P[ci%v2P.length]:(clsC[k]||'#888'),size:4.5,opacity:0.8},hovertemplate:'%{text}<extra></extra>'}); ci++;
-    }
-    const gc=dark?'#1e242e':'#eef0f3', fc=dark?'#8b949e':'#6b7080';
-    Plotly.react('c-pointcloud',tr,{paper_bgcolor:'rgba(0,0,0,0)',font:{family:'Inter,sans-serif',size:10,color:fc},margin:{l:0,r:0,t:8,b:0},autosize:true,
-      scene:{xaxis:{title:{text:'v (BT)',font:{size:10}},gridcolor:gc,backgroundcolor:'rgba(0,0,0,0)',range:[-0.05,1.1]},
-             yaxis:{title:{text:'GL truth-telling',font:{size:10}},gridcolor:gc,backgroundcolor:'rgba(0,0,0,0)',range:[-0.05,1.1]},
-             zaxis:{title:{text:'Welfare',font:{size:10}},gridcolor:gc,backgroundcolor:'rgba(0,0,0,0)'},
-             bgcolor:dark?'#0d1117':'#fafbfc',camera:{eye:{x:1.7,y:1.5,z:1.0}}},
-      legend:{x:0.01,y:0.98,font:{size:9},bgcolor:'rgba(0,0,0,0)'},showlegend:true},{responsive:true,displayModeBar:'hover'});
-    return;
-  }
-
-  const glOff = hasBT ? N + 1 : 0;
-  const agentMap = {}; agents.forEach(a => { agentMap[a.id] = a; });
-
-  const maxShow = 50;
-  const showIds = new Set();
-  if (agents.length <= maxShow) { agents.forEach(a => showIds.add(a.id)); }
-  else { const step = Math.max(1, Math.floor(agents.length / maxShow));
-    for (let i = 0; i < agents.length && showIds.size < maxShow; i += step) showIds.add(agents[i].id); }
-
-  const groups = {};
-  const ensure = gk => { if (!groups[gk]) groups[gk] = { mx:[],my:[],mz:[],mt:[],ms:[],msz:[], lx:[],ly:[],lz:[] }; return groups[gk]; };
-
-  const addResult = (r, xOff) => {
-    if (!showIds.has(r.id) || !r.periods) return;
-    const a = agentMap[r.id], cls = a?.classification || 'unknown';
-    const gk = isV2 && a?.modelKey ? (a.modelKey||'unknown').split('/').pop() : cls;
-    const g = ensure(gk);
-    const mk = a?.modelKey ? ` (${a.modelKey.split('/').pop()})` : '';
-
-    for (const p of r.periods) {
-      const x = p.t + 1 + xOff;
-      g.mx.push(x); g.my.push(p.lambda); g.mz.push(p.at);
-      g.ms.push(p.isLie ? 'diamond' : 'circle');
-      g.msz.push(p.isDec ? 3 : 4.5);
-      g.mt.push(
-        `<b>${agentName(r.id)}</b>${mk} \u00b7 ${r.gt} P${p.t+1}<br>` +
-        `\u03b8=${p.st} \u2192 m=${p.sent} \u2192 a=${p.at.toFixed(2)}<br>` +
-        `${p.isLie?'Lie':'Truth'}${p.isDec?' (deceptive)':''}${p.mc?' \u26a0mc':''}<br>` +
-        `\u03bb=${p.lambda.toFixed(3)} | payoff=${p.payoff.toFixed(3)}`
-      );
-      g.lx.push(x); g.ly.push(p.lambda); g.lz.push(p.at);
-    }
-    g.lx.push(null); g.ly.push(null); g.lz.push(null);
-  };
-  bt0.forEach(r => addResult(r, 0));
-  gl0.forEach(r => addResult(r, glOff));
-
-  const traces = []; let ci = 0;
-  for (const [k, g] of Object.entries(groups)) {
-    const col = isV2 ? v2P[ci % v2P.length] : (clsC[k] || '#888');
-    const name = isV2 ? k : (clsN[k] || k.replace(/_/g, ' '));
-    if (g.lx.length) traces.push({
-      x:g.lx, y:g.ly, z:g.lz, mode:'lines', type:'scatter3d',
-      connectgaps:false, line:{color:_rgba(col,0.3),width:2},
-      showlegend:false, hoverinfo:'skip',
-    });
-    traces.push({
-      x:g.mx, y:g.my, z:g.mz, text:g.mt, mode:'markers', type:'scatter3d', name,
-      marker:{color:col, size:g.msz, opacity:0.8, symbol:g.ms},
-      hovertemplate:'%{text}<extra></extra>',
-    });
-    ci++;
-  }
-
-  const addMean = (results, xOff, label, col, sym) => {
-    if (!results.length || !results[0].periods) return;
-    const nP = results[0].periods.length;
-    const sums = Array.from({length:nP}, () => ({l:0,a:0,n:0}));
-    for (const r of results) { if (!r.periods) continue;
-      for (const p of r.periods) { sums[p.t].l+=p.lambda; sums[p.t].a+=p.at; sums[p.t].n++; } }
-    const x=[],y=[],z=[],txt=[];
-    for (let i=0;i<nP;i++) { if (!sums[i].n) continue;
-      const ml=sums[i].l/sums[i].n, ma=sums[i].a/sums[i].n;
-      x.push(i+1+xOff); y.push(ml); z.push(ma);
-      txt.push(`<b>${label} P${i+1}</b><br>\u03bb\u0304=${ml.toFixed(3)}<br>a\u0304=${ma.toFixed(3)}<br>n=${sums[i].n}`);
-    }
-    traces.push({ x,y,z,text:txt, mode:'lines+markers', type:'scatter3d', name:label+' mean',
-      line:{color:_rgba(col,0.9),width:5.5},
-      marker:{color:col,size:7,symbol:sym,line:{width:1.5,color:dark?'#000':'#fff'}},
-      hovertemplate:'%{text}<extra></extra>' });
-  };
-  addMean(bt0, 0, 'BT', '#2563eb', 'circle');
-  addMean(gl0, glOff, 'GL', '#dc2626', 'diamond');
-
-  if (hasBT && hasGL) {
-    const dx = N + 0.5;
-    traces.push({ x:[dx,dx,dx,dx,dx], y:[0,0,1.05,1.05,0], z:[0,1,1,0,0],
-      mode:'lines', type:'scatter3d', showlegend:false,
-      line:{color:dark?'rgba(200,210,225,0.12)':'rgba(100,110,130,0.08)',width:1.5,dash:'dash'}, hoverinfo:'skip' });
-  }
-
-  const pb = +(document.getElementById('s-bp')?.value) || 0.5;
-  const totalX = (hasBT?N:0) + (hasGL?N:0) + (hasBT&&hasGL?1:0);
-  traces.push({ x:[0.5,totalX+0.5], y:[pb,pb], z:[0,0],
-    mode:'lines', type:'scatter3d', name:'\u03bb\u2080='+pb.toFixed(2),
-    line:{color:dark?'rgba(200,210,225,0.25)':'rgba(100,110,130,0.2)',width:1.5,dash:'dot'}, hoverinfo:'skip' });
-
-  const tv=[], tt=[];
-  if (hasBT) for (let i=1;i<=N;i++) { tv.push(i); tt.push('BT.'+i); }
-  if (hasGL) for (let i=1;i<=N;i++) { tv.push(i+glOff); tt.push('GL.'+i); }
-
-  const anns = [];
-  if (hasBT) anns.push({ x:(N+1)/2, y:-0.1, z:0, text:'BT', font:{size:11,color:'#2563eb'}, showarrow:false });
-  if (hasGL) anns.push({ x:glOff+(N+1)/2, y:-0.1, z:0, text:'GL', font:{size:11,color:'#dc2626'}, showarrow:false });
-
-  const gc = dark?'#1e242e':'#eef0f3', fc = dark?'#8b949e':'#6b7080';
-  const layout = {
-    paper_bgcolor:'rgba(0,0,0,0)', font:{family:'Inter,sans-serif',size:10,color:fc},
-    margin:{l:0,r:0,t:8,b:0}, autosize:true,
-    scene: {
-      xaxis: { title:{text:'',font:{size:1}}, gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)',
-               tickvals:tv, ticktext:tt, tickfont:{size:8,family:'JetBrains Mono,monospace'} },
-      yaxis: { title:{text:'\u03bb (belief)',font:{size:10}}, gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)', range:[-0.1,1.1] },
-      zaxis: { title:{text:'Receiver action',font:{size:10}}, gridcolor:gc, backgroundcolor:'rgba(0,0,0,0)' },
-      bgcolor: dark?'#0d1117':'#fafbfc',
-      camera: { eye:{x:2.0, y:0.8, z:1.2} },
-      annotations: anns,
+    height: 300,
+    margin: { l: 70, r: 20, t: 16, b: 36 },
+    xaxis: { gridcolor: gc, fixedrange: true },
+    yaxis: {
+      gridcolor: gc,
+      range: [-ymax, ymax],
+      title: { text: 'Δπ<sub>1,2</sub> = π<sub>1</sub> − π<sub>2</sub>', font: { size: 11 } },
+      zeroline: true,
+      zerolinecolor: dark ? '#5b6472' : '#6b7280',
+      zerolinewidth: 1,
+      ticklabelstandoff: 4,
     },
-    legend:{x:0.01,y:0.98,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, showlegend:true,
-  };
-
-  Plotly.react('c-pointcloud', traces, layout, {responsive:true, displayModeBar:'hover'});
+  });
+  Plotly.react('c-tradeoff', [trace], layout, _cfg);
 }
 
 /** Redraw shared charts from cached data */
 function redrawAll(agents, R) {
   if (!agents) return;
   plotParams(agents);
-  plotJoint(agents);
-  if (R) { plotStrat(R, 'BT'); plotStrat(R, 'GL'); plotLambda(R); plotPointCloud(R, agents); }
+  if (R) {
+    plotSender(R);
+    plotCluster(R);
+    plotTrend(R);
+    plotReceiver(R);
+    plotTradeoff(R);
+  }
   plotTypes(agents);
   plotRegions(agents);
 }

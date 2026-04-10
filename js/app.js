@@ -79,16 +79,6 @@ document.getElementById('lang-select').addEventListener('change', e => applyI18n
   if (ls) ls.addEventListener('change', () => menu.classList.remove('open'));
 })();
 
-/* ---- Log view toggle (TXT / 3D) ---- */
-function switchLogView(view) {
-  document.querySelectorAll('.log-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-  document.getElementById('log-view-txt').style.display = view === 'txt' ? '' : 'none';
-  document.getElementById('log-view-3d').style.display = view === '3d' ? '' : 'none';
-  if (view === '3d' && LR && LA) {
-    setTimeout(() => plotPointCloud(LR, LA), 60);
-  }
-}
-
 /* ---- Panel toggle ---- */
 function togglePanel(id) { document.getElementById(id).classList.toggle('collapsed'); }
 

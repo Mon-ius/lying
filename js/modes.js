@@ -270,19 +270,19 @@ function runExperiment() {
 
     // Charts
     plotParams(agents);
-    plotJoint(agents);
-    if (env === 'both' || env === 'BT') plotStrat(R, 'BT');
-    if (env === 'both' || env === 'GL') plotStrat(R, 'GL');
+    plotSender(R);
+    plotCluster(R);
+    plotTrend(R);
+    plotReceiver(R);
+    plotTradeoff(R);
     plotTypes(agents);
     plotRegions(agents);
-    plotLambda(R);
 
     // Log
     const btSample = R.bt.filter((_, i) => i % rounds === 0);
     const glSample = R.gl.filter((_, i) => i % rounds === 0);
     window._logSample = [...btSample, ...glSample];
     renderLog();
-    plotPointCloud(R, agents);
 
     afterRun();
     btn.classList.remove('loading'); btn.disabled = false;
@@ -375,14 +375,14 @@ async function runAI() {
       ? (allP.reduce((a, b) => a + b, 0) / allP.length).toFixed(2) : '--';
 
     // Standard charts
-    const env = document.getElementById('s-env').value;
     plotParams(agents);
-    plotJoint(agents);
-    if (env === 'both' || env === 'BT') plotStrat(LR, 'BT');
-    if (env === 'both' || env === 'GL') plotStrat(LR, 'GL');
+    plotSender(LR);
+    plotCluster(LR);
+    plotTrend(LR);
+    plotReceiver(LR);
+    plotTradeoff(LR);
     plotTypes(agents);
     plotRegions(agents);
-    plotLambda(LR);
 
     // Cross-model charts + stats table
     plotModelStrats(stats);
@@ -395,7 +395,6 @@ async function runAI() {
     LGL = allGameLogs;
     const lastLog = allGameLogs[allGameLogs.length - 1];
     renderGameLog(lastLog, agents);
-    plotPointCloud(LR, LA);
     const totalAI = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && !e.error).length, 0);
     const totalFB = allGameLogs.reduce((s, lg) => s + lg.filter(e => e.type === 'agent' && e.error).length, 0);
     prog.textContent = `Done \u2014 ${nTrials} trial${nTrials > 1 ? 's' : ''}, ${totalAI} AI calls, ${totalFB} fallbacks, ${n} agents`;
