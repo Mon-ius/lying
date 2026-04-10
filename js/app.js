@@ -38,6 +38,7 @@ function _renderMath(el) {
   if (!el || typeof renderMathInElement !== 'function') return;
   try { renderMathInElement(el, KATEX_DELIMS); } catch (e) {}
 }
+document.addEventListener('DOMContentLoaded', () => _renderMath(document.body));
 
 /* ---- Tab navigation ---- */
 document.querySelectorAll('.nav-tab').forEach(btn => {
