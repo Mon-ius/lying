@@ -5,7 +5,7 @@ const I18N = {
   en: {
     'header.title':'The Anatomy of Honesty',
     'nav.experiment':'Experiment','nav.architecture':'Architecture','nav.glossary':'Glossary',
-    'panel.population':'Population','panel.costs':'Utility Costs','panel.game':'Game Mechanics',
+    'panel.population':'Population','panel.risk':'Risk Preferences','panel.costs':'Utility Costs','panel.game':'Game Mechanics',
     'label.nagents':'Number of agents','label.riskcomp':'Risk attitude composition',
     'label.riskloving':'Risk-loving (\u03b1<0)','label.riskneutral':'Risk-neutral (\u03b1\u22480)',
     'label.riskaverse':'Risk-averse (\u03b1>0)',
@@ -391,7 +391,7 @@ const I18N = {
   zh: {
     'header.title':'\u8bda\u5b9e\u7684\u89e3\u5256\u5b66',
     'nav.experiment':'\u5b9e\u9a8c','nav.architecture':'\u67b6\u6784','nav.glossary':'\u672f\u8bed\u8868',
-    'panel.population':'\u79cd\u7fa4\u8bbe\u7f6e','panel.costs':'\u6548\u7528\u6210\u672c','panel.game':'\u535a\u5f08\u53c2\u6570',
+    'panel.population':'\u79cd\u7fa4\u8bbe\u7f6e','panel.risk':'\u98ce\u9669\u504f\u597d','panel.costs':'\u6548\u7528\u6210\u672c','panel.game':'\u535a\u5f08\u53c2\u6570',
     'label.nagents':'\u667a\u80fd\u4f53\u6570\u91cf','label.riskcomp':'\u98ce\u9669\u6001\u5ea6\u7ec4\u6210',
     'label.riskloving':'\u98ce\u9669\u504f\u597d (\u03b1<0)','label.riskneutral':'\u98ce\u9669\u4e2d\u6027 (\u03b1\u22480)',
     'label.riskaverse':'\u98ce\u9669\u538c\u6076 (\u03b1>0)',
@@ -823,7 +823,7 @@ const I18N = {
   ko: {
     'header.title':'\uc815\uc9c1\uc758 \ud574\ubd80\ud559',
     'nav.experiment':'\uc2e4\ud5d8','nav.architecture':'\uc544\ud0a4\ud14d\ucc98','nav.glossary':'\uc6a9\uc5b4\uc9d1',
-    'panel.population':'\ubaa8\uc9d1\ub2e8 \uc124\uc815','panel.costs':'\ud6a8\uc6a9 \ube44\uc6a9','panel.game':'\uac8c\uc784 \uba54\ucee4\ub2c8\uc998',
+    'panel.population':'\ubaa8\uc9d1\ub2e8 \uc124\uc815','panel.risk':'\uc704\ud5d8 \uc120\ud638','panel.costs':'\ud6a8\uc6a9 \ube44\uc6a9','panel.game':'\uac8c\uc784 \uba54\ucee4\ub2c8\uc998',
     'label.nagents':'\uc5d0\uc774\uc804\ud2b8 \uc218','label.riskcomp':'\uc704\ud5d8 \ud0dc\ub3c4 \uad6c\uc131',
     'label.riskloving':'\uc704\ud5d8 \uc120\ud638 (\u03b1<0)','label.riskneutral':'\uc704\ud5d8 \uc911\ub9bd (\u03b1\u22480)',
     'label.riskaverse':'\uc704\ud5d8 \ud68c\ud53c (\u03b1>0)',

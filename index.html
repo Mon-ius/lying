@@ -75,6 +75,15 @@
         <input type="range" id="s-n" min="20" max="500" step="10" value="20">
         <div class="form-hint" data-i18n="hint.nagents">Population size for Monte Carlo simulation. Each agent draws c<sub>l</sub>, c<sub>d</sub>, &alpha;, &beta; independently.</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Risk preferences -->
+  <div class="panel" id="p-risk">
+    <div class="panel-header" onclick="togglePanel('p-risk')">
+      <span class="icon">&#x1D4A1;</span><h3 data-i18n="panel.risk">Risk Preferences</h3><span class="chevron">&#x25BC;</span>
+    </div>
+    <div class="panel-body">
       <div class="form-group">
         <div class="form-label" style="margin-bottom:8px;font-weight:600;" data-i18n="label.riskcomp">Risk attitude composition</div>
         <div class="comp-bar" id="comp-bar">
