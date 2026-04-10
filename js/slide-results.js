@@ -127,11 +127,11 @@ function _slidePlotSender(divId, R, gt) {
   ];
   const layout = _layout({
     width: w, height: h,
-    margin: { l: 38, r: 10, t: 6, b: 32 },
-    xaxis: { gridcolor: gc, domain: [0.00, 0.22], tickfont: { size: 9 }, fixedrange: true },
+    margin: { l: 40, r: 10, t: 6, b: 32 },
+    xaxis: { gridcolor: gc, domain: [0.00, 0.16], tickfont: { size: 9 }, fixedrange: true },
     yaxis: { gridcolor: gc, range: [0, 1.05], title: { text: 'P(truth)', font: { size: 9 } }, ticklabelstandoff: 3 },
-    xaxis2: { gridcolor: gc, domain: [0.32, 1.00], range: [-0.02, 1.02], title: { text: 'P(truth)', font: { size: 9 } } },
-    yaxis2: { gridcolor: gc, anchor: 'x2', title: { text: '#', font: { size: 9 } } },
+    xaxis2: { gridcolor: gc, domain: [0.26, 1.00], range: [-0.02, 1.02], title: { text: 'P(truth)', font: { size: 9 } } },
+    yaxis2: { gridcolor: gc, anchor: 'x2', side: 'right', showticklabels: false, ticks: '' },
     bargap: 0.05,
   });
   Plotly.react(divId, traces, layout, _cfg);
@@ -189,15 +189,15 @@ function _slidePlotTrend(divId, R) {
 
   const layout = _layout({
     width: w, height: h,
-    margin: { l: 40, r: 10, t: 26, b: 32 },
-    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], title: { text: 'Round', font: { size: 9 } }, dtick: 1 },
+    margin: { l: 48, r: 48, t: 26, b: 32 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.42], title: { text: 'Round', font: { size: 9 } }, dtick: 1 },
     yaxis:  { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'P(m=1|θ₁=0)', font: { size: 9 } } },
-    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], title: { text: 'Round', font: { size: 9 } }, dtick: 1, anchor: 'y2' },
-    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'P(m=1|θ₁=1)', font: { size: 9 } }, anchor: 'x2' },
+    xaxis2: { gridcolor: gc, domain: [0.58, 1.00], title: { text: 'Round', font: { size: 9 } }, dtick: 1, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], side: 'right', title: { text: 'P(m=1|θ₁=1)', font: { size: 9 }, standoff: 6 }, anchor: 'x2' },
     legend: { x: 0.5, y: 1.15, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     annotations: [
       { text: '<b>BT</b>', xref: 'paper', yref: 'paper', x: 0.02, y: 1.08, showarrow: false, font: { size: 10, color: annColor } },
-      { text: '<b>GL</b>', xref: 'paper', yref: 'paper', x: 0.56, y: 1.08, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>GL</b>', xref: 'paper', yref: 'paper', x: 0.60, y: 1.08, showarrow: false, font: { size: 10, color: annColor } },
     ],
   });
   Plotly.react(divId, traces, layout, _cfg);

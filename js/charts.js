@@ -158,18 +158,18 @@ function plotSender(R) {
 
   const layout = _layout({
     height: 300,
-    margin: { l: 52, r: 16, t: 32, b: 40 },
-    xaxis:  { gridcolor: gc, domain: [0.000, 0.090], tickfont: { size: 9 }, fixedrange: true },
+    margin: { l: 58, r: 58, t: 32, b: 42 },
+    xaxis:  { gridcolor: gc, domain: [0.000, 0.080], tickfont: { size: 9 }, fixedrange: true },
     yaxis:  { gridcolor: gc, range: [0, 1.05], title: { text: t('ax.ttp'), font: { size: 10 } }, ticklabelstandoff: 4 },
-    xaxis2: { gridcolor: gc, domain: [0.140, 0.470], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } } },
-    yaxis2: { gridcolor: gc, title: { text: t('ax.obs'), font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
-    xaxis3: { gridcolor: gc, domain: [0.550, 0.640], tickfont: { size: 9 }, fixedrange: true, anchor: 'y3' },
+    xaxis2: { gridcolor: gc, domain: [0.140, 0.460], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } } },
+    yaxis2: { gridcolor: gc, anchor: 'x2', side: 'right', showticklabels: false, ticks: '' },
+    xaxis3: { gridcolor: gc, domain: [0.560, 0.640], tickfont: { size: 9 }, fixedrange: true, anchor: 'y3' },
     yaxis3: { gridcolor: gc, range: [0, 1.05], anchor: 'x3', ticklabelstandoff: 4 },
-    xaxis4: { gridcolor: gc, domain: [0.690, 1.000], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } }, anchor: 'y4' },
-    yaxis4: { gridcolor: gc, anchor: 'x4', ticklabelstandoff: 4 },
+    xaxis4: { gridcolor: gc, domain: [0.700, 1.000], range: [-0.02, 1.02], title: { text: t('ax.ttp'), font: { size: 10 } }, anchor: 'y4' },
+    yaxis4: { gridcolor: gc, anchor: 'x4', side: 'right', title: { text: t('ax.obs'), font: { size: 10 }, standoff: 8 }, ticklabelstandoff: 4 },
     annotations: [
-      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.235, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
-      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.775, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.78, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
     ],
     bargap: 0.05,
   });
@@ -279,14 +279,14 @@ function plotCluster(R) {
 
   const layout = _layout({
     height: 340,
-    margin: { l: 52, r: 16, t: 32, b: 46 },
-    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } } },
+    margin: { l: 62, r: 70, t: 32, b: 46 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.42], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } } },
     yaxis:  { gridcolor: gc, range: [-0.05, 1.05], title: { text: 'Pr(m<sub>2</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } }, ticklabelstandoff: 4 },
-    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'y2' },
-    yaxis2: { gridcolor: gc, range: [-0.05, 1.05], title: { text: 'Pr(m<sub>2</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
+    xaxis2: { gridcolor: gc, domain: [0.58, 1.00], range: [-0.05, 1.05], title: { text: 'Pr(m<sub>1</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.05, 1.05], side: 'right', title: { text: 'Pr(m<sub>2</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 }, standoff: 8 }, anchor: 'x2', ticklabelstandoff: 4 },
     annotations: [
-      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
-      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.21, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.79, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
     ],
   });
 
@@ -590,15 +590,15 @@ function plotTrend(R) {
 
   const layout = _layout({
     height: 300,
-    margin: { l: 52, r: 16, t: 32, b: 44 },
-    xaxis:  { gridcolor: gc, domain: [0.00, 0.46], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1 },
+    margin: { l: 62, r: 70, t: 32, b: 44 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.42], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1 },
     yaxis:  { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'Pr(m<sub>t</sub>=1 | θ<sub>1</sub>=0)', font: { size: 10 } }, ticklabelstandoff: 4 },
-    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1, anchor: 'y2' },
-    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], title: { text: 'Pr(m<sub>t</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 } }, anchor: 'x2', ticklabelstandoff: 4 },
-    legend: { x: 0.23, y: 1.14, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
+    xaxis2: { gridcolor: gc, domain: [0.58, 1.00], title: { text: t('ax.period'), font: { size: 10 } }, dtick: 1, anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [-0.02, 1.02], side: 'right', title: { text: 'Pr(m<sub>t</sub>=1 | θ<sub>1</sub>=1)', font: { size: 10 }, standoff: 8 }, anchor: 'x2', ticklabelstandoff: 4 },
+    legend: { x: 0.5, y: 1.14, xanchor: 'center', orientation: 'h', font: { size: 9 }, bgcolor: 'rgba(0,0,0,0)' },
     annotations: [
       { text: '<b>(a) BT</b>', xref: 'paper', yref: 'paper', x: 0.02, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
-      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.56, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
+      { text: '<b>(b) GL</b>', xref: 'paper', yref: 'paper', x: 0.60, y: 1.08, showarrow: false, font: { size: 11, color: annColor } },
     ],
   });
   Plotly.react('c-trend', traces, layout, _cfg);
@@ -726,20 +726,20 @@ function plotReceiver(R) {
 
   const layout = _layout({
     height: 520,
-    margin: { l: 52, r: 16, t: 32, b: 60 },
-    xaxis:  { gridcolor: gc, domain: [0.00, 0.46] },
+    margin: { l: 52, r: 36, t: 32, b: 60 },
+    xaxis:  { gridcolor: gc, domain: [0.00, 0.44] },
     yaxis:  { gridcolor: gc, range: [0, 1.1], domain: [0.60, 1.00], title: { text: 'a<sub>1</sub>', font: { size: 11 } }, ticklabelstandoff: 4 },
-    xaxis2: { gridcolor: gc, domain: [0.54, 1.00], anchor: 'y2' },
-    yaxis2: { gridcolor: gc, range: [0, 1.1], domain: [0.60, 1.00], anchor: 'x2', ticklabelstandoff: 4 },
-    xaxis3: { gridcolor: gc, domain: [0.00, 0.46], anchor: 'y3', tickfont: { size: 8 } },
+    xaxis2: { gridcolor: gc, domain: [0.56, 1.00], anchor: 'y2' },
+    yaxis2: { gridcolor: gc, range: [0, 1.1], domain: [0.60, 1.00], side: 'right', anchor: 'x2', ticklabelstandoff: 4 },
+    xaxis3: { gridcolor: gc, domain: [0.00, 0.44], anchor: 'y3', tickfont: { size: 8 } },
     yaxis3: { gridcolor: gc, range: [0, 1.1], domain: [0.00, 0.43], anchor: 'x3', title: { text: 'a<sub>2</sub>', font: { size: 11 } }, ticklabelstandoff: 4 },
-    xaxis4: { gridcolor: gc, domain: [0.54, 1.00], anchor: 'y4', tickfont: { size: 8 } },
-    yaxis4: { gridcolor: gc, range: [0, 1.1], domain: [0.00, 0.43], anchor: 'x4', ticklabelstandoff: 4 },
+    xaxis4: { gridcolor: gc, domain: [0.56, 1.00], anchor: 'y4', tickfont: { size: 8 } },
+    yaxis4: { gridcolor: gc, range: [0, 1.1], domain: [0.00, 0.43], side: 'right', anchor: 'x4', ticklabelstandoff: 4 },
     annotations: [
-      { text: '<b>(a) Stage 1 — BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
-      { text: '<b>(b) Stage 1 — GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
-      { text: '<b>(c) Stage 2 — BT</b>', xref: 'paper', yref: 'paper', x: 0.23, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
-      { text: '<b>(d) Stage 2 — GL</b>', xref: 'paper', yref: 'paper', x: 0.77, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(a) Stage 1 — BT</b>', xref: 'paper', yref: 'paper', x: 0.22, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(b) Stage 1 — GL</b>', xref: 'paper', yref: 'paper', x: 0.78, y: 1.04, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(c) Stage 2 — BT</b>', xref: 'paper', yref: 'paper', x: 0.22, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
+      { text: '<b>(d) Stage 2 — GL</b>', xref: 'paper', yref: 'paper', x: 0.78, y: 0.47, showarrow: false, font: { size: 10, color: annColor } },
     ],
   });
   Plotly.react('c-receiver', traces, layout, _cfg);
