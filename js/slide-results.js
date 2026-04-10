@@ -67,26 +67,26 @@ function _slidePlotParams(divId, agents) {
     const vals = agents.map(a => a[p.k]);
     const mean = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
     traces.push({
-      x: vals, type: 'histogram', nbinsx: 18,
-      marker: { color: p.c, opacity: 0.45 },
+      x: vals, type: 'histogram', nbinsx: 14,
+      marker: { color: p.c, opacity: 0.5 },
       name: p.l, showlegend: false,
       xaxis: 'x' + (i + 1), yaxis: 'y' + (i + 1),
     });
     annotations.push({
       text: `<b>${p.l}</b>  μ=${mean}`,
       xref: 'x' + (i + 1) + ' domain', yref: 'y' + (i + 1) + ' domain',
-      x: 0, y: 1.08, showarrow: false,
+      x: 0.5, y: 1.12, showarrow: false, xanchor: 'center',
       font: { size: 9, color: annColor },
     });
   });
   const layout = _layout({
-    grid: { rows: 2, columns: 2, pattern: 'independent', xgap: 0.12, ygap: 0.3 },
-    width: w, height: h, margin: { l: 36, r: 12, t: 28, b: 22 },
+    grid: { rows: 1, columns: 4, pattern: 'independent', xgap: 0.10 },
+    width: w, height: h, margin: { l: 16, r: 12, t: 22, b: 16 },
     annotations,
   });
   for (let i = 1; i <= 4; i++) {
-    layout['xaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true };
-    layout['yaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true };
+    layout['xaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, tickfont: { size: 8 } };
+    layout['yaxis' + i] = { gridcolor: gc, zeroline: false, automargin: true, tickfont: { size: 8 } };
   }
   Plotly.react(divId, traces, layout, _cfg);
 }
