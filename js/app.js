@@ -32,13 +32,22 @@ window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () =
 
 applyTheme();
 
+/* ---- KaTeX re-render helper ---- */
+const KATEX_DELIMS = { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }] };
+function _renderMath(el) {
+  if (!el || typeof renderMathInElement !== 'function') return;
+  try { renderMathInElement(el, KATEX_DELIMS); } catch (e) {}
+}
+
 /* ---- Tab navigation ---- */
 document.querySelectorAll('.nav-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    const tab = document.getElementById('tab-' + btn.dataset.tab);
+    tab.classList.add('active');
+    _renderMath(tab);
   });
 });
 
@@ -278,6 +287,7 @@ function slideNav(dir) {
   document.getElementById('slide-prev').disabled = _curSlide <= 1;
   document.getElementById('slide-next').disabled = _curSlide >= total;
   if (typeof renderSlideCharts === 'function') renderSlideCharts(_curSlide);
+  _renderMath(el);
 }
 function toggleSlideFullscreen() {
   const vp = document.getElementById('slides-viewport');
